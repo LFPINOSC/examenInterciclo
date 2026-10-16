@@ -1,0 +1,101 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f1f5f9;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.login-card {
+  width: 380px;
+  background: white;
+  padding: 40px;
+  border-radius: 14px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.10);
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e3a8a;
+  color: white;
+  font-size: 28px;
+  font-weight: bold;
+  border-radius: 12px;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 5px;
+  color: #1e293b;
+  font-size: 25px;
+}
+
+.subtitulo {
+  text-align: center;
+  color: #64748b;
+  margin-bottom: 30px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.campo label {
+  margin-bottom: 7px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.campo input {
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  outline: none;
+  font-size: 14px;
+}
+
+.campo input:focus {
+  border-color: #2563eb;
+}
+
+button {
+  width: 100%;
+  padding: 13px;
+  background: #1e3a8a;
+  border: none;
+  border-radius: 7px;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+.mensaje {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.pie {
+  margin-top: 25px;
+  margin-bottom: 0;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 12px;
+}

@@ -1,0 +1,57 @@
+<div class="login-page">
+
+  <div class="login-card">
+
+    <div class="logo">
+      U
+    </div>
+
+    <h1>Gestión Universitaria</h1>
+
+    <p class="subtitulo">
+      Sistema de Gestión de Matrículas
+    </p>
+
+    <form (ngSubmit)="iniciarSesion()">
+
+      <div class="campo">
+        <label>Correo electrónico</label>
+
+        <input
+          type="email"
+          name="correo"
+          [(ngModel)]="correo"
+          placeholder="correo@universidad.edu"
+        >
+      </div>
+
+      <div class="campo">
+        <label>Contraseña</label>
+
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          placeholder="Ingrese su contraseña"
+        >
+      </div>
+
+      @if (mensaje) {
+        <div class="mensaje">
+          {{ mensaje }}
+        </div>
+      }
+
+      <button type="submit">
+        Iniciar sesión
+      </button>
+
+    </form>
+
+    <p class="pie">
+      Sistema de Matrículas Universitarias
+    </p>
+
+  </div>
+
+</div>
