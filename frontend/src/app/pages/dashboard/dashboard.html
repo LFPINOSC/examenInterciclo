@@ -1,0 +1,138 @@
+<div class="dashboard">
+
+  <!-- MENU LATERAL -->
+  <aside class="sidebar">
+
+    <div class="logo">
+      <span>🦷</span>
+      <h2>DentalCare</h2>
+    </div>
+
+    <div class="menu-titulo">
+      MENÚ PRINCIPAL
+    </div>
+
+    <nav class="menu">
+
+      <div class="menu-inicio">
+        🏠 Panel principal
+      </div>
+
+      @for (modulo of modulosVisibles; track modulo.id) {
+
+        <button
+          type="button"
+          class="menu-item"
+          (click)="abrirModulo(modulo)"
+        >
+          <span>{{ modulo.icono }}</span>
+          {{ modulo.titulo }}
+        </button>
+
+      }
+
+    </nav>
+
+    <div class="sidebar-footer">
+
+      <div class="usuario-info">
+        <span>👤</span>
+
+        <div>
+          <strong>{{ username }}</strong>
+          <small>{{ rol }}</small>
+        </div>
+      </div>
+
+      <button
+        class="btn-salir"
+        (click)="cerrarSesion()"
+      >
+        🚪 Cerrar sesión
+      </button>
+
+    </div>
+
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="contenido">
+
+    <header class="encabezado">
+
+      <div>
+        <h1>Panel de Administración</h1>
+        <p>Sistema de Gestión Odontológica</p>
+      </div>
+
+      <div class="perfil">
+        <span>👤</span>
+        <strong>{{ username }}</strong>
+      </div>
+
+    </header>
+
+    <section class="bienvenida">
+
+      <h2>¡Bienvenido, {{ username }}! 👋</h2>
+
+      <p>
+        Accediste correctamente al sistema DentalCare.
+        Selecciona una de las secciones disponibles
+        para gestionar la información odontológica.
+      </p>
+
+      <span class="rol">
+        Tu rol: {{ rol }}
+      </span>
+
+    </section>
+
+    <!-- MENSAJES -->
+    @if (mensaje) {
+
+      <div class="mensaje">
+
+        <span>{{ mensaje }}</span>
+
+        <button (click)="cerrarMensaje()">
+          ✕
+        </button>
+
+      </div>
+
+    }
+
+    <section class="secciones">
+
+      <h2>Módulos del sistema</h2>
+
+      <div class="tarjetas">
+
+        @for (modulo of modulosVisibles; track modulo.id) {
+
+          <article class="tarjeta">
+
+            <div class="tarjeta-icono">
+              {{ modulo.icono }}
+            </div>
+
+            <h3>{{ modulo.titulo }}</h3>
+
+            <p>{{ modulo.descripcion }}</p>
+
+            <button (click)="abrirModulo(modulo)">
+              Acceder →
+            </button>
+
+          </article>
+
+        }
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

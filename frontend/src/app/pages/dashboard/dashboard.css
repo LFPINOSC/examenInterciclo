@@ -1,0 +1,324 @@
+/* ======================================
+   DENTALCARE - DASHBOARD
+   ====================================== */
+
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+  background: #f3f7fc;
+}
+
+/* MENU LATERAL */
+
+.sidebar {
+  width: 255px;
+  min-height: 100vh;
+  background: #092b54;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 18px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  margin-bottom: 40px;
+}
+
+.logo span {
+  font-size: 32px;
+}
+
+.logo h2 {
+  font-size: 23px;
+  margin: 0;
+}
+
+.menu-titulo {
+  color: #91afce;
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin: 0 12px 18px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.menu-inicio,
+.menu-item {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.menu-inicio {
+  color: white;
+  background: #1169ba;
+  font-weight: 650;
+}
+
+.menu-item {
+  border: none;
+  background: transparent;
+  color: #d7e6f7;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.menu-item span {
+  margin-right: 10px;
+}
+
+.menu-item:hover {
+  background: #164574;
+  color: white;
+}
+
+/* PERFIL Y CERRAR SESION */
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 30px;
+}
+
+.usuario-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  background: #123d6b;
+  border-radius: 10px;
+  margin-bottom: 14px;
+}
+
+.usuario-info span {
+  font-size: 25px;
+}
+
+.usuario-info strong,
+.usuario-info small {
+  display: block;
+}
+
+.usuario-info small {
+  color: #b9cde4;
+  margin-top: 4px;
+}
+
+.btn-salir {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #50759b;
+  background: transparent;
+  color: white;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.btn-salir:hover {
+  background: #c33535;
+  border-color: #c33535;
+}
+
+/* CONTENIDO */
+
+.contenido {
+  flex: 1;
+  padding: 35px;
+  min-width: 0;
+}
+
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  gap: 15px;
+}
+
+.encabezado h1 {
+  color: #12375c;
+  margin: 0 0 7px;
+  font-size: 28px;
+}
+
+.encabezado p {
+  color: #7c8da0;
+  margin: 0;
+}
+
+.perfil {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 12px 18px;
+  border-radius: 12px;
+  color: #20466d;
+}
+
+/* BIENVENIDA */
+
+.bienvenida {
+  background: linear-gradient(120deg, #106ec5, #0a417f);
+  color: white;
+  padding: 35px;
+  border-radius: 18px;
+  margin-bottom: 35px;
+}
+
+.bienvenida h2 {
+  font-size: 28px;
+  margin: 0 0 13px;
+}
+
+.bienvenida p {
+  max-width: 650px;
+  color: #e1efff;
+  line-height: 1.7;
+}
+
+.rol {
+  display: inline-block;
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.18);
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+/* TARJETAS */
+
+.secciones h2 {
+  color: #193d61;
+  margin-bottom: 22px;
+}
+
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.tarjeta {
+  background: white;
+  border: 1px solid #e1eaf3;
+  border-radius: 16px;
+  padding: 25px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tarjeta:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(30, 75, 120, 0.1);
+}
+
+.tarjeta-icono {
+  font-size: 32px;
+  margin-bottom: 18px;
+}
+
+.tarjeta h3 {
+  color: #173d66;
+  font-size: 19px;
+  margin: 0 0 12px;
+}
+
+.tarjeta p {
+  color: #7a8ca0;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 68px;
+}
+
+.tarjeta button {
+  border: none;
+  background: #e8f3ff;
+  color: #0874ce;
+  padding: 11px 17px;
+  border-radius: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tarjeta button:hover {
+  background: #0874ce;
+  color: white;
+}
+
+/* MENSAJES */
+
+.mensaje {
+  background: #e8f3ff;
+  color: #145894;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.mensaje button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+  .tarjetas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .sidebar-footer {
+    margin-top: 20px;
+  }
+
+  .contenido {
+    padding: 20px;
+  }
+
+  .encabezado {
+    flex-wrap: wrap;
+  }
+
+  .tarjetas {
+    grid-template-columns: 1fr;
+  }
+
+  .bienvenida {
+    padding: 25px;
+  }
+}

@@ -1,0 +1,255 @@
+<!-- ========================================== -->
+<!-- ADMINISTRACION DE USUARIOS DENTALCARE -->
+<!-- ========================================== -->
+
+<div class="pagina">
+
+  <!-- ENCABEZADO -->
+  <header class="encabezado">
+
+    <div>
+      <h1>🔐 Administración de Usuarios</h1>
+      <p>Control de cuentas, roles y accesos al sistema</p>
+    </div>
+
+    <a routerLink="/dashboard" class="volver">
+      ← Volver al Dashboard
+    </a>
+
+  </header>
+
+  <!-- MENSAJES -->
+  @if (mensajeExito) {
+
+    <div class="exito" role="status">
+      ✓ {{ mensajeExito }}
+    </div>
+
+  }
+
+  @if (mensajeError) {
+
+    <div class="error" role="alert">
+      ⚠ {{ mensajeError }}
+    </div>
+
+  }
+
+  <!-- INFORMACION -->
+  <section class="panel informacion">
+
+    <h2>Panel de administración</h2>
+
+    <p>
+      Desde esta pantalla puedes consultar usuarios,
+      modificar sus roles y activar o desactivar cuentas.
+    </p>
+
+    <p>
+      Administrador conectado:
+      <strong>{{ usernameActual }}</strong>
+    </p>
+
+  </section>
+
+  <!-- ========================================== -->
+  <!-- TABLA DE USUARIOS -->
+  <!-- ========================================== -->
+
+  <section class="panel">
+
+    <div class="tabla-encabezado">
+
+      <div>
+        <h2>Usuarios registrados</h2>
+        <p class="subtitulo">
+          Total de usuarios: {{ usuarios.length }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="btn-recargar"
+        [disabled]="cargando || procesandoId !== null"
+        (click)="listar()"
+      >
+        ↻ Actualizar
+      </button>
+
+    </div>
+
+    @if (cargando) {
+
+      <p class="sin-datos">
+        Cargando usuarios...
+      </p>
+
+    } @else if (usuarios.length === 0) {
+
+      <p class="sin-datos">
+        No existen usuarios registrados.
+      </p>
+
+    } @else {
+
+      <div class="tabla-contenedor">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Rol actual</th>
+              <th>Estado</th>
+              <th>Cambiar rol</th>
+              <th>Activar / Desactivar</th>
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            @for (usuario of usuarios; track usuario.id) {
+
+              <tr>
+
+                <!-- IDENTIFICADOR -->
+                <td>
+                  {{ usuario.id }}
+                </td>
+
+                <!-- NOMBRE DE USUARIO -->
+                <td>
+
+                  <strong>{{ usuario.username }}</strong>
+
+                  @if (esMiCuenta(usuario)) {
+                    <span class="mi-cuenta">
+                      Tu cuenta
+                    </span>
+                  }
+
+                </td>
+
+                <!-- ROL -->
+                <td>
+
+                  <span
+                    class="rol"
+                    [class.rol-admin]="usuario.rol === 'ADMIN'"
+                    [class.rol-user]="usuario.rol === 'USER'"
+                  >
+                    {{ usuario.rol }}
+                  </span>
+
+                </td>
+
+                <!-- ESTADO -->
+                <td>
+
+                  @if (usuario.activo) {
+
+                    <span class="estado activo">
+                      ● Activo
+                    </span>
+
+                  } @else {
+
+                    <span class="estado inactivo">
+                      ● Inactivo
+                    </span>
+
+                  }
+
+                </td>
+
+                <!-- CAMBIAR ROL -->
+                <td>
+
+                  <div class="acciones-rol">
+
+                    <select
+                      #rolSeleccionado
+                      [value]="usuario.rol"
+                      [disabled]="
+                        esMiCuenta(usuario) ||
+                        procesandoId !== null
+                      "
+                      aria-label="Seleccionar nuevo rol"
+                    >
+
+                      <option value="USER">
+                        USER
+                      </option>
+
+                      <option value="ADMIN">
+                        ADMIN
+                      </option>
+
+                    </select>
+
+                    <button
+                      type="button"
+                      class="btn-rol"
+                      [disabled]="
+                        esMiCuenta(usuario) ||
+                        procesandoId !== null
+                      "
+                      (click)="cambiarRol(usuario, rolSeleccionado.value)"
+                    >
+                      Cambiar
+                    </button>
+
+                  </div>
+
+                </td>
+
+                <!-- ACTIVAR O DESACTIVAR -->
+                <td>
+
+                  @if (usuario.activo) {
+
+                    <button
+                      type="button"
+                      class="btn-desactivar"
+                      [disabled]="
+                        esMiCuenta(usuario) ||
+                        procesandoId !== null
+                      "
+                      (click)="desactivar(usuario)"
+                    >
+                      Desactivar
+                    </button>
+
+                  } @else {
+
+                    <button
+                      type="button"
+                      class="btn-activar"
+                      [disabled]="procesandoId !== null"
+                      (click)="activar(usuario)"
+                    >
+                      Activar
+                    </button>
+
+                  }
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

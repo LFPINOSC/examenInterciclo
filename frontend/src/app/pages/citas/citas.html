@@ -1,0 +1,415 @@
+<!-- ========================================== -->
+<!-- GESTION DE CITAS ODONTOLOGICAS -->
+<!-- ========================================== -->
+
+<div class="pagina">
+
+  <!-- ENCABEZADO -->
+  <header class="encabezado">
+
+    <div>
+      <h1>📅 Gestión de Citas Odontológicas</h1>
+      <p>Registra y administra las citas de DentalCare</p>
+    </div>
+
+    <a routerLink="/dashboard" class="volver">
+      ← Volver al Dashboard
+    </a>
+
+  </header>
+
+  <!-- MENSAJES -->
+  @if (mensajeExito) {
+    <div class="exito" role="status">
+      ✓ {{ mensajeExito }}
+    </div>
+  }
+
+  @if (mensajeError) {
+    <div class="error" role="alert">
+      ⚠ {{ mensajeError }}
+    </div>
+  }
+
+  <!-- AVISOS DE LOS CATALOGOS -->
+  @if (cargandoCatalogos) {
+    <p class="sin-datos">
+      Cargando pacientes, odontólogos y tratamientos...
+    </p>
+  }
+
+  @if (
+    !cargandoCatalogos &&
+    (
+      pacientes.length === 0 ||
+      odontologos.length === 0 ||
+      tratamientos.length === 0
+    )
+  ) {
+    <div class="aviso">
+      Para registrar citas, primero necesitas tener al menos
+      un paciente, un odontólogo y un tratamiento registrados.
+    </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- FORMULARIO PARA REGISTRAR CITAS -->
+  <!-- ========================================== -->
+
+  <section class="panel">
+
+    <h2>
+      {{ editandoId !== null
+        ? 'Editar cita odontológica'
+        : 'Registrar nueva cita' }}
+    </h2>
+
+    <form
+      #formCita="ngForm"
+      (ngSubmit)="guardar()"
+    >
+
+      <div class="campos">
+
+        <!-- SELECCIONAR PACIENTE -->
+        <div class="campo">
+
+          <label for="paciente">
+            Paciente *
+          </label>
+
+          <select
+            id="paciente"
+            name="paciente"
+            [(ngModel)]="formulario.pacienteId"
+            required
+          >
+
+            <option [ngValue]="null">
+              Seleccione un paciente
+            </option>
+
+            @for (paciente of pacientes; track paciente.id) {
+
+              <option [ngValue]="paciente.id">
+                {{ paciente.nombre }}
+                {{ paciente.apellido }}
+                - {{ paciente.cedula }}
+              </option>
+
+            }
+
+          </select>
+
+        </div>
+
+        <!-- SELECCIONAR ODONTOLOGO -->
+        <div class="campo">
+
+          <label for="odontologo">
+            Odontólogo *
+          </label>
+
+          <select
+            id="odontologo"
+            name="odontologo"
+            [(ngModel)]="formulario.odontologoId"
+            required
+          >
+
+            <option [ngValue]="null">
+              Seleccione un odontólogo
+            </option>
+
+            @for (odontologo of odontologos; track odontologo.id) {
+
+              <option [ngValue]="odontologo.id">
+                {{ odontologo.nombre }}
+                {{ odontologo.apellido }}
+                - {{ odontologo.especialidad }}
+              </option>
+
+            }
+
+          </select>
+
+        </div>
+
+        <!-- SELECCIONAR TRATAMIENTO -->
+        <div class="campo">
+
+          <label for="tratamiento">
+            Tratamiento *
+          </label>
+
+          <select
+            id="tratamiento"
+            name="tratamiento"
+            [(ngModel)]="formulario.servicioId"
+            required
+          >
+
+            <option [ngValue]="null">
+              Seleccione un tratamiento
+            </option>
+
+            @for (tratamiento of tratamientos; track tratamiento.id) {
+
+              <option [ngValue]="tratamiento.id">
+                {{ tratamiento.nombre }}
+                - ${{ tratamiento.precio }}
+              </option>
+
+            }
+
+          </select>
+
+        </div>
+
+        <!-- FECHA Y HORA -->
+        <div class="campo">
+
+          <label for="fechaHora">
+            Fecha y hora *
+          </label>
+
+          <input
+            id="fechaHora"
+            name="fechaHora"
+            type="datetime-local"
+            [(ngModel)]="formulario.fechaHora"
+            required
+          >
+
+        </div>
+
+        <!-- OBSERVACIONES -->
+        <div class="campo campo-ancho">
+
+          <label for="observaciones">
+            Observaciones
+          </label>
+
+          <textarea
+            id="observaciones"
+            name="observaciones"
+            [(ngModel)]="formulario.observaciones"
+            rows="3"
+            placeholder="Ejemplo: Paciente requiere evaluación previa"
+          ></textarea>
+
+        </div>
+
+      </div>
+
+      <!-- BOTONES DEL FORMULARIO -->
+      <div class="acciones">
+
+        <button
+          type="submit"
+          class="btn-guardar"
+          [disabled]="
+            formCita.invalid ||
+            guardando ||
+            cargandoCatalogos ||
+            pacientes.length === 0 ||
+            odontologos.length === 0 ||
+            tratamientos.length === 0
+          "
+        >
+          {{ guardando
+            ? 'Guardando...'
+            : editandoId !== null
+              ? 'Actualizar cita'
+              : 'Guardar cita' }}
+        </button>
+
+        @if (editandoId !== null) {
+
+          <button
+            type="button"
+            class="btn-cancelar"
+            (click)="cancelarEdicion()"
+          >
+            Cancelar edición
+          </button>
+
+        }
+
+      </div>
+
+    </form>
+
+  </section>
+
+  <!-- ========================================== -->
+  <!-- TABLA DE CITAS REGISTRADAS -->
+  <!-- ========================================== -->
+
+  <section class="panel">
+
+    <div class="tabla-encabezado">
+
+      <h2>Citas registradas</h2>
+
+      <button
+        type="button"
+        class="btn-recargar"
+        (click)="listar()"
+      >
+        ↻ Actualizar
+      </button>
+
+    </div>
+
+    @if (cargando) {
+
+      <p class="sin-datos">
+        Cargando citas...
+      </p>
+
+    } @else if (citas.length === 0) {
+
+      <p class="sin-datos">
+        No existen citas registradas.
+      </p>
+
+    } @else {
+
+      <div class="tabla-contenedor">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Paciente</th>
+              <th>Odontólogo</th>
+              <th>Tratamiento</th>
+              <th>Fecha y hora</th>
+              <th>Estado</th>
+              <th>Observaciones</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (cita of citas; track cita.id) {
+
+              <tr>
+
+                <td>
+                  {{ cita.id }}
+                </td>
+
+                <td>
+                  {{ nombrePaciente(cita.pacienteId) }}
+                </td>
+
+                <td>
+                  {{ nombreOdontologo(cita.odontologoId) }}
+                </td>
+
+                <td>
+                  {{ nombreTratamiento(cita.servicioId) }}
+                </td>
+
+                <td>
+                  {{ cita.fechaHora | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+
+                <td>
+                  <span
+                    class="estado"
+                    [class.pendiente]="cita.estado === 'PENDIENTE'"
+                    [class.confirmada]="cita.estado === 'CONFIRMADA'"
+                    [class.atendida]="cita.estado === 'ATENDIDA'"
+                    [class.cancelada]="cita.estado === 'CANCELADA'"
+                  >
+                    {{ cita.estado }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ cita.observaciones || '—' }}
+                </td>
+
+                <td>
+
+                  <div class="acciones-cita">
+
+                    <!-- EDITAR -->
+                    <button
+                      type="button"
+                      class="btn-editar"
+                      (click)="editar(cita)"
+                    >
+                      Editar
+                    </button>
+
+                    <!-- CAMBIAR ESTADO -->
+                    <div class="cambiar-estado">
+
+                      <select
+                        #nuevoEstado
+                        [value]="cita.estado"
+                        aria-label="Nuevo estado de la cita"
+                      >
+                        <option value="PENDIENTE">
+                          PENDIENTE
+                        </option>
+
+                        <option value="CONFIRMADA">
+                          CONFIRMADA
+                        </option>
+
+                        <option value="ATENDIDA">
+                          ATENDIDA
+                        </option>
+
+                        <option value="CANCELADA">
+                          CANCELADA
+                        </option>
+                      </select>
+
+                      <button
+                        type="button"
+                        class="btn-estado"
+                        [disabled]="procesandoEstadoId !== null"
+                        (click)="cambiarEstado(cita, nuevoEstado.value)"
+                      >
+                        Cambiar
+                      </button>
+
+                    </div>
+
+                    <!-- ELIMINAR -->
+                    <button
+                      type="button"
+                      class="btn-eliminar"
+                      [disabled]="eliminandoId !== null"
+                      (click)="eliminar(cita)"
+                    >
+                      Eliminar
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

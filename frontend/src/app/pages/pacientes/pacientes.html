@@ -1,0 +1,220 @@
+<div class="pagina">
+
+  <header class="encabezado">
+    <div>
+      <h1>👥 Gestión de Pacientes</h1>
+      <p>Registra y administra los pacientes de DentalCare</p>
+    </div>
+
+    <a routerLink="/dashboard" class="volver">
+      ← Volver al panel
+    </a>
+  </header>
+
+  <!-- MENSAJES -->
+  @if (mensajeExito) {
+    <div class="exito" role="status">
+      ✓ {{ mensajeExito }}
+    </div>
+  }
+
+  @if (mensajeError) {
+    <div class="error" role="alert">
+      ⚠ {{ mensajeError }}
+    </div>
+  }
+
+  <!-- FORMULARIO -->
+  <section class="panel">
+
+    <h2>
+      {{ editandoId !== null ? 'Editar paciente' : 'Registrar paciente' }}
+    </h2>
+
+    <form
+      #formPaciente="ngForm"
+      (ngSubmit)="guardar()"
+    >
+
+      <div class="campos">
+
+        <div class="campo">
+          <label for="cedula">Cédula *</label>
+          <input
+            id="cedula"
+            name="cedula"
+            type="text"
+            [(ngModel)]="formulario.cedula"
+            placeholder="10 dígitos"
+            maxlength="10"
+            pattern="[0-9]{10}"
+            required
+          >
+        </div>
+
+        <div class="campo">
+          <label for="nombre">Nombre *</label>
+          <input
+            id="nombre"
+            name="nombre"
+            type="text"
+            [(ngModel)]="formulario.nombre"
+            maxlength="100"
+            required
+          >
+        </div>
+
+        <div class="campo">
+          <label for="apellido">Apellido *</label>
+          <input
+            id="apellido"
+            name="apellido"
+            type="text"
+            [(ngModel)]="formulario.apellido"
+            maxlength="100"
+            required
+          >
+        </div>
+
+        <div class="campo">
+          <label for="telefono">Teléfono</label>
+          <input
+            id="telefono"
+            name="telefono"
+            type="tel"
+            [(ngModel)]="formulario.telefono"
+            maxlength="20"
+          >
+        </div>
+
+        <div class="campo">
+          <label for="correo">Correo electrónico</label>
+          <input
+            id="correo"
+            name="correo"
+            type="email"
+            [(ngModel)]="formulario.correo"
+            email
+            maxlength="100"
+          >
+        </div>
+
+        <div class="campo">
+          <label for="direccion">Dirección</label>
+          <input
+            id="direccion"
+            name="direccion"
+            type="text"
+            [(ngModel)]="formulario.direccion"
+            maxlength="200"
+          >
+        </div>
+
+      </div>
+
+      <div class="acciones">
+
+        <button
+          type="submit"
+          class="btn-guardar"
+          [disabled]="formPaciente.invalid || guardando"
+        >
+          {{ guardando ? 'Guardando...' :
+             editandoId !== null ? 'Actualizar paciente' : 'Guardar paciente' }}
+        </button>
+
+        @if (editandoId !== null) {
+          <button
+            type="button"
+            class="btn-cancelar"
+            (click)="cancelarEdicion()"
+          >
+            Cancelar edición
+          </button>
+        }
+
+      </div>
+
+    </form>
+
+  </section>
+
+  <!-- LISTADO DE PACIENTES -->
+  <section class="panel">
+
+    <div class="tabla-encabezado">
+      <h2>Pacientes registrados</h2>
+
+      <button class="btn-recargar" (click)="listar()">
+        ↻ Actualizar
+      </button>
+    </div>
+
+    @if (cargando) {
+
+      <p class="sin-datos">Cargando pacientes...</p>
+
+    } @else if (pacientes.length === 0) {
+
+      <p class="sin-datos">
+        No hay pacientes registrados.
+      </p>
+
+    } @else {
+
+      <div class="tabla-contenedor">
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cédula</th>
+              <th>Paciente</th>
+              <th>Teléfono</th>
+              <th>Correo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (paciente of pacientes; track paciente.id) {
+
+              <tr>
+                <td>{{ paciente.id }}</td>
+                <td>{{ paciente.cedula }}</td>
+                <td>{{ paciente.nombre }} {{ paciente.apellido }}</td>
+                <td>{{ paciente.telefono || '—' }}</td>
+                <td>{{ paciente.correo || '—' }}</td>
+
+                <td>
+                  <div class="acciones-tabla">
+                    <button
+                      class="btn-editar"
+                      (click)="editar(paciente)"
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      class="btn-eliminar"
+                      (click)="eliminar(paciente)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+            }
+
+          </tbody>
+        </table>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

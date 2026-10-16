@@ -1,0 +1,266 @@
+<!-- ========================================== -->
+<!-- PAGINA DE TRATAMIENTOS ODONTOLOGICOS -->
+<!-- ========================================== -->
+
+<div class="pagina">
+
+  <!-- ENCABEZADO -->
+  <header class="encabezado">
+
+    <div>
+      <h1>🦷 Gestión de Tratamientos</h1>
+      <p>Administración de tratamientos y precios de DentalCare</p>
+    </div>
+
+    <a routerLink="/dashboard" class="volver">
+      ← Volver al Dashboard
+    </a>
+
+  </header>
+
+  <!-- MENSAJES -->
+  @if (mensajeExito) {
+
+    <div class="exito" role="status">
+      ✓ {{ mensajeExito }}
+    </div>
+
+  }
+
+  @if (mensajeError) {
+
+    <div class="error" role="alert">
+      ⚠ {{ mensajeError }}
+    </div>
+
+  }
+
+  <!-- FORMULARIO EXCLUSIVO PARA ADMIN -->
+  @if (esAdmin) {
+
+    <section class="panel">
+
+      <h2>
+        {{ editandoId !== null
+          ? 'Editar tratamiento'
+          : 'Registrar tratamiento' }}
+      </h2>
+
+      <form
+        #formTratamiento="ngForm"
+        (ngSubmit)="guardar()"
+      >
+
+        <div class="campos">
+
+          <!-- NOMBRE -->
+          <div class="campo">
+
+            <label for="nombre">
+              Nombre del tratamiento *
+            </label>
+
+            <input
+              id="nombre"
+              name="nombre"
+              type="text"
+              [(ngModel)]="formulario.nombre"
+              placeholder="Ejemplo: Limpieza dental"
+              maxlength="100"
+              required
+            >
+
+          </div>
+
+          <!-- DESCRIPCION -->
+          <div class="campo">
+
+            <label for="descripcion">
+              Descripción
+            </label>
+
+            <input
+              id="descripcion"
+              name="descripcion"
+              type="text"
+              [(ngModel)]="formulario.descripcion"
+              placeholder="Descripción del procedimiento"
+              maxlength="255"
+            >
+
+          </div>
+
+          <!-- PRECIO -->
+          <div class="campo">
+
+            <label for="precio">
+              Precio en dólares *
+            </label>
+
+            <input
+              id="precio"
+              name="precio"
+              type="number"
+              [(ngModel)]="formulario.precio"
+              placeholder="Ejemplo: 25.00"
+              min="0"
+              step="0.01"
+              required
+            >
+
+          </div>
+
+        </div>
+
+        <!-- BOTONES -->
+        <div class="acciones">
+
+          <button
+            type="submit"
+            class="btn-guardar"
+            [disabled]="formTratamiento.invalid || guardando"
+          >
+            {{ guardando
+              ? 'Guardando...'
+              : editandoId !== null
+                ? 'Actualizar tratamiento'
+                : 'Guardar tratamiento' }}
+          </button>
+
+          @if (editandoId !== null) {
+
+            <button
+              type="button"
+              class="btn-cancelar"
+              (click)="cancelar()"
+            >
+              Cancelar edición
+            </button>
+
+          }
+
+        </div>
+
+      </form>
+
+    </section>
+
+  }
+
+  <!-- LISTADO DE TRATAMIENTOS -->
+  <section class="panel">
+
+    <div class="tabla-encabezado">
+
+      <h2>Tratamientos disponibles</h2>
+
+      <button
+        type="button"
+        class="btn-recargar"
+        (click)="listar()"
+      >
+        ↻ Actualizar
+      </button>
+
+    </div>
+
+    <!-- CARGANDO -->
+    @if (cargando) {
+
+      <p class="sin-datos">
+        Cargando tratamientos...
+      </p>
+
+    } @else if (tratamientos.length === 0) {
+
+      <!-- SIN DATOS -->
+      <p class="sin-datos">
+        No existen tratamientos registrados.
+      </p>
+
+    } @else {
+
+      <!-- TABLA -->
+      <div class="tabla-contenedor">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tratamiento</th>
+              <th>Descripción</th>
+              <th>Precio</th>
+
+              @if (esAdmin) {
+                <th>Acciones</th>
+              }
+
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (tratamiento of tratamientos; track tratamiento.id) {
+
+              <tr>
+
+                <td>
+                  {{ tratamiento.id }}
+                </td>
+
+                <td>
+                  {{ tratamiento.nombre }}
+                </td>
+
+                <td>
+                  {{ tratamiento.descripcion || '—' }}
+                </td>
+
+                <td>
+                  $ {{ tratamiento.precio.toFixed(2) }}
+                </td>
+
+                @if (esAdmin) {
+
+                  <td>
+
+                    <div class="acciones-tabla">
+
+                      <button
+                        type="button"
+                        class="btn-editar"
+                        (click)="editar(tratamiento)"
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn-eliminar"
+                        (click)="eliminar(tratamiento)"
+                      >
+                        Eliminar
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                }
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

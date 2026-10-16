@@ -1,0 +1,369 @@
+<!-- ========================================== -->
+<!-- PAGINA DE GESTION DE PAGOS -->
+<!-- ========================================== -->
+
+<div class="pagina">
+
+  <!-- ENCABEZADO -->
+  <header class="encabezado">
+
+    <div>
+      <h1>💳 Gestión de Pagos</h1>
+      <p>Registra y administra los pagos de las citas odontológicas</p>
+    </div>
+
+    <a routerLink="/dashboard" class="volver">
+      ← Volver al Dashboard
+    </a>
+
+  </header>
+
+  <!-- MENSAJES -->
+  @if (mensajeExito) {
+    <div class="exito" role="status">
+      ✓ {{ mensajeExito }}
+    </div>
+  }
+
+  @if (mensajeError) {
+    <div class="error" role="alert">
+      ⚠ {{ mensajeError }}
+    </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- FORMULARIO DE REGISTRO -->
+  <!-- ========================================== -->
+
+  <section class="panel">
+
+    <h2>
+      {{ editandoId !== null
+        ? 'Editar pago'
+        : 'Registrar nuevo pago' }}
+    </h2>
+
+    @if (cargando) {
+      <p class="sin-datos">
+        Cargando información de citas y pagos...
+      </p>
+    }
+
+    @if (!cargando && citasDisponibles.length === 0) {
+      <div class="aviso">
+        No hay citas disponibles para registrar pagos nuevos.
+        Primero registra una cita en el módulo de Citas.
+      </div>
+    }
+
+    <form
+      #formPago="ngForm"
+      (ngSubmit)="guardar()"
+    >
+
+      <div class="campos">
+
+        <!-- CITA -->
+        <div class="campo">
+
+          <label for="cita">
+            Cita odontológica *
+          </label>
+
+          <select
+            id="cita"
+            name="cita"
+            [(ngModel)]="formulario.citaId"
+            (ngModelChange)="alSeleccionarCita()"
+            [disabled]="editandoId !== null"
+            required
+          >
+
+            <option [ngValue]="null">
+              Selecciona una cita
+            </option>
+
+            @for (cita of citasDisponibles; track cita.id) {
+
+              <option [ngValue]="cita.id">
+                Cita #{{ cita.id }} -
+                {{ nombrePaciente(cita.pacienteId) }} -
+                {{ cita.fechaHora | date:'dd/MM/yyyy HH:mm' }}
+              </option>
+
+            }
+
+          </select>
+
+        </div>
+
+        <!-- MONTO -->
+        <div class="campo">
+
+          <label for="monto">
+            Monto en dólares *
+          </label>
+
+          <input
+            id="monto"
+            name="monto"
+            type="number"
+            min="0.01"
+            step="0.01"
+            [(ngModel)]="formulario.monto"
+            placeholder="Ejemplo: 25.00"
+            required
+          >
+
+        </div>
+
+        <!-- METODO DE PAGO -->
+        <div class="campo">
+
+          <label for="metodoPago">
+            Método de pago *
+          </label>
+
+          <select
+            id="metodoPago"
+            name="metodoPago"
+            [(ngModel)]="formulario.metodoPago"
+            required
+          >
+
+            <option value="EFECTIVO">
+              Efectivo
+            </option>
+
+            <option value="TARJETA">
+              Tarjeta
+            </option>
+
+            <option value="TRANSFERENCIA">
+              Transferencia bancaria
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+      <!-- BOTONES -->
+      <div class="acciones">
+
+        <button
+          type="submit"
+          class="btn-guardar"
+          [disabled]="
+            formPago.invalid ||
+            guardando ||
+            cargando ||
+            citasDisponibles.length === 0
+          "
+        >
+          {{ guardando
+            ? 'Guardando...'
+            : editandoId !== null
+              ? 'Actualizar pago'
+              : 'Guardar pago' }}
+        </button>
+
+        @if (editandoId !== null) {
+
+          <button
+            type="button"
+            class="btn-cancelar"
+            (click)="cancelarEdicion()"
+          >
+            Cancelar edición
+          </button>
+
+        }
+
+      </div>
+
+    </form>
+
+  </section>
+
+  <!-- ========================================== -->
+  <!-- TABLA DE PAGOS -->
+  <!-- ========================================== -->
+
+  <section class="panel">
+
+    <div class="tabla-encabezado">
+
+      <h2>Pagos registrados</h2>
+
+      <button
+        type="button"
+        class="btn-recargar"
+        (click)="cargarDatos()"
+      >
+        ↻ Actualizar
+      </button>
+
+    </div>
+
+    @if (cargando) {
+
+      <p class="sin-datos">
+        Cargando pagos...
+      </p>
+
+    } @else if (pagos.length === 0) {
+
+      <p class="sin-datos">
+        No existen pagos registrados.
+      </p>
+
+    } @else {
+
+      <div class="tabla-contenedor">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cita</th>
+              <th>Paciente</th>
+              <th>Tratamiento</th>
+              <th>Monto</th>
+              <th>Método</th>
+              <th>Fecha de pago</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (pago of pagos; track pago.id) {
+
+              <tr>
+
+                <td>
+                  {{ pago.id }}
+                </td>
+
+                <td>
+                  Cita #{{ pago.citaId }}
+                </td>
+
+                <!-- INFORMACION RELACIONADA -->
+                @if (obtenerCita(pago.citaId); as cita) {
+
+                  <td>
+                    {{ nombrePaciente(cita.pacienteId) }}
+                  </td>
+
+                  <td>
+                    {{ nombreTratamiento(cita.servicioId) }}
+                  </td>
+
+                } @else {
+
+                  <td>Sin información</td>
+                  <td>Sin información</td>
+
+                }
+
+                <td>
+                  $ {{ pago.monto | number:'1.2-2' }}
+                </td>
+
+                <td>
+                  {{ pago.metodoPago }}
+                </td>
+
+                <td>
+
+                  @if (pago.fechaPago) {
+                    {{ pago.fechaPago | date:'dd/MM/yyyy HH:mm' }}
+                  } @else {
+                    —
+                  }
+
+                </td>
+
+                <td>
+
+                  <span
+                    class="estado"
+                    [class.pendiente]="pago.estado === 'PENDIENTE'"
+                    [class.pagado]="pago.estado === 'PAGADO'"
+                    [class.cancelado]="pago.estado === 'CANCELADO'"
+                  >
+                    {{ pago.estado }}
+                  </span>
+
+                </td>
+
+                <td>
+
+                  <div class="acciones-tabla">
+
+                    <!-- SOLO PENDIENTES -->
+                    @if (pago.estado === 'PENDIENTE') {
+
+                      <button
+                        type="button"
+                        class="btn-editar"
+                        [disabled]="procesandoId !== null"
+                        (click)="editar(pago)"
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn-pagado"
+                        [disabled]="procesandoId !== null"
+                        (click)="marcarPagado(pago)"
+                      >
+                        Marcar pagado
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn-cancelar-pago"
+                        [disabled]="procesandoId !== null"
+                        (click)="cancelarPago(pago)"
+                      >
+                        Cancelar pago
+                      </button>
+
+                    }
+
+                    <!-- ELIMINAR REGISTRO -->
+                    <button
+                      type="button"
+                      class="btn-eliminar"
+                      [disabled]="procesandoId !== null"
+                      (click)="eliminar(pago)"
+                    >
+                      Eliminar
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

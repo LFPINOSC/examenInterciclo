@@ -1,0 +1,319 @@
+<!-- ========================================== -->
+<!-- PAGINA DE GESTION DE ODONTOLOGOS -->
+<!-- ========================================== -->
+
+<div class="pagina">
+
+  <!-- ENCABEZADO -->
+  <header class="encabezado">
+
+    <div>
+      <h1>🦷 Gestión de Odontólogos</h1>
+      <p>Administra los profesionales de DentalCare</p>
+    </div>
+
+    <a routerLink="/dashboard" class="volver">
+      ← Volver al Dashboard
+    </a>
+
+  </header>
+
+  <!-- ========================================== -->
+  <!-- MENSAJES DE EXITO Y ERROR -->
+  <!-- ========================================== -->
+
+  @if (mensajeExito) {
+    <div class="exito" role="status">
+      ✓ {{ mensajeExito }}
+    </div>
+  }
+
+  @if (mensajeError) {
+    <div class="error" role="alert">
+      ⚠ {{ mensajeError }}
+    </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- FORMULARIO SOLO PARA ADMINISTRADORES -->
+  <!-- ========================================== -->
+
+  @if (esAdmin) {
+
+    <section class="panel">
+
+      <h2>
+        {{ editandoId !== null
+          ? 'Editar odontólogo'
+          : 'Registrar odontólogo' }}
+      </h2>
+
+      <form
+        #formOdontologo="ngForm"
+        (ngSubmit)="guardar()"
+      >
+
+        <div class="campos">
+
+          <!-- NOMBRE -->
+          <div class="campo">
+
+            <label for="nombre">
+              Nombre *
+            </label>
+
+            <input
+              id="nombre"
+              type="text"
+              name="nombre"
+              [(ngModel)]="formulario.nombre"
+              placeholder="Ingrese el nombre"
+              maxlength="100"
+              required
+            >
+
+          </div>
+
+          <!-- APELLIDO -->
+          <div class="campo">
+
+            <label for="apellido">
+              Apellido *
+            </label>
+
+            <input
+              id="apellido"
+              type="text"
+              name="apellido"
+              [(ngModel)]="formulario.apellido"
+              placeholder="Ingrese el apellido"
+              maxlength="100"
+              required
+            >
+
+          </div>
+
+          <!-- ESPECIALIDAD -->
+          <div class="campo">
+
+            <label for="especialidad">
+              Especialidad
+            </label>
+
+            <input
+              id="especialidad"
+              type="text"
+              name="especialidad"
+              [(ngModel)]="formulario.especialidad"
+              placeholder="Ejemplo: Ortodoncia"
+              maxlength="100"
+            >
+
+          </div>
+
+          <!-- TELEFONO -->
+          <div class="campo">
+
+            <label for="telefono">
+              Teléfono
+            </label>
+
+            <input
+              id="telefono"
+              type="tel"
+              name="telefono"
+              [(ngModel)]="formulario.telefono"
+              placeholder="Ingrese el teléfono"
+              maxlength="20"
+            >
+
+          </div>
+
+          <!-- CORREO -->
+          <div class="campo">
+
+            <label for="correo">
+              Correo electrónico
+            </label>
+
+            <input
+              id="correo"
+              type="email"
+              name="correo"
+              [(ngModel)]="formulario.correo"
+              placeholder="Correo electrónico"
+              maxlength="100"
+              email
+            >
+
+          </div>
+
+        </div>
+
+        <!-- BOTONES DEL FORMULARIO -->
+        <div class="acciones">
+
+          <button
+            type="submit"
+            class="btn-guardar"
+            [disabled]="formOdontologo.invalid || guardando"
+          >
+
+            {{ guardando
+              ? 'Guardando...'
+              : editandoId !== null
+                ? 'Actualizar odontólogo'
+                : 'Guardar odontólogo' }}
+
+          </button>
+
+          @if (editandoId !== null) {
+
+            <button
+              type="button"
+              class="btn-cancelar"
+              (click)="cancelar()"
+            >
+              Cancelar edición
+            </button>
+
+          }
+
+        </div>
+
+      </form>
+
+    </section>
+
+  }
+
+  <!-- ========================================== -->
+  <!-- LISTADO DE ODONTOLOGOS -->
+  <!-- ========================================== -->
+
+  <section class="panel">
+
+    <div class="tabla-encabezado">
+
+      <h2>Odontólogos registrados</h2>
+
+      <button
+        type="button"
+        class="btn-recargar"
+        (click)="listar()"
+      >
+        ↻ Actualizar
+      </button>
+
+    </div>
+
+    <!-- ESTADO DE CARGA -->
+    @if (cargando) {
+
+      <p class="sin-datos">
+        Cargando odontólogos...
+      </p>
+
+    } @else if (odontologos.length === 0) {
+
+      <!-- TABLA VACIA -->
+      <p class="sin-datos">
+        No existen odontólogos registrados.
+      </p>
+
+    } @else {
+
+      <!-- TABLA CON DATOS REALES -->
+      <div class="tabla-contenedor">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>ID</th>
+              <th>Nombre completo</th>
+              <th>Especialidad</th>
+              <th>Teléfono</th>
+              <th>Correo</th>
+
+              @if (esAdmin) {
+                <th>Acciones</th>
+              }
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            @for (odontologo of odontologos; track odontologo.id) {
+
+              <tr>
+
+                <td>
+                  {{ odontologo.id }}
+                </td>
+
+                <td>
+                  {{ odontologo.nombre }}
+                  {{ odontologo.apellido }}
+                </td>
+
+                <td>
+                  {{ odontologo.especialidad || '—' }}
+                </td>
+
+                <td>
+                  {{ odontologo.telefono || '—' }}
+                </td>
+
+                <td>
+                  {{ odontologo.correo || '—' }}
+                </td>
+
+                @if (esAdmin) {
+
+                  <td>
+
+                    <div class="acciones-tabla">
+
+                      <!-- EDITAR -->
+                      <button
+                        type="button"
+                        class="btn-editar"
+                        (click)="editar(odontologo)"
+                      >
+                        Editar
+                      </button>
+
+                      <!-- ELIMINAR -->
+                      <button
+                        type="button"
+                        class="btn-eliminar"
+                        (click)="eliminar(odontologo)"
+                      >
+                        Eliminar
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                }
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>
