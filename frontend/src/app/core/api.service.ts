@@ -1,8 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import {
-  Dashboard, Habitacion, Hospitalizacion, Medico, Paciente, Rol, Usuario,
-} from '../models';
+import { Habitacion, Hospitalizacion, Paciente, Panel } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -21,7 +19,7 @@ export class ApiService {
   }
 
   dashboard() {
-    return this.http.get<Dashboard>('/api/dashboard');
+    return this.http.get<Panel>('/api/dashboard');
   }
 
   pacientes(q = '') {
@@ -38,22 +36,6 @@ export class ApiService {
 
   eliminarPaciente(id: number) {
     return this.http.delete(`/api/pacientes/${id}`);
-  }
-
-  medicos(q = '') {
-    return this.http.get<Medico[]>('/api/medicos', { params: this.params({ q }) });
-  }
-
-  crearMedico(body: Omit<Medico, 'id' | 'usuarioNombre'>) {
-    return this.http.post<Medico>('/api/medicos', body);
-  }
-
-  actualizarMedico(id: number, body: Omit<Medico, 'id' | 'usuarioNombre'>) {
-    return this.http.put<Medico>(`/api/medicos/${id}`, body);
-  }
-
-  eliminarMedico(id: number) {
-    return this.http.delete(`/api/medicos/${id}`);
   }
 
   habitaciones(filtros: { q?: string; estado?: string } = {}) {
@@ -79,7 +61,7 @@ export class ApiService {
   crearHospitalizacion(body: {
     pacienteId: number;
     habitacionId: number;
-    medicoId: number;
+    medicoResponsable: string;
     fechaIngreso: string;
     diagnosticoIngreso: string;
     observaciones: string;
@@ -87,40 +69,11 @@ export class ApiService {
     return this.http.post<Hospitalizacion>('/api/hospitalizaciones', body);
   }
 
-  actualizarHospitalizacion(id: number, body: {
-    habitacionId: number;
-    medicoId: number;
-    diagnosticoIngreso: string;
-    observaciones: string;
-  }) {
+  actualizarHospitalizacion(id: number, body: { diagnosticoIngreso: string; observaciones: string }) {
     return this.http.put<Hospitalizacion>(`/api/hospitalizaciones/${id}`, body);
   }
 
   darAlta(id: number, body: { fechaAlta: string; diagnosticoAlta: string; motivoAlta: string }) {
     return this.http.post<Hospitalizacion>(`/api/hospitalizaciones/${id}/alta`, body);
-  }
-
-  eliminarHospitalizacion(id: number) {
-    return this.http.delete(`/api/hospitalizaciones/${id}`);
-  }
-
-  usuarios() {
-    return this.http.get<Usuario[]>('/api/usuarios');
-  }
-
-  roles() {
-    return this.http.get<Rol[]>('/api/usuarios/roles');
-  }
-
-  crearUsuario(body: { nombres: string; apellidos: string; correo: string; password: string; rol: string; activo: boolean }) {
-    return this.http.post<Usuario>('/api/usuarios', body);
-  }
-
-  actualizarUsuario(id: number, body: { nombres: string; apellidos: string; correo: string; password: string; rol: string; activo: boolean }) {
-    return this.http.put<Usuario>(`/api/usuarios/${id}`, body);
-  }
-
-  eliminarUsuario(id: number) {
-    return this.http.delete(`/api/usuarios/${id}`);
   }
 }

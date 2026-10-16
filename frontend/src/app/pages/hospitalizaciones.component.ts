@@ -1,11 +1,13 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { switchMap } from 'rxjs';
 import { ApiService } from '../core/api.service';
 import { AuthService } from '../core/auth.service';
 import {
   ESTADO_HOSPITALIZACION, MOTIVO_ALTA, TIPO_HABITACION, fechaHoy, formatoFecha, mensajeError,
 } from '../core/etiquetas';
-import { Habitacion, Hospitalizacion, Medico, Paciente } from '../models';
+import { cedulaEcuatoriana, telefonoEcuador } from '../core/validators';
+import { Habitacion, Hospitalizacion, Paciente } from '../models';
 
 @Component({
   selector: 'app-hospitalizaciones',
@@ -49,14 +51,12 @@ import { Habitacion, Hospitalizacion, Medico, Paciente } from '../models';
               </td>
               <td>{{ item.pacienteNombre }}<small>{{ item.pacienteCedula }}</small></td>
               <td>{{ item.habitacionNumero }}<small>{{ tipo(item.habitacionTipo) }} · piso {{ item.habitacionPiso }}</small></td>
-              <td>{{ item.medicoNombre }}<small>{{ item.medicoEspecialidad }}</small></td>
+              <td>{{ item.medicoResponsable }}</td>
               <td>{{ fecha(item.fechaIngreso) }}<small>{{ item.fechaAlta ? 'Alta ' + fecha(item.fechaAlta) : 'Sin alta' }}</small></td>
               <td><span class="badge {{ item.estado.toLowerCase() }}">{{ estadoHosp(item.estado) }}</span></td>
               <td class="actions">
                 @if (puedeEditar) { <button type="button" class="btn tiny" (click)="abrir(item)">Editar</button> }
                 @if (puedeAlta && item.estado === 'ACTIVA') { <button type="button" class="btn tiny" (click)="abrirAlta(item)">Alta</button> }
-                @if (puedeEliminar) { <button type="button" class="btn tiny danger" (click)="porBorrar.set(item)">Eliminar</button> }
-                @if (esMia(item)) { <span class="badge info">A mi cargo</span> }
               </td>
             </tr>
           } @empty {
@@ -67,55 +67,88 @@ import { Habitacion, Hospitalizacion, Medico, Paciente } from '../models';
     </div>
 
     @if (modal()) {
-      <div class="backdrop" (click)="modal.set(false)">
-        <form class="modal" [formGroup]="form" (click)="$event.stopPropagation()" (ngSubmit)="guardar()">
+      <div class="backdrop" (click)="cerrarModal()">
+        <form class="modal modal-ingreso" [formGroup]="form" (click)="$event.stopPropagation()" (ngSubmit)="guardar()">
           <h2>{{ editando() ? 'Editar ' + editando()?.codigo : 'Nuevo ingreso' }}</h2>
-          <div class="form-grid">
-            <label class="field">
-              <span>Paciente</span>
-              <select formControlName="pacienteId">
-                <option value="">Seleccione</option>
-                @for (paciente of pacientes(); track paciente.id) {
-                  <option [value]="paciente.id" [disabled]="ocupado(paciente.id)">
-                    {{ paciente.apellidos }}, {{ paciente.nombres }}{{ ocupado(paciente.id) ? ' · ya hospitalizado' : '' }}
-                  </option>
+
+          @if (!editando()) {
+            <div class="tabs">
+              <button type="button" class="chip" [class.active]="modoPaciente() === 'buscar'" (click)="modoPaciente.set('buscar')">
+                Del archivo
+              </button>
+              <button type="button" class="chip" [class.active]="modoPaciente() === 'nuevo'" (click)="modoPaciente.set('nuevo')">
+                Paciente nuevo
+              </button>
+            </div>
+
+            @if (modoPaciente() === 'buscar') {
+              <label class="field full">
+                <span>Buscar paciente</span>
+                <input type="search" placeholder="Nombre o cédula" [value]="busquedaPaciente()" (input)="buscarPaciente($event)" />
+              </label>
+              <div class="patient-pick">
+                @for (paciente of pacientesFiltrados(); track paciente.id) {
+                  <button
+                    type="button"
+                    [class.selected]="pacienteElegido() === paciente.id"
+                    [disabled]="ocupado(paciente.id)"
+                    (click)="elegirPaciente(paciente.id)"
+                  >
+                    <strong>{{ paciente.apellidos }}, {{ paciente.nombres }}</strong>
+                    <small>{{ paciente.cedula }}{{ ocupado(paciente.id) ? ' · ya hospitalizado' : '' }}</small>
+                  </button>
+                } @empty {
+                  <p class="empty-pick">No hay coincidencias. Use «Paciente nuevo».</p>
                 }
-              </select>
-            </label>
-            <label class="field">
-              <span>Habitación</span>
-              <select formControlName="habitacionId">
-                <option value="">Seleccione</option>
-                @for (habitacion of camasDisponibles(); track habitacion.id) {
-                  <option [value]="habitacion.id">{{ habitacion.numero }} · {{ tipo(habitacion.tipo) }} · piso {{ habitacion.piso }}</option>
-                }
-              </select>
-            </label>
-            <label class="field">
-              <span>Médico responsable</span>
-              <select formControlName="medicoId">
-                <option value="">Seleccione</option>
-                @for (medico of medicos(); track medico.id) {
-                  <option [value]="medico.id">{{ medico.apellidos }}, {{ medico.nombres }} · {{ medico.especialidad }}</option>
-                }
-              </select>
-            </label>
-            <label class="field">
-              <span>Fecha de ingreso</span>
-              <input type="date" formControlName="fechaIngreso" />
-            </label>
+              </div>
+            } @else {
+              <div class="form-grid" formGroupName="nuevoPaciente">
+                <label class="field"><span>Nombres</span><input formControlName="nombres" /></label>
+                <label class="field"><span>Apellidos</span><input formControlName="apellidos" /></label>
+                <label class="field"><span>Cédula</span><input formControlName="cedula" maxlength="10" /></label>
+                <label class="field"><span>Teléfono</span><input formControlName="telefono" /></label>
+                <label class="field full"><span>Dirección</span><input formControlName="direccion" /></label>
+              </div>
+            }
+
+            <div class="form-grid bloque">
+              <label class="field">
+                <span>Habitación</span>
+                <select formControlName="habitacionId">
+                  <option value="">Seleccione</option>
+                  @for (habitacion of camasDisponibles(); track habitacion.id) {
+                    <option [value]="habitacion.id">{{ habitacion.numero }} · {{ tipo(habitacion.tipo) }} · piso {{ habitacion.piso }}</option>
+                  }
+                </select>
+              </label>
+              <label class="field">
+                <span>Médico responsable</span>
+                <input formControlName="medicoResponsable" placeholder="Ej. Ana Torres" />
+              </label>
+              <label class="field">
+                <span>Fecha de ingreso</span>
+                <input type="date" formControlName="fechaIngreso" />
+              </label>
+            </div>
+          } @else {
+            <p class="muted bloque">
+              {{ editando()?.pacienteNombre }} · {{ editando()?.habitacionNumero }} · {{ editando()?.medicoResponsable }}
+            </p>
+          }
+
+          <div class="form-grid bloque">
             <label class="field full">
               <span>Diagnóstico de ingreso</span>
               <input formControlName="diagnosticoIngreso" />
             </label>
             <label class="field full">
               <span>Observaciones</span>
-              <textarea rows="3" formControlName="observaciones"></textarea>
+              <textarea rows="2" formControlName="observaciones"></textarea>
             </label>
           </div>
           @if (errorModal()) { <p class="banner error">{{ errorModal() }}</p> }
           <div class="modal-actions">
-            <button type="button" class="btn ghost" (click)="modal.set(false)">Cancelar</button>
+            <button type="button" class="btn ghost" (click)="cerrarModal()">Cancelar</button>
             <button class="btn primary" [disabled]="guardando()">Guardar</button>
           </div>
         </form>
@@ -126,7 +159,7 @@ import { Habitacion, Hospitalizacion, Medico, Paciente } from '../models';
       <div class="backdrop" (click)="altaDe.set(null)">
         <form class="modal" [formGroup]="alta" (click)="$event.stopPropagation()" (ngSubmit)="confirmarAlta()">
           <h2>Alta de {{ item.codigo }}</h2>
-          <p class="muted">{{ item.pacienteNombre }} · habitación {{ item.habitacionNumero }}. Al guardar, la cama queda disponible.</p>
+          <p class="muted">{{ item.pacienteNombre }} · habitación {{ item.habitacionNumero }}</p>
           <div class="form-grid">
             <label class="field">
               <span>Fecha de alta</span>
@@ -154,19 +187,6 @@ import { Habitacion, Hospitalizacion, Medico, Paciente } from '../models';
         </form>
       </div>
     }
-
-    @if (porBorrar(); as item) {
-      <div class="backdrop" (click)="porBorrar.set(null)">
-        <div class="modal compact" (click)="$event.stopPropagation()">
-          <h2>Eliminar {{ item.codigo }}</h2>
-          <p>Si la estancia está activa, la habitación {{ item.habitacionNumero }} vuelve a disponible.</p>
-          <div class="modal-actions">
-            <button type="button" class="btn ghost" (click)="porBorrar.set(null)">Cancelar</button>
-            <button type="button" class="btn danger" (click)="borrar()">Eliminar</button>
-          </div>
-        </div>
-      </div>
-    }
   `,
 })
 export class HospitalizacionesComponent {
@@ -178,25 +198,25 @@ export class HospitalizacionesComponent {
   readonly pacientesActivos = signal<number[]>([]);
   readonly pacientes = signal<Paciente[]>([]);
   readonly habitaciones = signal<Habitacion[]>([]);
-  readonly medicos = signal<Medico[]>([]);
   readonly estado = signal('');
   readonly modal = signal(false);
   readonly editando = signal<Hospitalizacion | null>(null);
   readonly altaDe = signal<Hospitalizacion | null>(null);
-  readonly porBorrar = signal<Hospitalizacion | null>(null);
   readonly error = signal('');
   readonly errorModal = signal('');
   readonly aviso = signal('');
   readonly guardando = signal(false);
+  readonly modoPaciente = signal<'buscar' | 'nuevo'>('buscar');
+  readonly busquedaPaciente = signal('');
+  readonly pacienteElegido = signal<number | null>(null);
   readonly fecha = formatoFecha;
   readonly tipo = (valor: string) => TIPO_HABITACION[valor] ?? valor;
   readonly estadoHosp = (valor: string) => ESTADO_HOSPITALIZACION[valor] ?? valor;
   readonly motivoLabel = (valor: string) => MOTIVO_ALTA[valor] ?? valor;
   readonly motivos = Object.keys(MOTIVO_ALTA);
-  readonly puedeCrear = this.auth.tieneRol('ADMIN', 'RECEPCION', 'MEDICO');
+  readonly puedeCrear = this.auth.tieneRol('ADMIN', 'RECEPCION');
   readonly puedeEditar = this.auth.tieneRol('ADMIN', 'MEDICO');
   readonly puedeAlta = this.auth.tieneRol('ADMIN', 'MEDICO');
-  readonly puedeEliminar = this.auth.tieneRol('ADMIN');
   readonly filtros = [
     { valor: '', label: 'Todas' },
     { valor: 'ACTIVA', label: 'Activas' },
@@ -204,19 +224,36 @@ export class HospitalizacionesComponent {
   ];
   private consulta = '';
 
+  readonly pacientesFiltrados = computed(() => {
+    const q = this.busquedaPaciente().trim().toLowerCase();
+    const lista = this.pacientes();
+    if (!q) return lista;
+    return lista.filter((p) =>
+      p.cedula.includes(q)
+      || p.nombres.toLowerCase().includes(q)
+      || p.apellidos.toLowerCase().includes(q)
+    );
+  });
+
   readonly form = this.fb.nonNullable.group({
-    pacienteId: ['', Validators.required],
     habitacionId: ['', Validators.required],
-    medicoId: ['', Validators.required],
+    medicoResponsable: ['', [Validators.required, Validators.minLength(3)]],
     fechaIngreso: [fechaHoy(), Validators.required],
-    diagnosticoIngreso: ['', [Validators.required, Validators.minLength(5)]],
+    diagnosticoIngreso: ['', [Validators.required, Validators.minLength(3)]],
     observaciones: [''],
+    nuevoPaciente: this.fb.nonNullable.group({
+      nombres: ['', [Validators.required, Validators.minLength(2)]],
+      apellidos: ['', [Validators.required, Validators.minLength(2)]],
+      cedula: ['', [Validators.required, cedulaEcuatoriana]],
+      telefono: ['', [Validators.required, telefonoEcuador]],
+      direccion: ['', [Validators.required, Validators.minLength(4)]],
+    }),
   });
 
   readonly alta = this.fb.nonNullable.group({
     fechaAlta: [fechaHoy(), Validators.required],
     motivoAlta: ['', Validators.required],
-    diagnosticoAlta: ['', [Validators.required, Validators.minLength(5)]],
+    diagnosticoAlta: ['', [Validators.required, Validators.minLength(3)]],
   });
 
   constructor() {
@@ -224,12 +261,19 @@ export class HospitalizacionesComponent {
     this.refrescarActivas();
     this.api.pacientes().subscribe({ next: (lista) => this.pacientes.set(lista) });
     this.api.habitaciones().subscribe({ next: (lista) => this.habitaciones.set(lista) });
-    this.api.medicos().subscribe({ next: (lista) => this.medicos.set(lista) });
   }
 
   buscar(evento: Event): void {
     this.consulta = (evento.target as HTMLInputElement).value;
     this.cargar();
+  }
+
+  buscarPaciente(evento: Event): void {
+    this.busquedaPaciente.set((evento.target as HTMLInputElement).value);
+  }
+
+  elegirPaciente(id: number): void {
+    this.pacienteElegido.set(id);
   }
 
   cambiarEstado(valor: string): void {
@@ -245,7 +289,6 @@ export class HospitalizacionesComponent {
   }
 
   ocupado(pacienteId: number): boolean {
-    if (this.editando()?.pacienteId === pacienteId) return false;
     return this.pacientesActivos().includes(pacienteId);
   }
 
@@ -256,77 +299,129 @@ export class HospitalizacionesComponent {
   }
 
   camasDisponibles(): Habitacion[] {
-    const actual = this.editando()?.habitacionId;
-    return this.habitaciones().filter((habitacion) => habitacion.estado === 'DISPONIBLE' || habitacion.id === actual);
-  }
-
-  esMia(item: Hospitalizacion): boolean {
-    const medicoId = this.auth.user()?.medicoId;
-    return Boolean(medicoId && item.medicoUsuarioId === this.auth.user()?.id);
+    return this.habitaciones().filter((h) => h.estado === 'DISPONIBLE');
   }
 
   abrir(item?: Hospitalizacion): void {
     this.errorModal.set('');
     this.editando.set(item ?? null);
-    this.form.reset({
-      pacienteId: item ? String(item.pacienteId) : '',
-      habitacionId: item ? String(item.habitacionId) : '',
-      medicoId: item ? String(item.medicoId) : '',
-      fechaIngreso: item?.fechaIngreso ?? fechaHoy(),
-      diagnosticoIngreso: item?.diagnosticoIngreso ?? '',
-      observaciones: item?.observaciones ?? '',
+    this.modoPaciente.set('buscar');
+    this.busquedaPaciente.set('');
+    this.pacienteElegido.set(item?.pacienteId ?? null);
+    this.form.controls.nuevoPaciente.reset({
+      nombres: '', apellidos: '', cedula: '', telefono: '', direccion: '',
     });
     if (item) {
-      this.form.controls.pacienteId.disable();
-      this.form.controls.fechaIngreso.disable();
-      if (item.estado !== 'ACTIVA') this.form.controls.habitacionId.disable();
-      else this.form.controls.habitacionId.enable();
+      this.form.reset({
+        habitacionId: '',
+        medicoResponsable: '',
+        fechaIngreso: fechaHoy(),
+        diagnosticoIngreso: item.diagnosticoIngreso,
+        observaciones: item.observaciones ?? '',
+      });
+      this.form.controls.habitacionId.clearValidators();
+      this.form.controls.medicoResponsable.clearValidators();
+      this.form.controls.fechaIngreso.clearValidators();
     } else {
-      this.form.controls.pacienteId.enable();
-      this.form.controls.fechaIngreso.enable();
-      this.form.controls.habitacionId.enable();
+      this.form.controls.habitacionId.setValidators(Validators.required);
+      this.form.controls.medicoResponsable.setValidators([Validators.required, Validators.minLength(3)]);
+      this.form.controls.fechaIngreso.setValidators(Validators.required);
+      this.form.reset({
+        habitacionId: '',
+        medicoResponsable: '',
+        fechaIngreso: fechaHoy(),
+        diagnosticoIngreso: '',
+        observaciones: '',
+      });
     }
+    this.form.updateValueAndValidity();
     this.modal.set(true);
   }
 
+  cerrarModal(): void {
+    this.modal.set(false);
+  }
+
   guardar(): void {
+    const id = this.editando()?.id;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorModal.set('Seleccione paciente, cama y médico, y escriba el diagnóstico.');
+      this.errorModal.set(id ? 'Revise diagnóstico y observaciones.' : 'Complete cama, médico y diagnóstico.');
       return;
     }
+    if (!id) {
+      if (this.modoPaciente() === 'buscar' && !this.pacienteElegido()) {
+        this.errorModal.set('Elija un paciente de la lista o registre uno nuevo.');
+        return;
+      }
+      if (this.modoPaciente() === 'nuevo' && this.form.controls.nuevoPaciente.invalid) {
+        this.form.controls.nuevoPaciente.markAllAsTouched();
+        this.errorModal.set('Complete los datos del paciente nuevo.');
+        return;
+      }
+    }
+
     const valor = this.form.getRawValue();
     this.guardando.set(true);
-    const id = this.editando()?.id;
-    const peticion = id
-      ? this.api.actualizarHospitalizacion(id, {
-          habitacionId: Number(valor.habitacionId),
-          medicoId: Number(valor.medicoId),
-          diagnosticoIngreso: valor.diagnosticoIngreso.trim(),
-          observaciones: valor.observaciones.trim(),
-        })
-      : this.api.crearHospitalizacion({
-          pacienteId: Number(valor.pacienteId),
-          habitacionId: Number(valor.habitacionId),
-          medicoId: Number(valor.medicoId),
-          fechaIngreso: valor.fechaIngreso,
-          diagnosticoIngreso: valor.diagnosticoIngreso.trim(),
-          observaciones: valor.observaciones.trim(),
-        });
-    peticion.subscribe({
-      next: () => {
-        this.guardando.set(false);
-        this.modal.set(false);
-        this.aviso.set(id ? 'Hospitalización actualizada' : 'Ingreso registrado. La habitación quedó ocupada.');
-        this.cargar();
-        this.refrescarActivas();
-        this.api.habitaciones().subscribe({ next: (lista) => this.habitaciones.set(lista) });
-      },
-      error: (error) => {
-        this.guardando.set(false);
-        this.errorModal.set(mensajeError(error, 'No se pudo guardar la hospitalización'));
-      },
+    this.errorModal.set('');
+
+    if (id) {
+      this.api.actualizarHospitalizacion(id, {
+        diagnosticoIngreso: valor.diagnosticoIngreso.trim(),
+        observaciones: valor.observaciones.trim(),
+      }).subscribe({
+        next: () => this.finGuardar('Hospitalización actualizada'),
+        error: (error) => this.fallaGuardar(error, 'No se pudo actualizar'),
+      });
+      return;
+    }
+
+    const cuerpoIngreso = {
+      habitacionId: Number(valor.habitacionId),
+      medicoResponsable: valor.medicoResponsable.trim(),
+      fechaIngreso: valor.fechaIngreso,
+      diagnosticoIngreso: valor.diagnosticoIngreso.trim(),
+      observaciones: valor.observaciones.trim(),
+    };
+
+    if (this.modoPaciente() === 'nuevo') {
+      const np = valor.nuevoPaciente;
+      this.api.crearPaciente({
+        cedula: np.cedula.trim(),
+        nombres: np.nombres.trim(),
+        apellidos: np.apellidos.trim(),
+        telefono: np.telefono.replace(/\D/g, ''),
+        direccion: np.direccion.trim(),
+      }).pipe(
+        switchMap((paciente) => this.api.crearHospitalizacion({ pacienteId: paciente.id, ...cuerpoIngreso })),
+      ).subscribe({
+        next: () => {
+          this.api.pacientes().subscribe({ next: (lista) => this.pacientes.set(lista) });
+          this.finGuardar('Paciente e ingreso registrados');
+        },
+        error: (error) => this.fallaGuardar(error, 'No se pudo registrar el ingreso'),
+      });
+      return;
+    }
+
+    this.api.crearHospitalizacion({ pacienteId: this.pacienteElegido()!, ...cuerpoIngreso }).subscribe({
+      next: () => this.finGuardar('Ingreso registrado'),
+      error: (error) => this.fallaGuardar(error, 'No se pudo registrar el ingreso'),
     });
+  }
+
+  private finGuardar(mensaje: string): void {
+    this.guardando.set(false);
+    this.modal.set(false);
+    this.aviso.set(mensaje);
+    this.cargar();
+    this.refrescarActivas();
+    this.api.habitaciones().subscribe({ next: (lista) => this.habitaciones.set(lista) });
+  }
+
+  private fallaGuardar(error: unknown, respaldo: string): void {
+    this.guardando.set(false);
+    this.errorModal.set(mensajeError(error, respaldo));
   }
 
   abrirAlta(item: Hospitalizacion): void {
@@ -352,7 +447,7 @@ export class HospitalizacionesComponent {
       next: () => {
         this.guardando.set(false);
         this.altaDe.set(null);
-        this.aviso.set(`${item.codigo} dada de alta. La habitación ${item.habitacionNumero} quedó disponible.`);
+        this.aviso.set(`${item.codigo} dada de alta`);
         this.cargar();
         this.refrescarActivas();
         this.api.habitaciones().subscribe({ next: (lista) => this.habitaciones.set(lista) });
@@ -360,23 +455,6 @@ export class HospitalizacionesComponent {
       error: (error) => {
         this.guardando.set(false);
         this.errorModal.set(mensajeError(error, 'No se pudo registrar el alta'));
-      },
-    });
-  }
-
-  borrar(): void {
-    const item = this.porBorrar();
-    if (!item) return;
-    this.api.eliminarHospitalizacion(item.id).subscribe({
-      next: () => {
-        this.porBorrar.set(null);
-        this.aviso.set('Hospitalización eliminada');
-        this.cargar();
-        this.refrescarActivas();
-      },
-      error: (error) => {
-        this.porBorrar.set(null);
-        this.error.set(mensajeError(error, 'No se pudo eliminar'));
       },
     });
   }

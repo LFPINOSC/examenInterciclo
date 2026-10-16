@@ -6,17 +6,6 @@ const { correo } = require('../validators');
 
 const router = express.Router();
 
-function buscarUsuario(id) {
-  return db.prepare(
-    `SELECT u.id_usuario AS id, u.nombres, u.apellidos, u.correo, u.password_hash AS passwordHash,
-            u.activo, r.nombre AS rol, m.id_medico AS medicoId
-     FROM usuarios u
-     JOIN roles r ON r.id_rol = u.id_rol
-     LEFT JOIN medicos m ON m.id_usuario = u.id_usuario
-     WHERE u.id_usuario = ?`
-  ).get(id);
-}
-
 router.post('/login', (req, res) => {
   const validacion = correo(req.body?.correo);
   const password = String(req.body?.password ?? '');
@@ -25,12 +14,8 @@ router.post('/login', (req, res) => {
   }
 
   const usuario = db.prepare(
-    `SELECT u.id_usuario AS id, u.nombres, u.apellidos, u.correo, u.password_hash AS passwordHash,
-            u.activo, r.nombre AS rol, m.id_medico AS medicoId
-     FROM usuarios u
-     JOIN roles r ON r.id_rol = u.id_rol
-     LEFT JOIN medicos m ON m.id_usuario = u.id_usuario
-     WHERE u.correo = ?`
+    `SELECT id_usuario AS id, nombres, apellidos, correo, password_hash AS passwordHash, activo, rol
+     FROM usuarios WHERE correo = ?`
   ).get(validacion.valor);
 
   if (!usuario || !usuario.activo || !bcrypt.compareSync(password, usuario.passwordHash)) {
@@ -43,7 +28,6 @@ router.post('/login', (req, res) => {
     apellidos: usuario.apellidos,
     correo: usuario.correo,
     rol: usuario.rol,
-    medicoId: usuario.medicoId,
     nombre: `${usuario.nombres} ${usuario.apellidos}`,
   };
 
@@ -51,18 +35,11 @@ router.post('/login', (req, res) => {
 });
 
 router.get('/perfil', autenticar, (req, res) => {
-  const usuario = buscarUsuario(req.usuario.id);
-  if (!usuario || !usuario.activo) {
-    return res.status(401).json({ message: 'La cuenta ya no está activa' });
-  }
-  return res.json({
-    id: usuario.id,
-    nombres: usuario.nombres,
-    apellidos: usuario.apellidos,
-    correo: usuario.correo,
-    rol: usuario.rol,
-    medicoId: usuario.medicoId,
-  });
+  const usuario = db.prepare(
+    `SELECT id_usuario AS id, nombres, apellidos, correo, rol FROM usuarios WHERE id_usuario = ? AND activo = 1`
+  ).get(req.usuario.id);
+  if (!usuario) return res.status(401).json({ message: 'Sesión no válida' });
+  return res.json(usuario);
 });
 
 module.exports = router;

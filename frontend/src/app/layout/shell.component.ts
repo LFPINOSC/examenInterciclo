@@ -14,7 +14,7 @@ import { ROL } from '../core/etiquetas';
           <span class="mark">SL</span>
           <div>
             <strong>Santa Lucía</strong>
-            <small>Control de hospitalización</small>
+            <small>Hospitalización</small>
           </div>
         </div>
         <nav>
@@ -40,11 +40,9 @@ export class ShellComponent {
 
   private readonly menu = [
     { path: '/dashboard', label: 'Panel', roles: ['ADMIN', 'MEDICO', 'RECEPCION'] },
+    { path: '/pacientes', label: 'Pacientes', roles: ['ADMIN', 'RECEPCION'] },
+    { path: '/habitaciones', label: 'Habitaciones', roles: ['ADMIN', 'RECEPCION'] },
     { path: '/hospitalizaciones', label: 'Hospitalizaciones', roles: ['ADMIN', 'MEDICO', 'RECEPCION'] },
-    { path: '/pacientes', label: 'Pacientes', roles: ['ADMIN', 'MEDICO', 'RECEPCION'] },
-    { path: '/habitaciones', label: 'Habitaciones', roles: ['ADMIN', 'MEDICO', 'RECEPCION'] },
-    { path: '/medicos', label: 'Médicos', roles: ['ADMIN', 'MEDICO', 'RECEPCION'] },
-    { path: '/usuarios', label: 'Usuarios', roles: ['ADMIN'] },
   ];
 
   readonly visibles = computed(() => this.menu.filter((item) => this.auth.tieneRol(...item.roles)));

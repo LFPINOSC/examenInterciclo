@@ -9,7 +9,6 @@ function firmar(usuario) {
       correo: usuario.correo,
       rol: usuario.rol,
       nombre: usuario.nombre,
-      medicoId: usuario.medicoId ?? null,
     },
     JWT_SECRET,
     { expiresIn: '8h' }
