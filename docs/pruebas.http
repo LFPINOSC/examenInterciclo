@@ -1,0 +1,87 @@
+### Pruebas de la API — usar con la extensión "REST Client" de VS Code
+### (clic en "Send Request" sobre cada petición). También sirve como guía para Postman.
+
+@base = http://localhost:3000/api
+
+### 1. Login (las credenciales de prueba están en database/02_datos.sql)
+# @name login
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{ "email": "admin@vacunas.local", "password": "Admin123*" }
+
+### Token obtenido del login anterior
+@token = {{login.response.body.token}}
+
+### 2. Sin token -> 401
+GET {{base}}/pacientes
+
+### 3. Listar pacientes (con búsqueda)
+GET {{base}}/pacientes?q=Guam
+Authorization: Bearer {{token}}
+
+### 4. Crear paciente
+POST {{base}}/pacientes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cedula": "1710034065",
+  "nombres": "Pedro José",
+  "apellidos": "Salinas Loja",
+  "fecha_nacimiento": "1995-07-21",
+  "sexo": "M",
+  "telefono": "0991112233",
+  "direccion": "Cuenca"
+}
+
+### 5. Crear paciente con datos inválidos -> 400 con detalles
+POST {{base}}/pacientes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "cedula": "1234567890", "nombres": "A", "fecha_nacimiento": "2030-01-01", "sexo": "X" }
+
+### 6. Carnet de vacunación
+GET {{base}}/pacientes/1/carnet
+Authorization: Bearer {{token}}
+
+### 7. Lotes vigentes con stock de Pentavalente (vacuna 4)
+GET {{base}}/lotes?vacuna_id=4&vigentes=1
+Authorization: Bearer {{token}}
+
+### 8. Registrar dosis 3 de Pentavalente al paciente 1 -> 201 (descuenta stock)
+POST {{base}}/aplicaciones
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "paciente_id": 1, "lote_id": 4, "fecha_aplicacion": "2026-10-16", "sitio_aplicacion": "MUSLO_IZQUIERDO" }
+
+### 9. Repetir la petición 8 -> 409 (esquema completo)
+POST {{base}}/aplicaciones
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "paciente_id": 1, "lote_id": 4, "fecha_aplicacion": "2026-10-16", "sitio_aplicacion": "MUSLO_IZQUIERDO" }
+
+### 10. Usar lote caducado (COVID-19, lote 10) -> 409
+POST {{base}}/aplicaciones
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "paciente_id": 5, "lote_id": 10, "fecha_aplicacion": "2026-10-16", "sitio_aplicacion": "BRAZO_IZQUIERDO" }
+
+### 11. Actualizar un lote
+PUT {{base}}/lotes/3
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "vacuna_id": 3, "numero_lote": "ROT-2026-007", "fecha_caducidad": "2026-11-05", "cantidad_disponible": 20, "fecha_ingreso": "2026-05-10" }
+
+### 12. Eliminar paciente con historial -> 409
+DELETE {{base}}/pacientes/1
+Authorization: Bearer {{token}}
+
+### 13. Panel / reportes
+GET {{base}}/reportes/resumen
+Authorization: Bearer {{token}}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión · Control de Vacunación</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <div class="login">
+    <form class="login-card" id="form-login" novalidate>
+      <div class="logo">💉</div>
+      <h1>Control de Vacunación</h1>
+      <p class="sub">Ingrese con su cuenta institucional</p>
+
+      <div class="errores" id="errores"></div>
+
+      <div class="campo">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" required autocomplete="username" placeholder="usuario@vacunas.local">
+      </div>
+      <div class="campo">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password">
+      </div>
+      <button class="btn bloque" type="submit" id="btn-ingresar">Ingresar</button>
+    </form>
+  </div>
+  <div id="toasts"></div>
+
+  <script type="module">
+    import { api, guardarSesion, obtenerSesion } from './js/api.js';
+    import { mostrarErrores } from './js/utils.js';
+
+    if (obtenerSesion()) location.replace('app.html');
+
+    const form = document.getElementById('form-login');
+    const errores = document.getElementById('errores');
+    const boton = document.getElementById('btn-ingresar');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = form.email.value.trim();
+      const password = form.password.value;
+
+      // Validación en el cliente antes de llamar a la API
+      const lista = [];
+      if (!form.email.checkValidity()) lista.push('Ingrese un correo válido');
+      if (!password) lista.push('Ingrese la contraseña');
+      if (lista.length) return mostrarErrores(errores, lista);
+
+      boton.disabled = true;
+      boton.textContent = 'Verificando...';
+      try {
+        const { token, usuario } = await api('/auth/login', { metodo: 'POST', datos: { email, password } });
+        guardarSesion(token, usuario);
+        location.replace('app.html');
+      } catch (err) {
+        mostrarErrores(errores, [err.message, ...err.detalles]);
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Ingresar';
+      }
+    });
+  </script>
+</body>
+</html>
