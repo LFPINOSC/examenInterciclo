@@ -1,0 +1,11 @@
+{
+  "typescript.tsdk": "frontend/node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "files.watcherExclude": {
+    "**/frontend/out-tsc/**": true,
+    "**/frontend/.angular/**": true,
+    "**/node_modules/**": true
+  }
+}

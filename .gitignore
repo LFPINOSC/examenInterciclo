@@ -1,6 +1,7 @@
 node_modules/
 dist/
 frontend/dist/
+frontend/out-tsc/
 .angular/
 backend/data/
 *.db
