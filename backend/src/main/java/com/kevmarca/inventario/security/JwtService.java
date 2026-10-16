@@ -16,6 +16,7 @@ import java.util.Date;
  * El token contiene: subject = username, claim "rol" y fecha de expiración.
  * Se firma con HMAC-SHA256 usando la clave secreta de application.properties.
  */
+// 📌 Fábrica y verificador de tokens JWT
 @Service
 public class JwtService {
 
@@ -28,6 +29,7 @@ public class JwtService {
         this.expiracionMs = expiracionMs;
     }
 
+    // Token = usuario + rol + fecha de expiración, firmado con la clave secreta
     public String generarToken(String username, String rol) {
         Date ahora = new Date();
         return Jwts.builder()
@@ -40,6 +42,7 @@ public class JwtService {
     }
 
     /** Devuelve el username si el token es válido y no ha expirado; si no, null. */
+    // Si alguien modifica el token, la firma no coincide y devuelve null
     public String validarYObtenerUsuario(String token) {
         try {
             Claims claims = Jwts.parser()

@@ -19,6 +19,7 @@ import java.util.Map;
  * Convierte las excepciones en respuestas JSON uniformes:
  * { "fecha": ..., "estado": 400, "mensaje": "...", "errores": { campo: mensaje } }
  */
+// 📌 Atrapa los errores de TODA la API y responde un JSON ordenado con el código HTTP correcto
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -32,6 +33,7 @@ public class GlobalExceptionHandler {
         return respuesta(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
     }
 
+    // Falló @Valid -> 400 con el campo y su mensaje
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> validacion(MethodArgumentNotValidException ex) {
         Map<String, String> errores = new LinkedHashMap<>();
@@ -45,6 +47,7 @@ public class GlobalExceptionHandler {
         return respuesta(HttpStatus.BAD_REQUEST, "El formato de los datos enviados no es válido", null);
     }
 
+    // La base rechazó algo (duplicado o relacionado) -> 409
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> integridad(DataIntegrityViolationException ex) {
         return respuesta(HttpStatus.CONFLICT,

@@ -1,6 +1,7 @@
 package com.kevmarca.inventario.config;
 
-import com.kevmarca.inventario.security.JwtAuthFilter;
+import java.util.List;
+
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,14 +19,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import com.kevmarca.inventario.security.JwtAuthFilter;
 
-/**
- * Seguridad de la API:
- *  - Sin sesiones (STATELESS): cada petición trae su token JWT.
- *  - ADMIN: puede hacer todo (CRUD completo y gestión de usuarios).
- *  - EMPLEADO: puede consultar todo y registrar movimientos de inventario.
- */
+
+// 📌 EL PORTERO: decide quién puede usar cada ruta de la API
 @Configuration
 public class SecurityConfig {
 
@@ -38,9 +35,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // CSRF afecta a cookies; usamos token JWT en la cabecera, por eso se desactiva
             .csrf(AbstractHttpConfigurer::disable)
+            // CORS: permite que el frontend (5173) llame al backend (8080)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            // STATELESS: el servidor no guarda sesiones, cada petición trae su token
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Reglas de arriba hacia abajo: se aplica la PRIMERA que coincide
             .authorizeHttpRequests(auth -> auth
                 // Público
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -48,20 +49,24 @@ public class SecurityConfig {
 
                 // Solo administrador
                 .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
+                .requestMatchers("/api/reportes/**").hasRole("ADMIN")   // ventas y ganancias
                 .requestMatchers(HttpMethod.POST,   "/api/categorias/**", "/api/proveedores/**", "/api/productos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT,    "/api/categorias/**", "/api/proveedores/**", "/api/productos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/categorias/**", "/api/proveedores/**", "/api/productos/**",
                                                     "/api/movimientos/**").hasRole("ADMIN")
 
                 // Cualquier usuario autenticado (ADMIN o EMPLEADO)
+                // Todo lo demás (GET, registrar movimientos): ADMIN o EMPLEADO con token
                 .anyRequest().authenticated()
             )
+            // 401 = no sé quién eres | 403 = sé quién eres pero no tienes permiso
             .exceptionHandling(e -> e
                 .authenticationEntryPoint((req, res, ex) ->
                         escribirError(res, 401, "Debe iniciar sesión o su sesión ha expirado"))
                 .accessDeniedHandler((req, res, ex) ->
                         escribirError(res, 403, "No tiene permisos para realizar esta acción"))
             )
+            // Primero se lee el token (JwtAuthFilter) y luego se revisan los permisos
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

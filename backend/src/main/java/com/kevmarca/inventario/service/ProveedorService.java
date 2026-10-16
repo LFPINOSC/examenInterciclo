@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+// 📌 Reglas de proveedores: RUC único y no borrar si tiene productos
 @Service
 public class ProveedorService {
 

@@ -15,6 +15,7 @@ import java.util.List;
  * Los movimientos son un historial (kardex): se registran y se consultan.
  * No se editan; si hubo un error se anulan (DELETE), lo que revierte el stock.
  */
+// 📌 Entradas y ventas (salidas). Registrar: ADMIN y EMPLEADO. Anular: solo ADMIN
 @RestController
 @RequestMapping("/api/movimientos")
 public class MovimientoController {
@@ -40,6 +41,7 @@ public class MovimientoController {
     @PostMapping
     public ResponseEntity<MovimientoInventario> registrar(@Valid @RequestBody MovimientoRequest req,
                                                           Authentication auth) {
+        // auth.getName() = usuario del TOKEN (nadie puede registrar a nombre de otro)
         return ResponseEntity.status(HttpStatus.CREATED).body(service.registrar(req, auth.getName()));
     }
 

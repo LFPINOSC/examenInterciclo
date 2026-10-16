@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 /** Al actualizar, la contraseña es opcional: si viene vacía se conserva la actual. */
+// 📌 Datos para crear/editar usuario. La contraseña se cifra en UsuarioService
 public record UsuarioRequest(
         @NotBlank(message = "El nombre es obligatorio")
         @Size(max = 100)

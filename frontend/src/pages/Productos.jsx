@@ -15,6 +15,7 @@ const VACIO = {
   stock: '0', stockMinimo: '0', categoriaId: '', proveedorId: '', activo: true,
 }
 
+// 📌 CRUD de productos + búsqueda + filtros por categoría y estado
 export default function Productos() {
   const [params, setParams] = useSearchParams()
   const [lista, setLista] = useState([])
@@ -84,6 +85,7 @@ export default function Productos() {
     setEditandoId(p.id); setErrores({}); setModal(true)
   }
 
+  // Validaciones del formulario (el backend vuelve a validar por seguridad)
   function validar() {
     const e = {}
     const compra = Number(form.precioCompra)
@@ -101,6 +103,7 @@ export default function Productos() {
     return Object.keys(e).length === 0
   }
 
+  // Number(): los inputs dan texto, la API espera números
   async function guardar(ev) {
     ev.preventDefault()
     if (!validar()) return

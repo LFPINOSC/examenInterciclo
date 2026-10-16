@@ -1,4 +1,5 @@
 // Reglas para clasificar el estado de un producto (se usan en varias pantallas).
+// 📌 Clasifica un producto: ok, bajo (stock <= mínimo), sin-stock o inactivo
 export function estadoProducto(p) {
   if (!p.activo) return 'inactivo'
   if (p.stock === 0) return 'sin-stock'

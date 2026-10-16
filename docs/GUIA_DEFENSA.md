@@ -127,6 +127,23 @@ El `Layout` pone `data-rol` en el contenedor y el CSS cambia el color de acento 
 de esconderlas, y hay un banner de "Modo empleado". Pero repito: es solo visual, quien realmente bloquea es
 el backend con 403.
 
+**¿Qué hace cada rol en el día a día?**
+El EMPLEADO es el cajero/bodeguero: registra cada **venta** (una salida) y la mercadería que llega
+(entrada). El ADMIN es el dueño: además de administrar productos, categorías, proveedores y usuarios,
+ve el **reporte de ventas** con ingresos y **ganancias**. El endpoint `/api/reportes/**` está protegido
+con `hasRole("ADMIN")`: si el empleado lo llama, recibe 403.
+
+**¿Cómo calculas la ganancia?**
+Una venta es un movimiento SALIDA. Ganancia = (precio de venta − costo) × cantidad. Lo calcula
+`ReporteService` en el backend, recorriendo las salidas del período y agrupándolas por día, producto y
+empleado.
+
+**¿Por qué guardas el precio en cada movimiento si el producto ya tiene precio?**
+Porque los precios cambian. Si mañana la gaseosa sube de $1,85 a $2,00 y leyera el precio del producto,
+las ventas de ayer aparecerían como si se hubieran vendido a $2,00 y la ganancia sería falsa. Por eso, al
+registrar, `MovimientoService` "congela" `precio_unitario` y `costo_unitario` en el movimiento (igual que
+una factura guarda el precio al que se vendió).
+
 **¿Cómo proteges las rutas?**
 `RutaProtegida.jsx` redirige al login si no hay sesión y, para `/usuarios`, exige el rol ADMIN.
 Ocultar botones es solo comodidad visual: **la seguridad real está en el backend**, que responde 403

@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /** GET /api/resumen -> indicadores del dashboard. */
+// 📌 Datos del dashboard: totales y valor del inventario
 @RestController
 @RequestMapping("/api/resumen")
 public class ResumenController {
@@ -34,6 +35,7 @@ public class ResumenController {
         List<Producto> productos = productoRepository.findAll();
 
         // Valor del inventario = suma de (stock x precio de compra)
+        // stream: recorre la lista y suma stock x precio de compra
         BigDecimal valor = productos.stream()
                 .map(p -> p.getPrecioCompra().multiply(BigDecimal.valueOf(p.getStock())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

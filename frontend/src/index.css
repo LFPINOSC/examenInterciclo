@@ -321,3 +321,12 @@ input:disabled { background: #f2f4f7; color: var(--suave); }
   .rejilla { grid-template-columns: 1fr; }
   .dona { flex-direction: column; }
 }
+
+/* Reportes */
+.periodos { display: flex; gap: 8px; flex-wrap: wrap; }
+td.ganancia { color: var(--verde); font-weight: 700; }
+.total-venta {
+  display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 10px;
+  background: var(--gris-suave); margin-bottom: 8px; font-size: .95rem;
+}
+.total-venta strong { font-size: 1.25rem; }

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
 /** Datos que el frontend envía para crear o actualizar un producto. */
+// 📌 Las anotaciones (@NotBlank, @Min...) validan antes de llegar al service
 public record ProductoRequest(
         @NotBlank(message = "El código es obligatorio")
         @Size(max = 30, message = "El código admite máximo 30 caracteres")

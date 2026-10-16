@@ -8,6 +8,7 @@ import { fecha } from '../utils/formato'
 
 const VACIO = { nombre: '', username: '', password: '', rol: 'EMPLEADO', activo: true }
 
+// 📌 CRUD de usuarios (solo ADMIN). Al editar, la contraseña es opcional
 export default function Usuarios() {
   const { usuario: sesion } = useAuth()
   const [lista, setLista] = useState([])

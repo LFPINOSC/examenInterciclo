@@ -84,14 +84,17 @@ CREATE TABLE movimiento_inventario (
     id           BIGSERIAL    PRIMARY KEY,
     tipo         VARCHAR(10)  NOT NULL,                 -- ENTRADA | SALIDA
     cantidad     INTEGER      NOT NULL,
-    motivo       VARCHAR(200),
+    motivo           VARCHAR(200),
+    precio_unitario  NUMERIC(10,2) NOT NULL,             -- precio al momento (venta o compra)
+    costo_unitario   NUMERIC(10,2) NOT NULL,             -- costo al momento (para la ganancia)
     fecha        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     producto_id  BIGINT       NOT NULL,
     usuario_id   BIGINT       NOT NULL,
     CONSTRAINT fk_movimiento_producto FOREIGN KEY (producto_id) REFERENCES producto(id),
     CONSTRAINT fk_movimiento_usuario  FOREIGN KEY (usuario_id)  REFERENCES usuario(id),
     CONSTRAINT chk_movimiento_tipo     CHECK (tipo IN ('ENTRADA', 'SALIDA')),
-    CONSTRAINT chk_movimiento_cantidad CHECK (cantidad > 0)
+    CONSTRAINT chk_movimiento_cantidad CHECK (cantidad > 0),
+    CONSTRAINT chk_movimiento_precios  CHECK (precio_unitario >= 0 AND costo_unitario >= 0)
 );
 
 -- =====================================================================
@@ -102,11 +105,11 @@ CREATE TABLE movimiento_inventario (
 --   admin / admin123  -> ADMIN
 --   empleado, cruiz, lgarcia / empleado123 -> EMPLEADO  (mpesantez está desactivada)
 INSERT INTO usuario (nombre, username, password, rol, activo) VALUES
-('Kevin Marca', 'admin', '$2a$10$8/IxWWlGThoyuaFo8Vj5YOdceHzZ6gXbvdsssZbYtRlLNURr3Xg2i', 'ADMIN', TRUE),
-('Ana Torres', 'empleado', '$2a$10$EK9/tAeBcU6KOkPBU2uU7Ogo/Jf.FRQrfThTfzLaHQ0Z3N8Xq.u3e', 'EMPLEADO', TRUE),
-('Carlos Ruiz', 'cruiz', '$2a$10$gApdpmI6I0SPpg0cIfuM1Oqc0OAv9kk7vFU2/F3vJvwkrwDRiaPUy', 'EMPLEADO', TRUE),
-('Luis García', 'lgarcia', '$2a$10$IEbkNpQawVSV3MVqocEzd.gcZC2JTpQIi2xFGq.aj.nuLDXGVnQeW', 'EMPLEADO', TRUE),
-('María Pesántez', 'mpesantez', '$2a$10$StXZQc1hf0uKsue.B7tTn.aWmfPLlcG5kQ1AKPjNVLjmSoWQYZgyq', 'EMPLEADO', FALSE);
+('Kevin Marca', 'admin', '$2a$10$OqC6/5kwdJycV62JkCzHgu4xqZCbjW0S5.iMinSZsI8ZwzX4Jvrc6', 'ADMIN', TRUE),
+('Ana Torres', 'empleado', '$2a$10$RYr.DARvA960gie0xH9fpeIWtNOh3Tp/jnuFKrPromCK6Ho3Q9lT.', 'EMPLEADO', TRUE),
+('Carlos Ruiz', 'cruiz', '$2a$10$lUuauKCbAwzcM7dKlKD6R.gzrducdXsJe6gXa8.N6nxOgbczt9b32', 'EMPLEADO', TRUE),
+('Luis García', 'lgarcia', '$2a$10$BpjJqWAf5vj.8Cdf0rhAf.f1xFgvdXdJBS7o9Ag1Iff/b7N3u9WL2', 'EMPLEADO', TRUE),
+('María Pesántez', 'mpesantez', '$2a$10$ih9geeJRQKs.wIHryJTqhugGw7Oz7KdgXdXHuo0i4q.t5DBPgQwGa', 'EMPLEADO', FALSE);
 
 INSERT INTO categoria (nombre, descripcion) VALUES
 ('Bebidas', 'Gaseosas, aguas, jugos y energizantes'),
@@ -210,8 +213,11 @@ JOIN proveedor p ON p.razon_social = d.proveedor;
 
 -- Movimientos de los últimos 7 días (se calculan desde la fecha actual,
 -- así el gráfico del dashboard siempre muestra datos recientes).
-INSERT INTO movimiento_inventario (tipo, cantidad, motivo, fecha, producto_id, usuario_id)
-SELECT d.tipo, d.cantidad, d.motivo, CURRENT_DATE - d.dias + d.hora::time, pr.id, u.id
+-- precio_unitario: precio de venta si es SALIDA, de compra si es ENTRADA; costo_unitario: precio de compra.
+INSERT INTO movimiento_inventario (tipo, cantidad, motivo, precio_unitario, costo_unitario, fecha, producto_id, usuario_id)
+SELECT d.tipo, d.cantidad, d.motivo,
+       CASE WHEN d.tipo = 'SALIDA' THEN pr.precio_venta ELSE pr.precio_compra END, pr.precio_compra,
+       CURRENT_DATE - d.dias + d.hora::time, pr.id, u.id
 FROM (VALUES
   ('ENTRADA', 24, 'Compra factura 001-1180', 6, '08:15', 'BEB-001', 'admin'),
   ('SALIDA', 12, 'Venta mostrador', 6, '10:40', 'LAC-001', 'empleado'),
@@ -232,7 +238,14 @@ FROM (VALUES
   ('SALIDA', 4, 'Venta mostrador', 1, '15:35', 'HIG-004', 'cruiz'),
   ('SALIDA', 2, 'Venta mostrador', 1, '17:20', 'MAS-003', 'lgarcia'),
   ('ENTRADA', 10, 'Compra factura 001-1205', 0, '08:10', 'BEB-002', 'admin'),
-  ('SALIDA', 6, 'Venta mostrador', 0, '08:30', 'LAC-006', 'empleado')
+  ('SALIDA', 6, 'Venta mostrador', 0, '08:30', 'LAC-006', 'empleado'),
+  ('SALIDA', 12, 'Venta mostrador', 0, '09:15', 'BEB-001', 'empleado'),
+  ('SALIDA', 4, 'Venta mostrador', 0, '09:40', 'ABA-001', 'cruiz'),
+  ('SALIDA', 6, 'Venta mostrador', 0, '10:05', 'LAC-001', 'empleado'),
+  ('SALIDA', 3, 'Venta mostrador', 0, '10:30', 'HIG-001', 'lgarcia'),
+  ('SALIDA', 8, 'Venta mostrador', 0, '10:55', 'SNK-001', 'cruiz'),
+  ('SALIDA', 2, 'Venta mostrador', 0, '11:20', 'EMB-005', 'empleado'),
+  ('SALIDA', 5, 'Venta mostrador', 0, '11:45', 'BEB-003', 'lgarcia')
 ) AS d(tipo, cantidad, motivo, dias, hora, codigo, username)
 JOIN producto pr ON pr.codigo = d.codigo
 JOIN usuario u ON u.username = d.username;

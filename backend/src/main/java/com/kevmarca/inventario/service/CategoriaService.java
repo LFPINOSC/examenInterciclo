@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+// 📌 SERVICE = reglas del negocio. El controller solo recibe; aquí se decide
 @Service
 public class CategoriaService {
 
@@ -54,6 +55,7 @@ public class CategoriaService {
     @Transactional
     public void eliminar(Long id) {
         Categoria categoria = obtener(id);
+        // Regla: no se borra una categoría que tiene productos
         if (productoRepository.existsByCategoriaId(id)) {
             throw new ReglaNegocioException("No se puede eliminar: la categoría tiene productos asociados");
         }

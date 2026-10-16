@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+// 📌 Datos para registrar una entrada o venta (el usuario NO viene aquí, sale del token)
 public record MovimientoRequest(
         @NotNull(message = "El tipo es obligatorio (ENTRADA o SALIDA)")
         TipoMovimiento tipo,

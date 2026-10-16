@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// 📌 CRUD de categorías: GET listar/obtener, POST crear, PUT editar, DELETE eliminar
 @RestController
 @RequestMapping("/api/categorias")
 public class CategoriaController {
@@ -29,8 +30,10 @@ public class CategoriaController {
         return service.obtener(id);
     }
 
+    // @Valid revisa las anotaciones de la entidad (@NotBlank...). Si falla -> 400
     @PostMapping
     public ResponseEntity<Categoria> crear(@Valid @RequestBody Categoria categoria) {
+        // 201 Created = se creó correctamente
         return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(categoria));
     }
 
@@ -42,6 +45,7 @@ public class CategoriaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         service.eliminar(id);
+        // 204 No Content = eliminado, sin cuerpo
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 
+// 📌 Barra verde (éxito) o roja (error)
 export default function Mensaje({ tipo = 'error', texto, onCerrar }) {
   if (!texto) return null
   return (

@@ -1,3 +1,4 @@
+// 📌 Círculo con las iniciales del usuario (ej.: Kevin Marca -> KM)
 export default function Avatar({ nombre = '' }) {
   const iniciales = nombre
     .split(' ')

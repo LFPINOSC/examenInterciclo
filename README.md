@@ -25,7 +25,7 @@ y no permite saber cuándo reabastecer.
 | Código | Requerimiento |
 |---|---|
 | RF-01 | Iniciar y cerrar sesión con usuario y contraseña. |
-| RF-02 | Controlar permisos por rol: **ADMIN** (todo) y **EMPLEADO** (consulta y registra movimientos). |
+| RF-02 | Controlar permisos por rol: **ADMIN** (todo, incluidos reportes de ganancias) y **EMPLEADO** (registra ventas y entradas, consulta el inventario). |
 | RF-03 | Registrar, consultar, actualizar y eliminar **categorías**. |
 | RF-04 | Registrar, consultar, actualizar y eliminar **proveedores** (RUC de 13 dígitos, único). |
 | RF-05 | Registrar, consultar, actualizar y eliminar **productos**, con categoría, proveedor, precios y stock mínimo. |
@@ -36,6 +36,7 @@ y no permite saber cuándo reabastecer.
 | RF-10 | Alertar los productos con stock igual o menor al mínimo. |
 | RF-11 | Mostrar un resumen: totales y valor del inventario. |
 | RF-12 | Gestionar usuarios (solo ADMIN). |
+| RF-13 | Reporte de ventas (solo ADMIN): ventas, unidades, ingresos, ganancia y margen por día, productos más vendidos y ventas por empleado. |
 
 ### Reglas de negocio
 
@@ -43,6 +44,8 @@ y no permite saber cuándo reabastecer.
 - El precio de venta no puede ser menor al de compra.
 - No se elimina una categoría o proveedor con productos, ni un producto o usuario con movimientos (se **desactivan**).
 - El usuario que registra un movimiento se toma del **token**, no del formulario (no se puede suplantar).
+- Cada movimiento **guarda el precio y el costo del momento** (`precio_unitario`, `costo_unitario`): si mañana cambia el precio, las ventas pasadas y sus ganancias no se alteran.
+- Una **venta** es un movimiento de tipo SALIDA. Ganancia = (precio de venta − costo) × cantidad.
 
 ---
 
@@ -121,6 +124,8 @@ erDiagram
         VARCHAR tipo "ENTRADA | SALIDA"
         INT cantidad
         VARCHAR motivo
+        DECIMAL precio_unitario "venta o compra"
+        DECIMAL costo_unitario
         DATETIME fecha
         BIGINT producto_id FK
         BIGINT usuario_id FK
@@ -170,6 +175,7 @@ Todas las rutas (excepto el login) requieren la cabecera `Authorization: Bearer 
 | GET | `/api/movimientos?productoId=` · `/api/movimientos/{id}` | Historial / obtener | Autenticado |
 | POST | `/api/movimientos` | Registrar entrada o salida | Autenticado |
 | DELETE | `/api/movimientos/{id}` | Anular (revierte stock) | ADMIN |
+| GET | `/api/reportes/ventas?dias=1\|7\|30` | Ventas, ingresos, ganancia y margen del período | ADMIN |
 | GET · POST · PUT · DELETE | `/api/usuarios` · `/api/usuarios/{id}` | CRUD de usuarios | ADMIN |
 
 ### Códigos de respuesta
@@ -187,16 +193,19 @@ Ejemplo de error:
 
 ## 4. Frontend
 
-React con páginas para **Dashboard, Productos, Movimientos, Categorías, Proveedores y Usuarios**.
+React con páginas para **Dashboard, Productos, Movimientos, Categorías, Proveedores, Reportes y Usuarios**.
 Todas consumen la API real mediante `src/api/api.js` (no hay datos simulados).
 
 - **Dashboard:** indicadores, gráfico de entradas/salidas de los últimos 7 días, productos por categoría,
   estado del inventario, productos por reabastecer, últimos movimientos y acciones rápidas
   (gráficos con *Recharts*, íconos con *lucide-react*). Las cifras se calculan con los datos de la API.
+- **Reportes (solo ADMIN):** ventas de hoy, 7 o 30 días con ingresos, ganancia, margen, gráfico por día,
+  productos más vendidos, ventas por empleado y detalle de cada venta.
+- **Dashboard según el rol:** el admin ve *Ventas de hoy* y *Ganancia de hoy*; el empleado ve *Mis ventas de hoy*.
 - **Buscador superior** y **campana de notificaciones** con los productos por reabastecer.
 - **Diferencias de rol visibles:** el ADMIN trabaja con color rojo y el EMPLEADO con azul; el empleado ve un
   aviso de "Modo empleado", y las acciones que no puede hacer aparecen **bloqueadas con candado**
-  (no escondidas), incluida la opción *Usuarios* del menú.
+  (no escondidas), incluidas las opciones *Reportes* y *Usuarios* del menú.
 
 - Validación en el formulario antes de enviar y además muestra los errores que devuelve el backend.
 - Si el token expira, se cierra la sesión y vuelve al login.
@@ -213,10 +222,27 @@ Todas consumen la API real mediante `src/api/api.js` (no hay datos simulados).
 2. Selecciona esa base, abre **Query Tool** y ejecuta `database/inventario_comercial.sql` (crea las tablas y los datos de prueba).
 
 Los datos de prueba simulan un minimarket de Cuenca: **10 categorías, 7 proveedores, 71 productos,
-5 usuarios y 20 movimientos** de los últimos 7 días. Volver a ejecutar el script borra y recrea todo.
+5 usuarios y 27 movimientos** (entradas y ventas) de los últimos 7 días. Volver a ejecutar el script borra y recrea todo.
 
 ### Paso 2 – Backend
-Revisa usuario y contraseña de PostgreSQL en `backend/src/main/resources/application.properties` y ejecuta:
+La conexión está en `backend/src/main/resources/application.properties`:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5433/inventario_comercial
+spring.datasource.username=postgres
+```
+
+> Usa el **puerto de tu servidor** de PostgreSQL (en pgAdmin: clic derecho en el servidor → *Properties* → *Connection* → *Port*).
+> Por defecto es 5432; en esta computadora PostgreSQL 18 usa el **5433**.
+
+La **contraseña no se sube a GitHub**. Crea el archivo `backend/src/main/resources/application-local.properties`
+(está en `.gitignore`) con tu contraseña de PostgreSQL:
+
+```properties
+spring.datasource.password=TU_CONTRASEÑA
+```
+
+Luego ejecuta:
 
 ```bash
 cd backend
@@ -250,4 +276,5 @@ Abre `http://localhost:5173`.
 2. Como **admin**: crear categoría, proveedor y producto; editarlos; intentar eliminar una categoría con productos → se bloquea.
 3. Registrar una **salida** mayor al stock → se rechaza. Registrar una **entrada** → el stock sube.
 4. Anular un movimiento → el stock vuelve a su valor anterior.
-5. Ingresar como **empleado** → solo consulta y registra movimientos; la página Usuarios no aparece.
+5. **Reportes** (admin) → *Hoy* muestra las ventas del día con ingresos y ganancia; cambiar a *Últimos 7 días* muestra el gráfico.
+6. Ingresar como **empleado** → la interfaz cambia a azul, aparece el aviso *Modo empleado*, solo consulta y registra movimientos; *Reportes*, *Usuarios* y los botones de crear/editar/eliminar aparecen bloqueados con candado, y si se llama a la API directamente responde 403.

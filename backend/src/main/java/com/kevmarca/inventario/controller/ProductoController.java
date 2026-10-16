@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// 📌 CRUD de productos. Recibe ProductoRequest (DTO) con categoriaId y proveedorId
 @RestController
 @RequestMapping("/api/productos")
 public class ProductoController {
@@ -23,6 +24,7 @@ public class ProductoController {
     /** GET /api/productos?buscar=agua  -> filtra por nombre o código */
     @GetMapping
     public List<Producto> listar(@RequestParam(required = false) String buscar) {
+        // ?buscar=agua -> filtra por nombre o código
         return service.listar(buscar);
     }
 

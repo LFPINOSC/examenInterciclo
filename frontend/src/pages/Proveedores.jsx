@@ -10,6 +10,7 @@ import AvisoPermiso from '../components/AvisoPermiso'
 
 const VACIO = { ruc: '', razonSocial: '', telefono: '', email: '', direccion: '' }
 
+// 📌 CRUD de proveedores (mismo patrón que Categorías)
 export default function Proveedores() {
   const [params, setParams] = useSearchParams()
   const [lista, setLista] = useState([])
@@ -45,6 +46,7 @@ export default function Proveedores() {
     setEditandoId(p.id); setErrores({}); setModal(true)
   }
 
+  // Validaciones: RUC 13 dígitos, teléfono 7-10 dígitos, correo válido
   function validar() {
     const e = {}
     if (!/^\d{13}$/.test(form.ruc)) e.ruc = 'El RUC debe tener exactamente 13 dígitos'

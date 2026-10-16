@@ -11,9 +11,11 @@ export class ApiError extends Error {
   }
 }
 
+// 📌 TODAS las llamadas a la API pasan por aquí (fetch + token + manejo de errores)
 async function peticion(metodo, ruta, cuerpo) {
   const token = localStorage.getItem('token')
   const headers = { 'Content-Type': 'application/json' }
+  // Se adjunta el token JWT en cada petición
   if (token) headers.Authorization = `Bearer ${token}`
 
   let respuesta
@@ -27,7 +29,7 @@ async function peticion(metodo, ruta, cuerpo) {
     throw new ApiError('No se pudo conectar con el servidor. ¿Está encendido el backend?', 0)
   }
 
-  // Token vencido o inválido: se cierra la sesión
+  // 401 = token vencido/inválido -> cerrar sesión y volver al login
   if (respuesta.status === 401 && ruta !== '/auth/login') {
     localStorage.removeItem('token')
     localStorage.removeItem('usuario')

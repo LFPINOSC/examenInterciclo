@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+// 📌 Reglas de productos: código único, venta >= compra, el stock NO se edita aquí
 @Service
 public class ProductoService {
 
@@ -81,6 +82,7 @@ public class ProductoService {
     }
 
     private void copiarDatos(ProductoRequest req, Producto p) {
+        // compareTo: así se comparan BigDecimal (< 0 significa "menor que")
         if (req.precioVenta().compareTo(req.precioCompra()) < 0) {
             throw new ReglaNegocioException("El precio de venta no puede ser menor al precio de compra");
         }

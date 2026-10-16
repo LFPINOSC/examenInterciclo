@@ -20,6 +20,7 @@ import java.io.IOException;
  * Lee la cabecera "Authorization: Bearer <token>", valida el token y,
  * si es correcto, registra al usuario como autenticado en el SecurityContext.
  */
+// 📌 Se ejecuta en CADA petición: lee "Authorization: Bearer <token>"
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -40,6 +41,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (cabecera != null && cabecera.startsWith("Bearer ")
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
 
+            // substring(7) quita "Bearer " y deja solo el token
             String token = cabecera.substring(7);
             String username = jwtService.validarYObtenerUsuario(token);
 
@@ -50,6 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         UsernamePasswordAuthenticationToken autenticacion =
                                 new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
                         autenticacion.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        // A partir de aquí Spring sabe quién es el usuario y su rol
                         SecurityContextHolder.getContext().setAuthentication(autenticacion);
                     }
                 } catch (UsernameNotFoundException ignored) {
@@ -57,6 +60,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         }
+        // Continúa con el siguiente filtro (si no hay token válido, SecurityConfig responde 401)
         chain.doFilter(request, response);
     }
 }

@@ -5,6 +5,7 @@ import Campo from '../components/Campo'
 import Mensaje from '../components/Mensaje'
 import { ShoppingCart } from 'lucide-react'
 
+// 📌 Pantalla de inicio de sesión
 export default function Login() {
   const { usuario, iniciarSesion } = useAuth()
   const navigate = useNavigate()
@@ -15,6 +16,7 @@ export default function Login() {
 
   if (usuario) return <Navigate to="/" replace />
 
+  // Validación en el FRONTEND: avisa antes de llamar a la API
   function validar() {
     const e = {}
     if (!form.username.trim()) e.username = 'Ingrese su usuario'

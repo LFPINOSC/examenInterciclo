@@ -1,3 +1,4 @@
+// 📌 Formatea números como dólares: 2.5 -> $2,50
 export const dinero = (valor) =>
   new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(Number(valor || 0))
 

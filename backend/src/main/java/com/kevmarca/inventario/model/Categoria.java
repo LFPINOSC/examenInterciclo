@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+// 📌 Tabla "categoria". Las validaciones (@NotBlank) se revisan con @Valid
 @Entity
 @Table(name = "categoria")
 public class Categoria {
 
+    // PK autoincremental
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

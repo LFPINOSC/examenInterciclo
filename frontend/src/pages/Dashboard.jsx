@@ -5,17 +5,19 @@ import {
 } from 'recharts'
 import {
   AlertTriangle, ArrowDownToLine, ArrowUpFromLine, Box, CalendarDays, DollarSign, FolderOpen,
-  FolderPlus, History, PackagePlus, RefreshCw, ShoppingCart, Truck, Lock,
+  FolderPlus, History, PackagePlus, RefreshCw, ShoppingCart, Truck, Lock, BarChart3, Receipt, TrendingUp,
 } from 'lucide-react'
 import { api } from '../api/api'
 import { useAuth } from '../context/AuthContext'
 import Mensaje from '../components/Mensaje'
+import Kpi from '../components/Kpi'
 import { dinero, fecha } from '../utils/formato'
 import { ESTADOS, estadoProducto, porReabastecer } from '../utils/inventario'
 
 const COLORES_CATEGORIA = ['#2f6fed', '#ef4444', '#f5b301', '#1b9a4b', '#06b6d4', '#8b5cf6']
 const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 
+// 📌 Inicio: indicadores, gráficos y tablas. TODO sale de la API real
 export default function Dashboard() {
   const { usuario, esAdmin } = useAuth()
   const navigate = useNavigate()
@@ -24,8 +26,10 @@ export default function Dashboard() {
   const [categorias, setCategorias] = useState([])
   const [proveedores, setProveedores] = useState([])
   const [resumen, setResumen] = useState(null)
+  const [ventasHoy, setVentasHoy] = useState(null)
   const [error, setError] = useState('')
 
+  // useEffect con [] = se ejecuta una vez al abrir la página
   useEffect(() => {
     // Todas las cifras salen de la API real (PostgreSQL), nada es simulado
     Promise.all([
@@ -36,13 +40,28 @@ export default function Dashboard() {
         setProductos(p); setMovimientos(m); setCategorias(c); setProveedores(pr); setResumen(r)
       })
       .catch((e) => setError(e.message))
-  }, [])
+    // Las ganancias solo las puede pedir el ADMIN (el backend responde 403 al empleado)
+    if (esAdmin) api.get('/reportes/ventas?dias=1').then(setVentasHoy).catch(() => {})
+  }, [esAdmin])
 
   const reabastecer = useMemo(() => porReabastecer(productos), [productos])
   const sinStock = productos.filter((p) => p.activo && p.stock === 0).length
   const activos = productos.filter((p) => p.activo).length
 
+  // Para el EMPLEADO: sus propias ventas (salidas) de hoy
+  const misVentasHoy = useMemo(() => {
+    const hoy = new Date().toDateString()
+    const mias = movimientos.filter((m) => m.tipo === 'SALIDA' && m.usuario.username === usuario.username
+      && new Date(m.fecha).toDateString() === hoy)
+    return {
+      ventas: mias.length,
+      unidades: mias.reduce((s, m) => s + m.cantidad, 0),
+      total: mias.reduce((s, m) => s + Number(m.total || 0), 0),
+    }
+  }, [movimientos, usuario.username])
+
   // Gráfico de barras: unidades que entraron y salieron en los últimos 7 días
+  // useMemo = guarda el cálculo y solo lo repite si cambian los datos
   const ultimos7 = useMemo(() => {
     const dias = []
     for (let i = 6; i >= 0; i--) {
@@ -80,12 +99,13 @@ export default function Dashboard() {
   const hoy = textoFecha.charAt(0).toUpperCase() + textoFecha.slice(1)
   const primerNombre = usuario.nombre.split(' ')[0]
 
+  // admin: true -> bloqueada para el empleado
   const acciones = [
     { texto: 'Nuevo producto', icono: PackagePlus, color: 'c-rojo', a: '/productos?nuevo=1', admin: true },
+    { texto: 'Registrar venta', icono: ArrowUpFromLine, color: 'c-verde', a: '/movimientos?tipo=SALIDA' },
     { texto: 'Registrar entrada', icono: ArrowDownToLine, color: 'c-azul', a: '/movimientos?tipo=ENTRADA' },
-    { texto: 'Registrar salida', icono: ArrowUpFromLine, color: 'c-verde', a: '/movimientos?tipo=SALIDA' },
     { texto: 'Nueva categoría', icono: FolderPlus, color: 'c-ambar', a: '/categorias?nuevo=1', admin: true },
-    { texto: 'Nuevo proveedor', icono: Truck, color: 'c-morado', a: '/proveedores?nuevo=1', admin: true },
+    { texto: 'Reporte de ventas', icono: BarChart3, color: 'c-morado', a: '/reportes', admin: true },
     { texto: 'Ver kardex', icono: History, color: 'c-gris', a: '/movimientos' },
   ]
 
@@ -107,11 +127,26 @@ export default function Dashboard() {
 
       <div className="kpis">
         <Kpi color="azul" icono={Box} titulo="Productos" valor={productos.length} detalle={`${activos} activos`} />
-        <Kpi color="verde" icono={FolderOpen} titulo="Categorías" valor={categorias.length} detalle="tipos de producto" />
-        <Kpi color="ambar" icono={Truck} titulo="Proveedores" valor={proveedores.length} detalle="registrados" />
         <Kpi color="rojo" icono={AlertTriangle} titulo="Stock bajo" valor={reabastecer.length} detalle={`${sinStock} sin stock`} />
-        <Kpi color="morado" icono={DollarSign} titulo="Valor del inventario"
-             valor={resumen ? dinero(resumen.valorInventario) : '—'} detalle="a precio de compra" />
+        {esAdmin ? (
+          <>
+            <Kpi color="verde" icono={Receipt} titulo="Ventas de hoy"
+                 valor={ventasHoy ? dinero(ventasHoy.totales.ingresos) : '—'}
+                 detalle={ventasHoy ? `${ventasHoy.totales.ventas} ventas · ${ventasHoy.totales.unidades} unidades` : ''} />
+            <Kpi color="ambar" icono={TrendingUp} titulo="Ganancia de hoy"
+                 valor={ventasHoy ? dinero(ventasHoy.totales.ganancia) : '—'}
+                 detalle={ventasHoy ? `margen ${Number(ventasHoy.totales.margenPorcentaje).toFixed(1)} %` : ''} />
+            <Kpi color="morado" icono={DollarSign} titulo="Valor del inventario"
+                 valor={resumen ? dinero(resumen.valorInventario) : '—'} detalle="a precio de compra" />
+          </>
+        ) : (
+          <>
+            <Kpi color="verde" icono={Receipt} titulo="Mis ventas de hoy" valor={misVentasHoy.ventas}
+                 detalle={`${misVentasHoy.unidades} unidades · ${dinero(misVentasHoy.total)}`} />
+            <Kpi color="ambar" icono={FolderOpen} titulo="Categorías" valor={categorias.length} detalle="tipos de producto" />
+            <Kpi color="morado" icono={Truck} titulo="Proveedores" valor={proveedores.length} detalle="registrados" />
+          </>
+        )}
       </div>
 
       <div className="fila-graficos">
@@ -222,19 +257,6 @@ export default function Dashboard() {
         </div>
       </section>
     </>
-  )
-}
-
-function Kpi({ color, icono: Icono, titulo, valor, detalle }) {
-  return (
-    <div className={`kpi ${color}`}>
-      <div className="kpi-icono"><Icono size={26} /></div>
-      <div>
-        <span>{titulo}</span>
-        <strong>{valor}</strong>
-        <small>{detalle}</small>
-      </div>
-    </div>
   )
 }
 

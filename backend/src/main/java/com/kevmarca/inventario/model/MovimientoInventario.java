@@ -2,8 +2,10 @@ package com.kevmarca.inventario.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+// 📌 Tabla "movimiento_inventario" = KARDEX. SALIDA = venta, ENTRADA = llegó mercadería
 @Entity
 @Table(name = "movimiento_inventario")
 public class MovimientoInventario {
@@ -21,6 +23,19 @@ public class MovimientoInventario {
 
     @Column(length = 200)
     private String motivo;
+
+    /**
+     * Precio por unidad en el momento del movimiento:
+     * SALIDA = precio de venta, ENTRADA = precio de compra.
+     * Se guarda aquí (y no se lee del producto) para que, si el precio cambia
+     * mañana, los reportes de ventas pasadas sigan siendo correctos.
+     */
+    @Column(name = "precio_unitario", precision = 10, scale = 2)
+    private BigDecimal precioUnitario;
+
+    /** Costo (precio de compra) por unidad en ese momento; sirve para calcular la ganancia. */
+    @Column(name = "costo_unitario", precision = 10, scale = 2)
+    private BigDecimal costoUnitario;
 
     @Column(nullable = false)
     private LocalDateTime fecha;
@@ -50,6 +65,17 @@ public class MovimientoInventario {
     public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
     public String getMotivo() { return motivo; }
     public void setMotivo(String motivo) { this.motivo = motivo; }
+    public BigDecimal getPrecioUnitario() { return precioUnitario; }
+    public void setPrecioUnitario(BigDecimal precioUnitario) { this.precioUnitario = precioUnitario; }
+    public BigDecimal getCostoUnitario() { return costoUnitario; }
+    public void setCostoUnitario(BigDecimal costoUnitario) { this.costoUnitario = costoUnitario; }
+
+    /** Total del movimiento (cantidad x precio). Se envía en el JSON como "total". */
+    public BigDecimal getTotal() {
+        if (precioUnitario == null || cantidad == null) return BigDecimal.ZERO;
+        return precioUnitario.multiply(BigDecimal.valueOf(cantidad));
+    }
+
     public LocalDateTime getFecha() { return fecha; }
     public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
     public Producto getProducto() { return producto; }

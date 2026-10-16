@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+// 📌 Tabla "proveedor". RUC único de 13 dígitos
 @Entity
 @Table(name = "proveedor")
 public class Proveedor {

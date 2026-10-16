@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
+// 📌 Tabla "producto": el centro del inventario
 @Entity
 @Table(name = "producto")
 public class Producto {
@@ -20,6 +21,7 @@ public class Producto {
 
     private String descripcion;
 
+    // BigDecimal (no double) porque el dinero debe ser exacto
     @Column(name = "precio_compra", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioCompra;
 
@@ -36,6 +38,7 @@ public class Producto {
     private boolean activo = true;
 
     // Muchos productos pertenecen a una categoría
+    // FK categoria_id -> relación N:1 (muchos productos, una categoría)
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;

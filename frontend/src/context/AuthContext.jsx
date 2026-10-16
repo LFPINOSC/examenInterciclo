@@ -12,9 +12,11 @@ function leerUsuarioGuardado() {
   }
 }
 
+// 📌 Context = "variable global" de React: comparte quién inició sesión con toda la app
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(leerUsuarioGuardado)
 
+  // Llama al login del backend y guarda token + usuario en localStorage
   async function iniciarSesion(username, password) {
     const datos = await api.post('/auth/login', { username, password })
     const sesion = { username: datos.username, nombre: datos.nombre, rol: datos.rol }

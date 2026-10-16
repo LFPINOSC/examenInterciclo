@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+// 📌 MODEL/ENTIDAD = tabla "usuario". Cada atributo es una columna
 @Entity
 @Table(name = "usuario")
 public class Usuario {
@@ -23,6 +24,7 @@ public class Usuario {
     @Column(nullable = false)
     private String password;
 
+    // El rol se guarda como texto: "ADMIN" o "EMPLEADO"
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Rol rol;
@@ -33,6 +35,7 @@ public class Usuario {
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
+    // @PrePersist: se ejecuta justo antes del INSERT
     @PrePersist
     void alCrear() {
         this.fechaCreacion = LocalDateTime.now();

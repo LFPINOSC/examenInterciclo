@@ -12,7 +12,9 @@ import Categorias from './pages/Categorias'
 import Proveedores from './pages/Proveedores'
 import Movimientos from './pages/Movimientos'
 import Usuarios from './pages/Usuarios'
+import Reportes from './pages/Reportes'
 
+// 📌 Punto de entrada de React: define las RUTAS (qué página se ve en cada URL)
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
@@ -27,6 +29,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/proveedores" element={<Proveedores />} />
             <Route path="/movimientos" element={<Movimientos />} />
+            <Route path="/reportes" element={<RutaProtegida soloAdmin><Reportes /></RutaProtegida>} />
             <Route path="/usuarios" element={<RutaProtegida soloAdmin><Usuarios /></RutaProtegida>} />
           </Route>
 

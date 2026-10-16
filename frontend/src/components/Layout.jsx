@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
-  ArrowLeftRight, Bell, Eye, FolderOpen, Home, Lock, LogOut, Menu, Package,
+  ArrowLeftRight, BarChart3, Bell, Eye, FolderOpen, Home, Lock, LogOut, Menu, Package,
   Search, ShieldCheck, ShoppingCart, Truck, Users,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -9,15 +9,18 @@ import { api } from '../api/api'
 import { porReabastecer } from '../utils/inventario'
 import Avatar from './Avatar'
 
+// 📌 Opciones del menú lateral. soloAdmin = el empleado la ve bloqueada con candado
 const MENU = [
   { a: '/', texto: 'Inicio', icono: Home, end: true },
   { a: '/productos', texto: 'Productos', icono: Package },
   { a: '/movimientos', texto: 'Movimientos', icono: ArrowLeftRight },
   { a: '/categorias', texto: 'Categorías', icono: FolderOpen },
   { a: '/proveedores', texto: 'Proveedores', icono: Truck },
+  { a: '/reportes', texto: 'Reportes', icono: BarChart3, soloAdmin: true },
   { a: '/usuarios', texto: 'Usuarios', icono: Users, soloAdmin: true },
 ]
 
+// 📌 Estructura común: menú lateral + barra superior + contenido de cada página (<Outlet />)
 export default function Layout() {
   const { usuario, esAdmin, cerrarSesion } = useAuth()
   const navigate = useNavigate()
@@ -33,6 +36,7 @@ export default function Layout() {
     setVerAlertas(false)
   }, [location.pathname])
 
+  // Buscador superior: lleva a Productos con ?buscar=
   function buscar(e) {
     e.preventDefault()
     navigate(`/productos?buscar=${encodeURIComponent(busqueda.trim())}`)
@@ -58,7 +62,7 @@ export default function Layout() {
           {MENU.map(({ a, texto, icono: Icono, end, soloAdmin }) =>
             soloAdmin && !esAdmin ? (
               // El empleado VE la opción pero bloqueada, para que se note la diferencia de rol
-              <span key={a} className="nav-item bloqueado" title="Solo el administrador puede gestionar usuarios">
+              <span key={a} className="nav-item bloqueado" title="Solo el administrador puede ver esta sección">
                 <Icono size={20} /> <span className="txt">{texto}</span>
                 <Lock size={15} className="candado-nav" />
               </span>
@@ -129,8 +133,8 @@ export default function Layout() {
           <div className="banner-rol">
             <Eye size={18} />
             <span>
-              <strong>Modo empleado:</strong> puedes consultar el inventario y registrar entradas y salidas.
-              Crear, editar o eliminar está reservado al administrador <Lock size={13} />.
+              <strong>Modo empleado:</strong> registra las ventas (salidas) y la mercadería que llega (entradas).
+              Los reportes de ganancias y crear, editar o eliminar son del administrador <Lock size={13} />.
             </span>
           </div>
         )}

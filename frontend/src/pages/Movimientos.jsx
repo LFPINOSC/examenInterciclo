@@ -7,10 +7,11 @@ import Campo from '../components/Campo'
 import Mensaje from '../components/Mensaje'
 import BotonAdmin from '../components/BotonAdmin'
 import AvisoPermiso from '../components/AvisoPermiso'
-import { fecha } from '../utils/formato'
+import { dinero, fecha } from '../utils/formato'
 
-const VACIO = { tipo: 'ENTRADA', productoId: '', cantidad: '', motivo: '' }
+const VACIO = { tipo: 'SALIDA', productoId: '', cantidad: '', motivo: '' }
 
+// 📌 Registrar VENTAS (salidas) y ENTRADAS. El stock lo actualiza el backend
 export default function Movimientos() {
   const [params, setParams] = useSearchParams()
   const [lista, setLista] = useState([])
@@ -56,6 +57,7 @@ export default function Movimientos() {
     setForm(VACIO); setErrores({}); setModal(true)
   }
 
+  // No deja vender más de lo que hay en stock
   function validar() {
     const e = {}
     if (!form.productoId) e.productoId = 'Seleccione un producto'
@@ -86,6 +88,7 @@ export default function Movimientos() {
     }
   }
 
+  // Solo ADMIN: revierte el stock del movimiento
   async function anular(m) {
     if (!window.confirm(`¿Anular este movimiento? Se revertirá el stock de "${m.producto.nombre}".`)) return
     try {
@@ -120,7 +123,7 @@ export default function Movimientos() {
             <thead>
               <tr>
                 <th>Fecha</th><th>Tipo</th><th>Producto</th><th className="num">Cantidad</th>
-                <th>Motivo</th><th>Registrado por</th><th className="acciones">Acciones</th>
+                <th className="num">P. unit.</th><th className="num">Total</th><th>Motivo</th><th>Registrado por</th><th className="acciones">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -136,6 +139,8 @@ export default function Movimientos() {
                   <td className="num" style={{ color: m.tipo === 'ENTRADA' ? '#1b9a4b' : '#dc2626', fontWeight: 700 }}>
                     {m.tipo === 'ENTRADA' ? '+' : '−'}{m.cantidad}
                   </td>
+                  <td className="num">{m.precioUnitario != null ? dinero(m.precioUnitario) : '—'}</td>
+                  <td className="num"><strong>{dinero(m.total)}</strong></td>
                   <td>{m.motivo}</td>
                   <td>{m.usuario.nombre}</td>
                   <td className="acciones">
@@ -143,7 +148,7 @@ export default function Movimientos() {
                   </td>
                 </tr>
               ))}
-              {lista.length === 0 && <tr><td colSpan={7} className="vacio">No hay movimientos registrados</td></tr>}
+              {lista.length === 0 && <tr><td colSpan={9} className="vacio">No hay movimientos registrados</td></tr>}
             </tbody>
           </table>
         </div>
@@ -160,7 +165,7 @@ export default function Movimientos() {
                 className={`${form.tipo === t ? 'activo' : ''} ${t === 'ENTRADA' ? 'entrada' : 'salida'}`}
                 onClick={() => setForm({ ...form, tipo: t })}
               >
-                {t === 'ENTRADA' ? <><ArrowDownToLine size={17} /> Entrada (compra)</> : <><ArrowUpFromLine size={17} /> Salida (venta)</>}
+                {t === 'ENTRADA' ? <><ArrowDownToLine size={17} /> Entrada (llegó mercadería)</> : <><ArrowUpFromLine size={17} /> Venta (salida)</>}
               </button>
             ))}
           </div>
@@ -182,6 +187,19 @@ export default function Movimientos() {
               onChange={cambiar('motivo')}
             />
           </Campo>
+          {productoElegido && /^\d+$/.test(form.cantidad) && Number(form.cantidad) > 0 && (
+            <div className="total-venta">
+              <span>
+                {form.tipo === 'SALIDA' ? 'Total de la venta' : 'Costo de la compra'}{' '}
+                <small className="texto-suave">
+                  ({form.cantidad} × {dinero(form.tipo === 'SALIDA' ? productoElegido.precioVenta : productoElegido.precioCompra)})
+                </small>
+              </span>
+              <strong>
+                {dinero(Number(form.cantidad) * Number(form.tipo === 'SALIDA' ? productoElegido.precioVenta : productoElegido.precioCompra))}
+              </strong>
+            </div>
+          )}
           {productoElegido && /^\d+$/.test(form.cantidad) &&
             (form.tipo === 'ENTRADA' || Number(form.cantidad) <= productoElegido.stock) && (
             <p className="texto-suave">

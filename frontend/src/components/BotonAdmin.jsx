@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext'
  * esconderse, para que se vea claramente qué cosas no puede hacer.
  * Ojo: esto es solo visual; la protección real está en el backend (SecurityConfig).
  */
+// 📌 Si es EMPLEADO: botón gris con candado. Si es ADMIN: botón normal
 export default function BotonAdmin({ className = 'btn btn-primario', icono, children, onClick, ...resto }) {
   const { esAdmin } = useAuth()
 

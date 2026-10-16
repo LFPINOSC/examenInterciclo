@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+// 📌 Reglas de usuarios: usuario único, contraseña cifrada, no eliminarse a sí mismo
 @Service
 public class UsuarioService {
 
@@ -51,6 +52,7 @@ public class UsuarioService {
         Usuario u = new Usuario();
         u.setNombre(req.nombre().trim());
         u.setUsername(req.username().trim());
+        // encode = cifra con BCrypt antes de guardar
         u.setPassword(passwordEncoder.encode(req.password()));
         u.setRol(req.rol());
         u.setActivo(req.activo() == null || req.activo());

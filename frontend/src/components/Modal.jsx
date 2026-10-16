@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 
+// 📌 Ventana emergente reutilizable (formularios de crear/editar)
 export default function Modal({ titulo, abierto, onCerrar, children }) {
   if (!abierto) return null
   return (

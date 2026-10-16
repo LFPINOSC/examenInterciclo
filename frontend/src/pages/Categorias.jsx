@@ -10,6 +10,7 @@ import AvisoPermiso from '../components/AvisoPermiso'
 
 const VACIO = { nombre: '', descripcion: '' }
 
+// 📌 CRUD de categorías (patrón que se repite en Proveedores y Usuarios)
 export default function Categorias() {
   const [params, setParams] = useSearchParams()
   const [lista, setLista] = useState([])
@@ -19,6 +20,7 @@ export default function Categorias() {
   const [errores, setErrores] = useState({})
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' })
 
+  // READ: trae la lista desde la API
   const cargar = () => api.get('/categorias').then(setLista).catch((e) => setMensaje({ tipo: 'error', texto: e.message }))
   useEffect(() => { cargar() }, [])
 
@@ -49,6 +51,7 @@ export default function Categorias() {
     return Object.keys(e).length === 0
   }
 
+  // CREATE o UPDATE: si hay editandoId -> PUT, si no -> POST
   async function guardar(ev) {
     ev.preventDefault()
     if (!validar()) return
@@ -63,6 +66,7 @@ export default function Categorias() {
     }
   }
 
+  // DELETE: pide confirmación y luego llama a la API
   async function eliminar(c) {
     if (!window.confirm(`¿Eliminar la categoría "${c.nombre}"?`)) return
     try {

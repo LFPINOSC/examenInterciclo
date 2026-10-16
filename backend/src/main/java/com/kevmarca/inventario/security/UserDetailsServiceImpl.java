@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /** Le indica a Spring Security cómo buscar un usuario en la base de datos. */
+// 📌 Le dice a Spring Security cómo buscar un usuario en NUESTRA base
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -28,6 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         return User.withUsername(u.getUsername())
                 .password(u.getPassword())
+                // El rol se convierte en "ROLE_ADMIN" / "ROLE_EMPLEADO" (así lo usa hasRole)
                 .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + u.getRol().name())))
                 .disabled(!u.isActivo())
                 .build();
