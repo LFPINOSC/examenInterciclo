@@ -3,3 +3,6 @@ target/
 .idea/
 *.iml
 .vscode/
+
+# Credenciales locales
+src/main/resources/application-local.properties

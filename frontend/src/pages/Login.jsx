@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Campo from '../components/Campo'
 import Mensaje from '../components/Mensaje'
+import { ShoppingCart } from 'lucide-react'
 
 export default function Login() {
   const { usuario, iniciarSesion } = useAuth()
@@ -40,7 +41,7 @@ export default function Login() {
   return (
     <div className="login-pagina">
       <form className="login-tarjeta" onSubmit={enviar} noValidate>
-        <span className="marca-icono grande">▣</span>
+        <span className="marca-icono"><ShoppingCart size={28} /></span>
         <h1>Inventario Comercial</h1>
         <p className="texto-suave">Ingrese sus credenciales para continuar</p>
 
@@ -64,6 +65,17 @@ export default function Login() {
         <button className="btn btn-primario ancho" disabled={cargando}>
           {cargando ? 'Ingresando…' : 'Ingresar'}
         </button>
+
+        {/* Atajo para la demostración: llena el formulario con una cuenta de prueba */}
+        <div className="cuentas-prueba">
+          <div>Cuentas de prueba:</div>
+          <button type="button" onClick={() => setForm({ username: 'admin', password: 'admin123' })}>
+            <span>admin / admin123</span> <span className="rol rol-admin">ADMIN</span>
+          </button>
+          <button type="button" onClick={() => setForm({ username: 'empleado', password: 'empleado123' })}>
+            <span>empleado / empleado123</span> <span className="rol rol-empleado">EMPLEADO</span>
+          </button>
+        </div>
       </form>
     </div>
   )

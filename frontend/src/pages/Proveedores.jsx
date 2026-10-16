@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { api } from '../api/api'
-import { useAuth } from '../context/AuthContext'
 import Modal from '../components/Modal'
 import Campo from '../components/Campo'
 import Mensaje from '../components/Mensaje'
+import BotonAdmin from '../components/BotonAdmin'
+import AvisoPermiso from '../components/AvisoPermiso'
 
 const VACIO = { ruc: '', razonSocial: '', telefono: '', email: '', direccion: '' }
 
 export default function Proveedores() {
-  const { esAdmin } = useAuth()
+  const [params, setParams] = useSearchParams()
   const [lista, setLista] = useState([])
   const [form, setForm] = useState(VACIO)
   const [editandoId, setEditandoId] = useState(null)
@@ -18,6 +21,15 @@ export default function Proveedores() {
 
   const cargar = () => api.get('/proveedores').then(setLista).catch((e) => setMensaje({ tipo: 'error', texto: e.message }))
   useEffect(() => { cargar() }, [])
+
+  // Si se llega desde las acciones rápidas del dashboard (?nuevo=1)
+  useEffect(() => {
+    if (params.get('nuevo')) {
+      abrirNuevo()
+      setParams({}, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params])
 
   const cambiar = (campo) => (e) => setForm({ ...form, [campo]: e.target.value })
 
@@ -72,14 +84,15 @@ export default function Proveedores() {
     <>
       <div className="encabezado">
         <h1>Proveedores</h1>
-        {esAdmin && <button className="btn btn-primario" onClick={abrirNuevo}>+ Nuevo proveedor</button>}
+        <BotonAdmin icono={<Plus size={17} />} onClick={abrirNuevo}>Nuevo proveedor</BotonAdmin>
       </div>
+      <AvisoPermiso texto="Como empleado puedes consultar los proveedores, pero no crearlos, editarlos ni eliminarlos." />
       <Mensaje tipo={mensaje.tipo} texto={mensaje.texto} onCerrar={() => setMensaje({})} />
 
       <section className="panel">
         <table>
           <thead>
-            <tr><th>RUC</th><th>Razón social</th><th>Teléfono</th><th>Correo</th><th>Dirección</th>{esAdmin && <th className="acciones">Acciones</th>}</tr>
+            <tr><th>RUC</th><th>Razón social</th><th>Teléfono</th><th>Correo</th><th>Dirección</th><th className="acciones">Acciones</th></tr>
           </thead>
           <tbody>
             {lista.map((p) => (
@@ -89,12 +102,10 @@ export default function Proveedores() {
                 <td>{p.telefono}</td>
                 <td>{p.email}</td>
                 <td>{p.direccion}</td>
-                {esAdmin && (
-                  <td className="acciones">
-                    <button className="btn btn-secundario" onClick={() => abrirEditar(p)}>Editar</button>
-                    <button className="btn btn-peligro" onClick={() => eliminar(p)}>Eliminar</button>
+                <td className="acciones">
+                    <BotonAdmin className="btn btn-secundario" icono={<Pencil size={15} />} onClick={() => abrirEditar(p)}>Editar</BotonAdmin>
+                    <BotonAdmin className="btn btn-peligro" icono={<Trash2 size={15} />} onClick={() => eliminar(p)}>Eliminar</BotonAdmin>
                   </td>
-                )}
               </tr>
             ))}
             {lista.length === 0 && <tr><td colSpan={6} className="vacio">No hay proveedores registrados</td></tr>}

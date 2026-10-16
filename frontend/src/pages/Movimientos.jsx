@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { ArrowDownToLine, ArrowUpFromLine, Plus, Undo2 } from 'lucide-react'
 import { api } from '../api/api'
-import { useAuth } from '../context/AuthContext'
 import Modal from '../components/Modal'
 import Campo from '../components/Campo'
 import Mensaje from '../components/Mensaje'
+import BotonAdmin from '../components/BotonAdmin'
+import AvisoPermiso from '../components/AvisoPermiso'
 import { fecha } from '../utils/formato'
 
 const VACIO = { tipo: 'ENTRADA', productoId: '', cantidad: '', motivo: '' }
 
 export default function Movimientos() {
-  const { esAdmin } = useAuth()
+  const [params, setParams] = useSearchParams()
   const [lista, setLista] = useState([])
   const [productos, setProductos] = useState([])
   const [filtroProducto, setFiltroProducto] = useState('')
@@ -28,6 +31,18 @@ export default function Movimientos() {
   useEffect(() => {
     cargarProductos()
   }, [])
+
+  // Desde el dashboard: /movimientos?tipo=ENTRADA&producto=5 abre el formulario ya llenado
+  useEffect(() => {
+    const tipo = params.get('tipo')
+    if (tipo === 'ENTRADA' || tipo === 'SALIDA') {
+      setForm({ ...VACIO, tipo, productoId: params.get('producto') || '' })
+      setErrores({})
+      setModal(true)
+      setParams({}, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params])
 
   useEffect(() => {
     cargarMovimientos(filtroProducto)
@@ -86,9 +101,13 @@ export default function Movimientos() {
   return (
     <>
       <div className="encabezado">
-        <h1>Movimientos de inventario</h1>
-        <button className="btn btn-primario" onClick={abrirNuevo}>+ Registrar movimiento</button>
+        <div>
+          <h1>Movimientos de inventario</h1>
+          <p>Kardex: cada entrada suma stock y cada salida lo resta.</p>
+        </div>
+        <button className="btn btn-primario" onClick={abrirNuevo}><Plus size={17} /> Registrar movimiento</button>
       </div>
+      <AvisoPermiso texto="Como empleado puedes registrar entradas y salidas. Anular un movimiento es exclusivo del administrador." />
       <Mensaje tipo={mensaje.tipo} texto={mensaje.texto} onCerrar={() => setMensaje({})} />
 
       <section className="panel">
@@ -101,7 +120,7 @@ export default function Movimientos() {
             <thead>
               <tr>
                 <th>Fecha</th><th>Tipo</th><th>Producto</th><th className="num">Cantidad</th>
-                <th>Motivo</th><th>Registrado por</th>{esAdmin && <th className="acciones">Acciones</th>}
+                <th>Motivo</th><th>Registrado por</th><th className="acciones">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -109,19 +128,19 @@ export default function Movimientos() {
                 <tr key={m.id}>
                   <td>{fecha(m.fecha)}</td>
                   <td>
-                    <span className={`etiqueta ${m.tipo === 'ENTRADA' ? 'etiqueta-ok' : 'etiqueta-aviso'}`}>
-                      {m.tipo === 'ENTRADA' ? '↓ Entrada' : '↑ Salida'}
+                    <span className={`etiqueta ${m.tipo === 'ENTRADA' ? 'etiqueta-ok' : 'etiqueta-peligro'}`}>
+                      {m.tipo === 'ENTRADA' ? 'Entrada' : 'Salida'}
                     </span>
                   </td>
                   <td>{m.producto.codigo} — {m.producto.nombre}</td>
-                  <td className="num">{m.cantidad}</td>
+                  <td className="num" style={{ color: m.tipo === 'ENTRADA' ? '#1b9a4b' : '#dc2626', fontWeight: 700 }}>
+                    {m.tipo === 'ENTRADA' ? '+' : '−'}{m.cantidad}
+                  </td>
                   <td>{m.motivo}</td>
                   <td>{m.usuario.nombre}</td>
-                  {esAdmin && (
-                    <td className="acciones">
-                      <button className="btn btn-peligro" onClick={() => anular(m)}>Anular</button>
-                    </td>
-                  )}
+                  <td className="acciones">
+                    <BotonAdmin className="btn btn-peligro" icono={<Undo2 size={15} />} onClick={() => anular(m)}>Anular</BotonAdmin>
+                  </td>
                 </tr>
               ))}
               {lista.length === 0 && <tr><td colSpan={7} className="vacio">No hay movimientos registrados</td></tr>}
@@ -138,10 +157,10 @@ export default function Movimientos() {
               <button
                 type="button"
                 key={t}
-                className={form.tipo === t ? 'activo' : ''}
+                className={`${form.tipo === t ? 'activo' : ''} ${t === 'ENTRADA' ? 'entrada' : 'salida'}`}
                 onClick={() => setForm({ ...form, tipo: t })}
               >
-                {t === 'ENTRADA' ? '↓ Entrada (compra)' : '↑ Salida (venta)'}
+                {t === 'ENTRADA' ? <><ArrowDownToLine size={17} /> Entrada (compra)</> : <><ArrowUpFromLine size={17} /> Salida (venta)</>}
               </button>
             ))}
           </div>

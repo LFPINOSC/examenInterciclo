@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { api } from '../api/api'
-import { useAuth } from '../context/AuthContext'
 import Modal from '../components/Modal'
 import Campo from '../components/Campo'
 import Mensaje from '../components/Mensaje'
+import BotonAdmin from '../components/BotonAdmin'
+import AvisoPermiso from '../components/AvisoPermiso'
 
 const VACIO = { nombre: '', descripcion: '' }
 
 export default function Categorias() {
-  const { esAdmin } = useAuth()
+  const [params, setParams] = useSearchParams()
   const [lista, setLista] = useState([])
   const [form, setForm] = useState(VACIO)
   const [editandoId, setEditandoId] = useState(null)
@@ -18,6 +21,15 @@ export default function Categorias() {
 
   const cargar = () => api.get('/categorias').then(setLista).catch((e) => setMensaje({ tipo: 'error', texto: e.message }))
   useEffect(() => { cargar() }, [])
+
+  // Si se llega desde las acciones rápidas del dashboard (?nuevo=1)
+  useEffect(() => {
+    if (params.get('nuevo')) {
+      abrirNuevo()
+      setParams({}, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params])
 
   function abrirNuevo() {
     setForm(VACIO); setEditandoId(null); setErrores({}); setModal(true)
@@ -66,24 +78,23 @@ export default function Categorias() {
     <>
       <div className="encabezado">
         <h1>Categorías</h1>
-        {esAdmin && <button className="btn btn-primario" onClick={abrirNuevo}>+ Nueva categoría</button>}
+        <BotonAdmin icono={<Plus size={17} />} onClick={abrirNuevo}>Nueva categoría</BotonAdmin>
       </div>
+      <AvisoPermiso texto="Como empleado puedes consultar las categorías, pero no crearlas, editarlas ni eliminarlas." />
       <Mensaje tipo={mensaje.tipo} texto={mensaje.texto} onCerrar={() => setMensaje({})} />
 
       <section className="panel">
         <table>
-          <thead><tr><th>Nombre</th><th>Descripción</th>{esAdmin && <th className="acciones">Acciones</th>}</tr></thead>
+          <thead><tr><th>Nombre</th><th>Descripción</th><th className="acciones">Acciones</th></tr></thead>
           <tbody>
             {lista.map((c) => (
               <tr key={c.id}>
                 <td>{c.nombre}</td>
                 <td>{c.descripcion}</td>
-                {esAdmin && (
-                  <td className="acciones">
-                    <button className="btn btn-secundario" onClick={() => abrirEditar(c)}>Editar</button>
-                    <button className="btn btn-peligro" onClick={() => eliminar(c)}>Eliminar</button>
+                <td className="acciones">
+                    <BotonAdmin className="btn btn-secundario" icono={<Pencil size={15} />} onClick={() => abrirEditar(c)}>Editar</BotonAdmin>
+                    <BotonAdmin className="btn btn-peligro" icono={<Trash2 size={15} />} onClick={() => eliminar(c)}>Eliminar</BotonAdmin>
                   </td>
-                )}
               </tr>
             ))}
             {lista.length === 0 && <tr><td colSpan={3} className="vacio">No hay categorías registradas</td></tr>}

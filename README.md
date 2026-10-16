@@ -8,7 +8,7 @@ entradas/salidas de mercadería, con inicio de sesión y permisos por rol.
 
 | Capa | Tecnología |
 |---|---|
-| Base de datos | MySQL 8 |
+| Base de datos | PostgreSQL (administrada con pgAdmin) |
 | Backend | Java 17 · Spring Boot 3.3 · Spring Data JPA · Spring Security + JWT · Bean Validation |
 | Frontend | React 18 · Vite · React Router |
 
@@ -49,6 +49,10 @@ y no permite saber cuándo reabastecer.
 ## 2. Diseño de la base de datos
 
 ### Entidades identificadas y por qué
+
+El modelo tiene **5 entidades (tablas)**. Además hay **2 enumeraciones** en Java (`Rol` y `TipoMovimiento`),
+que no son tablas sino listas fijas de valores guardadas como texto en `usuario.rol` y `movimiento_inventario.tipo`.
+
 
 | Entidad | Justificación |
 |---|---|
@@ -183,11 +187,18 @@ Ejemplo de error:
 
 ## 4. Frontend
 
-React con páginas para **Inicio, Productos, Movimientos, Categorías, Proveedores y Usuarios**.
+React con páginas para **Dashboard, Productos, Movimientos, Categorías, Proveedores y Usuarios**.
 Todas consumen la API real mediante `src/api/api.js` (no hay datos simulados).
 
+- **Dashboard:** indicadores, gráfico de entradas/salidas de los últimos 7 días, productos por categoría,
+  estado del inventario, productos por reabastecer, últimos movimientos y acciones rápidas
+  (gráficos con *Recharts*, íconos con *lucide-react*). Las cifras se calculan con los datos de la API.
+- **Buscador superior** y **campana de notificaciones** con los productos por reabastecer.
+- **Diferencias de rol visibles:** el ADMIN trabaja con color rojo y el EMPLEADO con azul; el empleado ve un
+  aviso de "Modo empleado", y las acciones que no puede hacer aparecen **bloqueadas con candado**
+  (no escondidas), incluida la opción *Usuarios* del menú.
+
 - Validación en el formulario antes de enviar y además muestra los errores que devuelve el backend.
-- Menú y botones según el rol: el EMPLEADO no ve los botones de editar/eliminar ni la página de usuarios.
 - Si el token expira, se cierra la sesión y vuelve al login.
 
 ---
@@ -195,25 +206,35 @@ Todas consumen la API real mediante `src/api/api.js` (no hay datos simulados).
 ## 5. Cómo ejecutar
 
 ### Requisitos
-- MySQL 8 · JDK 17 o superior · Maven (o el soporte Maven de VS Code / IntelliJ) · Node.js 18 o superior
+- PostgreSQL + pgAdmin · JDK 17 o superior · Maven (o el soporte Maven de VS Code / IntelliJ) · Node.js 18 o superior
 
 ### Paso 1 – Base de datos
-Ejecuta `database/inventario_comercial.sql` en MySQL Workbench (crea la base y los datos de prueba).
+1. En **pgAdmin**: clic derecho en *Databases* → *Create* → *Database…* y ponle el nombre `inventario_comercial`.
+2. Selecciona esa base, abre **Query Tool** y ejecuta `database/inventario_comercial.sql` (crea las tablas y los datos de prueba).
+
+Los datos de prueba simulan un minimarket de Cuenca: **10 categorías, 7 proveedores, 71 productos,
+5 usuarios y 20 movimientos** de los últimos 7 días. Volver a ejecutar el script borra y recrea todo.
 
 ### Paso 2 – Backend
-Revisa usuario y contraseña de MySQL en `backend/src/main/resources/application.properties` y ejecuta:
+Revisa usuario y contraseña de PostgreSQL en `backend/src/main/resources/application.properties` y ejecuta:
 
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-Queda en `http://localhost:8080`. Al arrancar crea los usuarios:
+Queda en `http://localhost:8080`. Usuarios de prueba (contraseñas guardadas con BCrypt):
 
-| Usuario | Contraseña | Rol |
-|---|---|---|
-| `admin` | `admin123` | ADMIN |
-| `empleado` | `empleado123` | EMPLEADO |
+| Usuario | Contraseña | Nombre | Rol |
+|---|---|---|---|
+| `admin` | `admin123` | Kevin Marca | ADMIN |
+| `empleado` | `empleado123` | Ana Torres | EMPLEADO |
+| `cruiz` | `empleado123` | Carlos Ruiz | EMPLEADO |
+| `lgarcia` | `empleado123` | Luis García | EMPLEADO |
+| `mpesantez` | `empleado123` | María Pesántez | EMPLEADO (desactivada: no puede ingresar) |
+
+> En Windows, si la ruta de la carpeta tiene tildes (p. ej. `PROGRAMACIÓN`) y `mvn spring-boot:run` falla con
+> *Could not find or load main class*, usa: `mvn clean package -DskipTests` y luego `java -jar target\inventario-1.0.0.jar`.
 
 ### Paso 3 – Frontend
 ```bash

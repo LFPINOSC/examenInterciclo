@@ -110,6 +110,23 @@ El token y los datos del usuario se guardan en `localStorage`. `AuthContext` los
 app mediante Context API. Si el backend responde 401 (token vencido), se borra la sesión y se redirige al
 login.
 
+**¿Cuántas entidades tiene tu modelo?**
+Cinco tablas: usuario, categoria, proveedor, producto y movimiento_inventario. `Rol` y `TipoMovimiento`
+son *enums* de Java: listas cerradas de valores (ADMIN/EMPLEADO, ENTRADA/SALIDA) que se guardan como texto
+y además están protegidas con `CHECK` en la base de datos.
+
+**¿De dónde salen los números y gráficos del dashboard?**
+De la API real. El dashboard pide `/api/productos`, `/api/movimientos`, `/api/categorias`, `/api/proveedores`
+y `/api/resumen`, y con esos datos calcula en el navegador (`useMemo`) los totales, el gráfico de
+entradas/salidas de los últimos 7 días y las donas. El valor del inventario lo calcula el backend
+(suma de stock × precio de compra).
+
+**¿Cómo se diferencia visualmente el ADMIN del EMPLEADO?**
+El `Layout` pone `data-rol` en el contenedor y el CSS cambia el color de acento (rojo/azul). El componente
+`BotonAdmin` muestra las acciones exclusivas del admin **bloqueadas con candado** para el empleado, en vez
+de esconderlas, y hay un banner de "Modo empleado". Pero repito: es solo visual, quien realmente bloquea es
+el backend con 403.
+
 **¿Cómo proteges las rutas?**
 `RutaProtegida.jsx` redirige al login si no hay sesión y, para `/usuarios`, exige el rol ADMIN.
 Ocultar botones es solo comodidad visual: **la seguridad real está en el backend**, que responde 403

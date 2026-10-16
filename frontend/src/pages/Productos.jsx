@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { api } from '../api/api'
-import { useAuth } from '../context/AuthContext'
 import Modal from '../components/Modal'
 import Campo from '../components/Campo'
 import Mensaje from '../components/Mensaje'
+import BotonAdmin from '../components/BotonAdmin'
+import AvisoPermiso from '../components/AvisoPermiso'
 import { dinero } from '../utils/formato'
+import { ESTADOS, estadoProducto } from '../utils/inventario'
 
 const VACIO = {
   codigo: '', nombre: '', descripcion: '', precioCompra: '', precioVenta: '',
@@ -12,11 +16,13 @@ const VACIO = {
 }
 
 export default function Productos() {
-  const { esAdmin } = useAuth()
+  const [params, setParams] = useSearchParams()
   const [lista, setLista] = useState([])
   const [categorias, setCategorias] = useState([])
   const [proveedores, setProveedores] = useState([])
-  const [buscar, setBuscar] = useState('')
+  const [buscar, setBuscar] = useState(params.get('buscar') || '')
+  const [filtroCategoria, setFiltroCategoria] = useState('')
+  const [filtroEstado, setFiltroEstado] = useState(params.get('estado') || '')
   const [form, setForm] = useState(VACIO)
   const [editandoId, setEditandoId] = useState(null)
   const [modal, setModal] = useState(false)
@@ -33,11 +39,33 @@ export default function Productos() {
     api.get('/proveedores').then(setProveedores).catch(() => {})
   }, [])
 
-  // Carga inicial y búsqueda con pequeño retraso para no consultar al servidor en cada tecla
+  // Si se llega desde el buscador superior o desde "Nuevo producto" del dashboard
+  useEffect(() => {
+    setBuscar(params.get('buscar') || '')
+    if (params.get('estado')) setFiltroEstado(params.get('estado'))
+    if (params.get('nuevo')) {
+      abrirNuevo()
+      setParams({}, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params])
+
+  // Búsqueda en el servidor con un pequeño retraso para no consultar en cada tecla
   useEffect(() => {
     const t = setTimeout(() => cargar(buscar.trim()), 300)
     return () => clearTimeout(t)
   }, [buscar])
+
+  // Filtros por categoría y estado (en el navegador, sobre la lista ya cargada)
+  const visibles = useMemo(
+    () => lista.filter((p) =>
+      (!filtroCategoria || String(p.categoria.id) === filtroCategoria) &&
+      (!filtroEstado || (filtroEstado === 'bajo'
+        ? ['bajo', 'sin-stock'].includes(estadoProducto(p))
+        : estadoProducto(p) === filtroEstado)))
+      .sort((a, b) => a.codigo.localeCompare(b.codigo)),
+    [lista, filtroCategoria, filtroEstado],
+  )
 
   const cambiar = (campo) => (e) =>
     setForm({ ...form, [campo]: e.target.type === 'checkbox' ? e.target.checked : e.target.value })
@@ -110,49 +138,61 @@ export default function Productos() {
   return (
     <>
       <div className="encabezado">
-        <h1>Productos</h1>
-        {esAdmin && <button className="btn btn-primario" onClick={abrirNuevo}>+ Nuevo producto</button>}
+        <div>
+          <h1>Productos</h1>
+          <p>Catálogo completo de la tienda con su stock actual.</p>
+        </div>
+        <BotonAdmin icono={<Plus size={17} />} onClick={abrirNuevo}>Nuevo producto</BotonAdmin>
       </div>
+      <AvisoPermiso texto="Como empleado puedes consultar los productos. Para cambiar el stock registra una entrada o salida en Movimientos." />
       <Mensaje tipo={mensaje.tipo} texto={mensaje.texto} onCerrar={() => setMensaje({})} />
 
       <section className="panel">
-        <input
-          className="buscador"
-          placeholder="Buscar por nombre o código…"
-          value={buscar}
-          onChange={(e) => setBuscar(e.target.value)}
-        />
+        <div className="filtros">
+          <input placeholder="Buscar por nombre o código…" value={buscar} onChange={(e) => setBuscar(e.target.value)} />
+          <select value={filtroCategoria} onChange={(e) => setFiltroCategoria(e.target.value)}>
+            <option value="">Todas las categorías</option>
+            {categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+          </select>
+          <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
+            <option value="">Todos los estados</option>
+            <option value="ok">En stock</option>
+            <option value="bajo">Por reabastecer</option>
+            <option value="sin-stock">Sin stock</option>
+            <option value="inactivo">No activos</option>
+          </select>
+          <span className="conteo">{visibles.length} de {lista.length} productos</span>
+        </div>
         <div className="tabla-scroll">
           <table>
             <thead>
               <tr>
                 <th>Código</th><th>Nombre</th><th>Categoría</th><th>Proveedor</th>
-                <th className="num">P. compra</th><th className="num">P. venta</th><th className="num">Stock</th><th>Estado</th>
-                {esAdmin && <th className="acciones">Acciones</th>}
+                <th className="num">P. compra</th><th className="num">P. venta</th>
+                <th className="centro">Stock</th><th>Estado</th><th className="acciones">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {lista.map((p) => (
-                <tr key={p.id} className={p.activo ? '' : 'inactivo'}>
-                  <td>{p.codigo}</td>
-                  <td>{p.nombre}</td>
-                  <td>{p.categoria.nombre}</td>
-                  <td>{p.proveedor.razonSocial}</td>
-                  <td className="num">{dinero(p.precioCompra)}</td>
-                  <td className="num">{dinero(p.precioVenta)}</td>
-                  <td className="num">
-                    <span className={`etiqueta ${p.stockBajo ? 'etiqueta-peligro' : 'etiqueta-ok'}`}>{p.stock}</span>
-                  </td>
-                  <td>{p.activo ? 'Activo' : 'Inactivo'}</td>
-                  {esAdmin && (
+              {visibles.map((p) => {
+                const est = ESTADOS[estadoProducto(p)]
+                return (
+                  <tr key={p.id} className={p.activo ? '' : 'inactivo'}>
+                    <td>{p.codigo}</td>
+                    <td>{p.nombre}</td>
+                    <td>{p.categoria.nombre}</td>
+                    <td>{p.proveedor.razonSocial}</td>
+                    <td className="num">{dinero(p.precioCompra)}</td>
+                    <td className="num">{dinero(p.precioVenta)}</td>
+                    <td className="centro">{p.stock} <small className="texto-suave">/ {p.stockMinimo}</small></td>
+                    <td><span className={`etiqueta ${est.clase}`}>{est.texto}</span></td>
                     <td className="acciones">
-                      <button className="btn btn-secundario" onClick={() => abrirEditar(p)}>Editar</button>
-                      <button className="btn btn-peligro" onClick={() => eliminar(p)}>Eliminar</button>
+                      <BotonAdmin className="btn btn-secundario" icono={<Pencil size={15} />} onClick={() => abrirEditar(p)}>Editar</BotonAdmin>
+                      <BotonAdmin className="btn btn-peligro" icono={<Trash2 size={15} />} onClick={() => eliminar(p)}>Eliminar</BotonAdmin>
                     </td>
-                  )}
-                </tr>
-              ))}
-              {lista.length === 0 && <tr><td colSpan={9} className="vacio">No se encontraron productos</td></tr>}
+                  </tr>
+                )
+              })}
+              {visibles.length === 0 && <tr><td colSpan={9} className="vacio">No se encontraron productos</td></tr>}
             </tbody>
           </table>
         </div>
@@ -163,7 +203,7 @@ export default function Productos() {
           <Mensaje texto={errores.general} />
           <div className="rejilla">
             <Campo etiqueta="Código *" error={errores.codigo}>
-              <input value={form.codigo} onChange={cambiar('codigo')} />
+              <input value={form.codigo} onChange={cambiar('codigo')} placeholder="Ej.: BEB-010" />
             </Campo>
             <Campo etiqueta="Nombre *" error={errores.nombre}>
               <input value={form.nombre} onChange={cambiar('nombre')} />
@@ -179,7 +219,7 @@ export default function Productos() {
             <Campo etiqueta="Precio de venta *" error={errores.precioVenta}>
               <input type="number" step="0.01" min="0" value={form.precioVenta} onChange={cambiar('precioVenta')} />
             </Campo>
-            <Campo etiqueta={editandoId ? 'Stock (use Movimientos)' : 'Stock inicial *'} error={errores.stock}>
+            <Campo etiqueta={editandoId ? 'Stock (cambia con Movimientos)' : 'Stock inicial *'} error={errores.stock}>
               <input type="number" min="0" value={form.stock} onChange={cambiar('stock')} disabled={!!editandoId} />
             </Campo>
             <Campo etiqueta="Stock mínimo *" error={errores.stockMinimo}>
