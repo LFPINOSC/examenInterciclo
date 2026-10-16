@@ -1,0 +1,15 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Backend
+backend/target/
+*.class
+
+# IDE / sistema
+.idea/
+*.iml
+.vscode/
+.qodo/
+.DS_Store
+Thumbs.db
