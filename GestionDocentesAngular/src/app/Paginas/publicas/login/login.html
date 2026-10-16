@@ -1,0 +1,54 @@
+<div class="auth-page">
+  <form
+    class="auth-card"
+    [formGroup]="form"
+    (ngSubmit)="entrar()"
+    novalidate
+    aria-labelledby="titulo-login"
+  >
+    <div class="logo">🎓 Gestión Docentes</div>
+    <h1 id="titulo-login">Iniciar sesión</h1>
+    <p class="muted">Sistema académico de docentes</p>
+
+    <label for="loginCorreo"
+      >Correo
+      <input
+        id="loginCorreo"
+        formControlName="correo"
+        type="email"
+        autocomplete="email"
+      />
+      @if (form.controls.correo.touched && form.controls.correo.invalid) {
+      <small class="field-error">Ingrese un correo electrónico válido.</small>
+      }
+    </label>
+
+    <label for="loginPassword"
+      >Contraseña
+      <input
+        id="loginPassword"
+        formControlName="password"
+        type="password"
+        autocomplete="current-password"
+      />
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+      <small class="field-error">La contraseña es obligatoria.</small>
+      }
+    </label>
+
+    @if(error()){
+    <div class="alert error" role="alert" aria-live="assertive">
+      {{error()}}
+    </div>
+    }
+
+    <button class="primary" type="submit" [disabled]="form.invalid">
+      Ingresar
+    </button>
+
+    <div class="auth-links">
+      <a routerLink="/registro">Crear cuenta</a>
+      <a routerLink="/verificar">Verificar correo</a>
+    </div>
+  </form>
+</div>

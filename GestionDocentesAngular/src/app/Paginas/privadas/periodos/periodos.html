@@ -1,0 +1,96 @@
+<header class="page-head">
+  <div>
+    <h1>Períodos académicos</h1>
+    <p>Gestión de ciclos o períodos académicos.</p>
+  </div>
+</header>
+<section class="panel">
+  <h2>{{edit?'Editar':'Nuevo'}} período</h2>
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <label
+      >Nombre<input
+        type="text"
+        formControlName="nombre"
+        maxlength="50"
+        placeholder="2026-2"
+      />@if(form.controls.nombre.touched && form.controls.nombre.invalid){<small
+        class="field-error"
+        >Ingrese un nombre de 3 a 50 caracteres.</small
+      >}</label
+    >
+    <label
+      >Fecha inicio<input
+        type="date"
+        formControlName="fechaInicio"
+      />@if(form.controls.fechaInicio.touched &&
+      form.controls.fechaInicio.invalid){<small class="field-error"
+        >La fecha de inicio es obligatoria.</small
+      >}</label
+    >
+    <label
+      >Fecha fin<input
+        type="date"
+        formControlName="fechaFin"
+        [min]="form.controls.fechaInicio.value"
+      />@if(form.controls.fechaFin.touched &&
+      form.controls.fechaFin.invalid){<small class="field-error"
+        >La fecha de fin es obligatoria.</small
+      >}@if(form.touched && form.hasError('rangoFechas')){<small
+        class="field-error"
+        >La fecha final no puede ser anterior a la inicial.</small
+      >}</label
+    >
+    <label
+      >Estado<select formControlName="estado">
+        <option value="PLANIFICADO">PLANIFICADO</option>
+        <option value="ACTIVO">ACTIVO</option>
+        <option value="CERRADO">CERRADO</option>
+      </select></label
+    >
+    <div class="actions span2">
+      <button class="primary" type="submit" [disabled]="form.invalid">
+        Guardar</button
+      >@if(edit){<button type="button" class="secondary" (click)="cancelar()">
+        Cancelar</button
+      >}
+    </div>
+  </form>
+</section>
+@if(error()){
+<div class="alert error" role="alert">{{error()}}</div>
+} @if(exito()){
+<div class="alert success" role="status">{{exito()}}</div>
+}
+<section class="panel table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Inicio</th>
+        <th>Fin</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for(x of lista();track x.id){
+      <tr>
+        <td>{{x.nombre}}</td>
+        <td>{{x.fechaInicio}}</td>
+        <td>{{x.fechaFin}}</td>
+        <td>{{x.estado}}</td>
+        <td class="actions-cell">
+          <button class="small" type="button" (click)="editar(x)">Editar</button
+          ><button class="small danger" type="button" (click)="eliminar(x)">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+      }@empty{
+      <tr>
+        <td colspan="5">No hay registros.</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</section>

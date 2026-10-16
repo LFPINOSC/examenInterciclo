@@ -1,0 +1,40 @@
+<header class="page-head">
+  <div>
+    <h1>Dashboard académico</h1>
+    <p>Resumen y accesos rápidos del sistema de gestión docente.</p>
+  </div>
+</header>
+<section class="cards">
+  <a class="stat shortcut-card" routerLink="/app/docentes"
+    ><span>👨‍🏫</span>
+    <div>
+      <b>{{docentes()}}</b><small>Docentes</small>
+      <div class="shortcut-action">Gestionar →</div>
+    </div></a
+  ><a class="stat shortcut-card" routerLink="/app/asignaturas"
+    ><span>📚</span>
+    <div>
+      <b>{{asignaturas()}}</b><small>Asignaturas</small>
+      <div class="shortcut-action">Gestionar →</div>
+    </div></a
+  ><a class="stat shortcut-card" routerLink="/app/carreras"
+    ><span>🎓</span>
+    <div>
+      <b>{{carreras()}}</b><small>Carreras</small>
+      <div class="shortcut-action">Gestionar →</div>
+    </div></a
+  ><a class="stat shortcut-card" routerLink="/app/asignaciones"
+    ><span>📋</span>
+    <div>
+      <b>{{asignaciones()}}</b><small>Asignaciones</small>
+      <div class="shortcut-action">Gestionar →</div>
+    </div></a
+  >
+</section>
+<section class="panel">
+  <h2>Flujo principal</h2>
+  <p>
+    Registre docentes, carreras, asignaturas y períodos; después cree la
+    asignación académica correspondiente.
+  </p>
+</section>

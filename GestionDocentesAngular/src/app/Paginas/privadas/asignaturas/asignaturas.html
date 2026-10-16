@@ -1,0 +1,102 @@
+<header class="page-head">
+  <div>
+    <h1>Asignaturas</h1>
+    <p>Materias que pueden impartirse.</p>
+  </div>
+</header>
+<section class="panel">
+  <h2>{{ edit ? 'Editar' : 'Nueva' }} asignatura</h2>
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <label
+      >Código
+      <input
+        type="text"
+        formControlName="codigo"
+        maxlength="15"
+        placeholder="PROG-WEB"
+      />
+      @if (form.controls.codigo.touched && form.controls.codigo.invalid) {
+      <small class="field-error"
+        >Use de 3 a 15 letras, números o guiones.</small
+      >
+      }
+    </label>
+    <label
+      >Nombre
+      <input type="text" formControlName="nombre" maxlength="100" />
+      @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+      <small class="field-error"
+        >El nombre debe tener entre 3 y 100 caracteres.</small
+      >
+      }
+    </label>
+    <label
+      >Créditos
+      <input type="number" formControlName="creditos" min="1" max="10" />
+      @if (form.controls.creditos.touched && form.controls.creditos.invalid) {
+      <small class="field-error">Ingrese entre 1 y 10 créditos.</small>
+      }
+    </label>
+    <label
+      >Horas semanales
+      <input type="number" formControlName="horasSemanales" min="1" max="40" />
+      @if (form.controls.horasSemanales.touched &&
+      form.controls.horasSemanales.invalid) {
+      <small class="field-error">Ingrese entre 1 y 40 horas.</small>
+      }
+    </label>
+    <label class="check"
+      ><input type="checkbox" formControlName="activa" /> Activa</label
+    >
+    <div class="actions span2">
+      <button class="primary" type="submit" [disabled]="form.invalid">
+        Guardar
+      </button>
+      @if (edit) {
+      <button type="button" class="secondary" (click)="cancelar()">
+        Cancelar
+      </button>
+      }
+    </div>
+  </form>
+</section>
+@if (error()) {
+<div class="alert error" role="alert">{{ error() }}</div>
+} @if (exito()) {
+<div class="alert success" role="status">{{ exito() }}</div>
+}
+<section class="panel table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Créditos</th>
+        <th>Horas</th>
+        <th>Activa</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for(x of lista();track x.id){
+      <tr>
+        <td>{{x.codigo}}</td>
+        <td>{{x.nombre}}</td>
+        <td>{{x.creditos}}</td>
+        <td>{{x.horasSemanales}}</td>
+        <td>{{x.activa ? 'SÍ' : 'NO'}}</td>
+        <td class="actions-cell">
+          <button class="small" type="button" (click)="editar(x)">Editar</button
+          ><button class="small danger" type="button" (click)="eliminar(x)">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+      }@empty{
+      <tr>
+        <td colspan="6">No hay registros.</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</section>

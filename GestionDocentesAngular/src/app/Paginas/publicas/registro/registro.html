@@ -1,0 +1,112 @@
+<div class="auth-page">
+  <form
+    class="auth-card wide"
+    [formGroup]="form"
+    (ngSubmit)="registrar()"
+    novalidate
+    aria-labelledby="titulo-registro"
+  >
+    <div class="logo">🎓 Gestión Docentes</div>
+    <h1 id="titulo-registro">Crear cuenta</h1>
+    <p class="muted">
+      Completa tus datos. Primero verificarás el correo y después el
+      administrador aprobará tu cuenta.
+    </p>
+
+    <label for="regNombre"
+      >Nombre completo
+      <input
+        id="regNombre"
+        formControlName="nombre"
+        maxlength="100"
+        autocomplete="name"
+      />
+      @if(form.controls.nombre.touched && form.controls.nombre.invalid){
+      <small class="field-error"
+        >Ingrese al menos 2 letras y no use números.</small
+      >
+      }
+    </label>
+
+    <label for="regCedula"
+      >Cédula
+      <input
+        id="regCedula"
+        formControlName="cedula"
+        maxlength="10"
+        inputmode="numeric"
+        autocomplete="off"
+        (input)="digitos($event,'cedula')"
+        aria-describedby="ayudaCedula"
+      />
+      <small id="ayudaCedula">Exactamente 10 números.</small>
+      @if(form.controls.cedula.touched && form.controls.cedula.invalid){
+      <small class="field-error"
+        >La cédula debe tener exactamente 10 números.</small
+      >
+      }
+    </label>
+
+    <label for="regTelefono"
+      >Teléfono
+      <input
+        id="regTelefono"
+        formControlName="telefono"
+        maxlength="10"
+        inputmode="tel"
+        autocomplete="tel"
+        (input)="digitos($event,'telefono')"
+        aria-describedby="ayudaTelefono"
+      />
+      <small id="ayudaTelefono">10 números y debe iniciar con 09.</small>
+      @if(form.controls.telefono.touched && form.controls.telefono.invalid){
+      <small class="field-error"
+        >El teléfono debe comenzar con 09 y tener 10 números.</small
+      >
+      }
+    </label>
+
+    <label for="regCorreo"
+      >Correo
+      <input
+        id="regCorreo"
+        type="email"
+        formControlName="correo"
+        autocomplete="email"
+      />
+      @if(form.controls.correo.touched && form.controls.correo.invalid){
+      <small class="field-error">Ingrese un correo electrónico válido.</small>
+      }
+    </label>
+
+    <label for="regPassword"
+      >Contraseña
+      <input
+        id="regPassword"
+        type="password"
+        formControlName="password"
+        autocomplete="new-password"
+        aria-describedby="ayudaPassword"
+      />
+      <small id="ayudaPassword"
+        >8+ caracteres, mayúscula, minúscula, número y símbolo.</small
+      >
+      @if(form.controls.password.touched && form.controls.password.invalid){
+      <small class="field-error"
+        >Debe cumplir todos los requisitos de seguridad.</small
+      >
+      }
+    </label>
+
+    @if(error()){
+    <div class="alert error" role="alert" aria-live="assertive">
+      {{error()}}
+    </div>
+    }
+
+    <button class="primary" type="submit" [disabled]="form.invalid">
+      Registrarme
+    </button>
+    <a routerLink="/login">Volver al inicio de sesión</a>
+  </form>
+</div>

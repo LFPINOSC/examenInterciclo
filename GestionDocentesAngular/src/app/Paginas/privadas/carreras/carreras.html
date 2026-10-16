@@ -1,0 +1,90 @@
+<header class="page-head">
+  <div>
+    <h1>Carreras</h1>
+    <p>Carreras académicas disponibles.</p>
+  </div>
+</header>
+<section class="panel">
+  <h2>{{edit?'Editar':'Nueva'}} carrera</h2>
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <label
+      >Código<input
+        type="text"
+        formControlName="codigo"
+        maxlength="15"
+        placeholder="ISC"
+      />@if(form.controls.codigo.touched && form.controls.codigo.invalid){<small
+        class="field-error"
+        >Use de 2 a 15 letras, números o guiones.</small
+      >}</label
+    >
+    <label
+      >Nombre<input
+        type="text"
+        formControlName="nombre"
+        maxlength="120"
+      />@if(form.controls.nombre.touched && form.controls.nombre.invalid){<small
+        class="field-error"
+        >El nombre debe tener entre 3 y 120 caracteres.</small
+      >}</label
+    >
+    <label
+      >Descripción<input
+        type="text"
+        formControlName="descripcion"
+        maxlength="250"
+      />@if(form.controls.descripcion.touched &&
+      form.controls.descripcion.invalid){<small class="field-error"
+        >Ingrese una descripción de al menos 5 caracteres.</small
+      >}</label
+    >
+    <label class="check"
+      ><input type="checkbox" formControlName="activa" /> Activa</label
+    >
+    <div class="actions span2">
+      <button class="primary" type="submit" [disabled]="form.invalid">
+        Guardar</button
+      >@if(edit){<button type="button" class="secondary" (click)="cancelar()">
+        Cancelar</button
+      >}
+    </div>
+  </form>
+</section>
+@if(error()){
+<div class="alert error" role="alert">{{error()}}</div>
+} @if(exito()){
+<div class="alert success" role="status">{{exito()}}</div>
+}
+<section class="panel table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Activa</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for(x of lista();track x.id){
+      <tr>
+        <td>{{x.codigo}}</td>
+        <td>{{x.nombre}}</td>
+        <td>{{x.descripcion}}</td>
+        <td>{{x.activa?'SÍ':'NO'}}</td>
+        <td class="actions-cell">
+          <button class="small" type="button" (click)="editar(x)">Editar</button
+          ><button class="small danger" type="button" (click)="eliminar(x)">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+      }@empty{
+      <tr>
+        <td colspan="5">No hay registros.</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</section>

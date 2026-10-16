@@ -1,0 +1,55 @@
+<div class="auth-page">
+  <form
+    class="auth-card"
+    [formGroup]="form"
+    (ngSubmit)="verificar()"
+    novalidate
+  >
+    <div class="logo">🎓 Gestión Docentes</div>
+    <h1>Verificar correo</h1>
+    <p class="muted">
+      Ingresa el código de 6 dígitos enviado a tu correo. Después de
+      verificarlo, el administrador deberá aprobar tu cuenta.
+    </p>
+
+    <label for="correoVerificacion"
+      >Correo
+      <input
+        id="correoVerificacion"
+        formControlName="correo"
+        type="email"
+        autocomplete="email"
+      />
+    </label>
+
+    <label for="codigoVerificacion"
+      >Código
+      <input
+        id="codigoVerificacion"
+        formControlName="codigo"
+        maxlength="6"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+      />
+      @if(form.controls.codigo.touched && form.controls.codigo.invalid){
+      <small class="field-error"
+        >El código debe tener exactamente 6 números.</small
+      >
+      }
+    </label>
+
+    @if(msg()){
+    <div class="alert success" role="status" aria-live="polite">{{msg()}}</div>
+    } @if(error()){
+    <div class="alert error" role="alert" aria-live="assertive">
+      {{error()}}
+    </div>
+    }
+
+    <button class="primary">Verificar código</button>
+    <button type="button" class="secondary" (click)="reenviar()">
+      Reenviar código
+    </button>
+    <a routerLink="/login">Volver al inicio de sesión</a>
+  </form>
+</div>

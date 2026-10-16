@@ -1,0 +1,125 @@
+<header class="page-head">
+  <div>
+    <h1>Asignaciones docentes</h1>
+    <p>Relaciona docente, asignatura, carrera y período académico.</p>
+  </div>
+</header>
+<section class="panel">
+  <h2>{{edit?'Editar':'Nueva'}} asignación</h2>
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <label
+      >Docente<select formControlName="docenteId">
+        <option [value]="0">Seleccione</option>
+        @for(x of docentes();track x.id){
+        <option [value]="x.id">{{x.nombres}} {{x.apellidos}}</option>
+        }</select
+      >@if(form.controls.docenteId.touched &&
+      form.controls.docenteId.invalid){<small class="field-error"
+        >Seleccione un docente activo.</small
+      >}</label
+    >
+    <label
+      >Asignatura<select formControlName="asignaturaId">
+        <option [value]="0">Seleccione</option>
+        @for(x of asignaturas();track x.id){
+        <option [value]="x.id">{{x.codigo}} - {{x.nombre}}</option>
+        }</select
+      >@if(form.controls.asignaturaId.touched &&
+      form.controls.asignaturaId.invalid){<small class="field-error"
+        >Seleccione una asignatura activa.</small
+      >}</label
+    >
+    <label
+      >Carrera<select formControlName="carreraId">
+        <option [value]="0">Seleccione</option>
+        @for(x of carreras();track x.id){
+        <option [value]="x.id">{{x.nombre}}</option>
+        }</select
+      >@if(form.controls.carreraId.touched &&
+      form.controls.carreraId.invalid){<small class="field-error"
+        >Seleccione una carrera activa.</small
+      >}</label
+    >
+    <label
+      >Período<select formControlName="periodoId">
+        <option [value]="0">Seleccione</option>
+        @for(x of periodos();track x.id){
+        <option [value]="x.id">{{x.nombre}}</option>
+        }</select
+      >@if(form.controls.periodoId.touched &&
+      form.controls.periodoId.invalid){<small class="field-error"
+        >Seleccione un período académico.</small
+      >}</label
+    >
+    <label
+      >Paralelo<input
+        formControlName="paralelo"
+        maxlength="10"
+        placeholder="A"
+      />@if(form.controls.paralelo.touched &&
+      form.controls.paralelo.invalid){<small class="field-error"
+        >Use letras, números o guiones; máximo 10 caracteres.</small
+      >}</label
+    >
+    <label
+      >Horas asignadas<input
+        type="number"
+        formControlName="horasAsignadas"
+        min="1"
+        max="40"
+      />@if(form.controls.horasAsignadas.touched &&
+      form.controls.horasAsignadas.invalid){<small class="field-error"
+        >Ingrese entre 1 y 40 horas.</small
+      >}</label
+    >
+    <div class="actions span2">
+      <button class="primary" type="submit" [disabled]="form.invalid">
+        Guardar</button
+      >@if(edit){<button type="button" class="secondary" (click)="cancelar()">
+        Cancelar</button
+      >}
+    </div>
+  </form>
+</section>
+@if(error()){
+<div class="alert error" role="alert">{{error()}}</div>
+} @if(exito()){
+<div class="alert success" role="status">{{exito()}}</div>
+}
+<section class="panel table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Docente</th>
+        <th>Asignatura</th>
+        <th>Carrera</th>
+        <th>Período</th>
+        <th>Paralelo</th>
+        <th>Horas</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for(x of lista();track x.id){
+      <tr>
+        <td>{{x.docente}}</td>
+        <td>{{x.asignatura}}</td>
+        <td>{{x.carrera}}</td>
+        <td>{{x.periodo}}</td>
+        <td>{{x.paralelo}}</td>
+        <td>{{x.horasAsignadas}}</td>
+        <td>
+          <button class="small" type="button" (click)="editar(x)">Editar</button
+          ><button class="small danger" type="button" (click)="eliminar(x)">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+      }@empty{
+      <tr>
+        <td colspan="7">No hay asignaciones.</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</section>

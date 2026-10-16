@@ -1,0 +1,112 @@
+<header class="page-head">
+  <div>
+    <h1>Usuarios</h1>
+    <p>
+      Después de verificar su correo, cada usuario debe ser aprobado por el
+      administrador antes de iniciar sesión.
+    </p>
+  </div>
+</header>
+
+@if(error()){
+<div class="alert error" role="alert" aria-live="assertive">{{error()}}</div>
+} @if(msg()){
+<div class="alert success" role="status" aria-live="polite">{{msg()}}</div>
+}
+
+<section class="panel">
+  <div class="section-heading">
+    <div>
+      <h2>Cuentas registradas</h2>
+      <p class="muted">
+        Aprueba usuarios verificados y bloquea o reactiva cuentas cuando sea
+        necesario.
+      </p>
+    </div>
+  </div>
+
+  <div
+    class="table-wrap"
+    tabindex="0"
+    aria-label="Tabla de usuarios registrados"
+  >
+    <table>
+      <caption class="sr-only">
+        Usuarios registrados en Gestión Docentes
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Cédula</th>
+          <th scope="col">Teléfono</th>
+          <th scope="col">Correo</th>
+          <th scope="col">Verificado</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Rol</th>
+          <th scope="col">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(x of lista();track x.id){
+        <tr>
+          <td><b>{{x.nombre}}</b></td>
+          <td>{{x.cedula||'—'}}</td>
+          <td>{{x.telefono||'—'}}</td>
+          <td>{{x.correo}}</td>
+          <td>{{x.verificado?'Sí':'No'}}</td>
+          <td>
+            <span
+              class="badge"
+              [class.badge-warning]="x.estado==='PENDIENTE'"
+              [class.badge-danger]="x.estado==='BLOQUEADO'"
+            >
+              {{x.estado}}
+            </span>
+          </td>
+          <td>{{x.rol}}</td>
+          <td class="actions-cell">
+            @if(x.rol==='ADMIN'){
+            <span class="protected" aria-label="Administrador protegido"
+              >🔒 Protegido</span
+            >
+            } @else if(x.estado==='PENDIENTE' && x.verificado){
+            <button
+              type="button"
+              class="small success-btn"
+              (click)="aprobar(x)"
+              [attr.aria-label]="'Aprobar cuenta de '+x.nombre"
+            >
+              Aprobar
+            </button>
+            } @else if(x.estado==='BLOQUEADO'){
+            <button
+              type="button"
+              class="small success-btn"
+              (click)="activar(x)"
+              [attr.aria-label]="'Reactivar cuenta de '+x.nombre"
+            >
+              Reactivar
+            </button>
+            } @else if(x.estado==='APROBADO'){
+            <button
+              type="button"
+              class="small danger"
+              (click)="bloquear(x)"
+              [attr.aria-label]="'Bloquear cuenta de '+x.nombre"
+            >
+              Bloquear
+            </button>
+            } @else {
+            <span class="muted">Debe verificar correo</span>
+            }
+          </td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="8">No hay usuarios.</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,1 @@
+function t(o){let r=o?.error;if(typeof r=="string")return r;if(r?.campos){let e=[];for(let[s,n]of Object.entries(r.campos))e.push(`${s}: ${Array.isArray(n)?n.join(", "):n}`);if(e.length)return e.join(" | ")}return r?.mensaje||o?.message||"Ocurrio un error inesperado"}export{t as a};

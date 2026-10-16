@@ -1,0 +1,24 @@
+<a class="skip-link" href="#contenido-principal"
+  >Saltar al contenido principal</a
+>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">🎓 <span>Gestión Docentes</span></div>
+    <div class="userbox">
+      <b>{{auth.nombre()}}</b><small>{{auth.rol()}}</small>
+    </div>
+    <nav>
+      <a routerLink="dashboard" routerLinkActive="active">🏠 Dashboard</a
+      ><a routerLink="docentes" routerLinkActive="active">👨‍🏫 Docentes</a
+      ><a routerLink="asignaturas" routerLinkActive="active">📚 Asignaturas</a
+      ><a routerLink="carreras" routerLinkActive="active">🎓 Carreras</a
+      ><a routerLink="periodos" routerLinkActive="active">📅 Períodos</a
+      ><a routerLink="asignaciones" routerLinkActive="active">📋 Asignaciones</a
+      >@if(auth.esAdmin()){<a routerLink="usuarios" routerLinkActive="active"
+        >👥 Usuarios</a
+      >}
+    </nav>
+    <button class="logout" (click)="salir()">Cerrar sesión</button>
+  </aside>
+  <main id="contenido-principal" class="content"><router-outlet /></main>
+</div>

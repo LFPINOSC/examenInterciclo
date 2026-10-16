@@ -1,0 +1,175 @@
+<header class="page-head">
+  <div>
+    <h1>Docentes</h1>
+    <p>Registro y administración de docentes.</p>
+  </div>
+</header>
+
+<section class="panel">
+  <h2>{{ edit ? 'Editar' : 'Nuevo' }} docente</h2>
+
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <label>
+      Cédula
+      <input
+        type="text"
+        formControlName="cedula"
+        maxlength="10"
+        inputmode="numeric"
+        (input)="soloDigitos($event, 'cedula')"
+      />
+      @if (form.controls.cedula.touched && form.controls.cedula.invalid) {
+      <small class="field-error"
+        >La cédula debe tener exactamente 10 números.</small
+      >
+      }
+    </label>
+
+    <label>
+      Nombres
+      <input
+        type="text"
+        formControlName="nombres"
+        maxlength="60"
+        autocomplete="given-name"
+      />
+      @if (form.controls.nombres.touched && form.controls.nombres.invalid) {
+      <small class="field-error"
+        >Ingrese al menos 2 letras y no use números.</small
+      >
+      }
+    </label>
+
+    <label>
+      Apellidos
+      <input
+        type="text"
+        formControlName="apellidos"
+        maxlength="60"
+        autocomplete="family-name"
+      />
+      @if (form.controls.apellidos.touched && form.controls.apellidos.invalid) {
+      <small class="field-error"
+        >Ingrese al menos 2 letras y no use números.</small
+      >
+      }
+    </label>
+
+    <label>
+      Correo institucional
+      <input
+        type="email"
+        formControlName="correoInstitucional"
+        maxlength="120"
+        autocomplete="email"
+      />
+      @if (form.controls.correoInstitucional.touched &&
+      form.controls.correoInstitucional.invalid) {
+      <small class="field-error">Ingrese un correo electrónico válido.</small>
+      }
+    </label>
+
+    <label>
+      Teléfono
+      <input
+        type="text"
+        formControlName="telefono"
+        maxlength="10"
+        inputmode="tel"
+        autocomplete="tel"
+        (input)="soloDigitos($event, 'telefono')"
+      />
+      @if (form.controls.telefono.touched && form.controls.telefono.invalid) {
+      <small class="field-error"
+        >Debe tener 10 números y comenzar con 09.</small
+      >
+      }
+    </label>
+
+    <label>
+      Título académico
+      <input type="text" formControlName="titulo" maxlength="100" />
+      @if (form.controls.titulo.touched && form.controls.titulo.invalid) {
+      <small class="field-error"
+        >El título es obligatorio y debe tener al menos 3 caracteres.</small
+      >
+      }
+    </label>
+
+    <label>
+      Fecha de ingreso
+      <input type="date" formControlName="fechaIngreso" [max]="hoy" />
+      @if (form.controls.fechaIngreso.touched &&
+      form.controls.fechaIngreso.invalid) {
+      <small class="field-error"
+        >Seleccione una fecha válida que no sea futura.</small
+      >
+      }
+    </label>
+
+    <label>
+      Estado
+      <select formControlName="estado">
+        <option value="ACTIVO">ACTIVO</option>
+        <option value="INACTIVO">INACTIVO</option>
+      </select>
+    </label>
+
+    <div class="actions span2">
+      <button class="primary" type="submit" [disabled]="form.invalid">
+        Guardar
+      </button>
+      @if (edit) {
+      <button type="button" class="secondary" (click)="cancelar()">
+        Cancelar
+      </button>
+      }
+    </div>
+  </form>
+</section>
+
+@if (error()) {
+<div class="alert error" role="alert" aria-live="assertive">{{ error() }}</div>
+} @if (exito()) {
+<div class="alert success" role="status" aria-live="polite">{{ exito() }}</div>
+}
+
+<section class="panel table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Cédula</th>
+        <th>Nombres</th>
+        <th>Apellidos</th>
+        <th>Correo</th>
+        <th>Título</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (x of lista(); track x.id) {
+      <tr>
+        <td>{{ x.cedula }}</td>
+        <td>{{ x.nombres }}</td>
+        <td>{{ x.apellidos }}</td>
+        <td>{{ x.correoInstitucional }}</td>
+        <td>{{ x.titulo }}</td>
+        <td>{{ x.estado }}</td>
+        <td class="actions-cell">
+          <button class="small" type="button" (click)="editar(x)">
+            Editar
+          </button>
+          <button class="small danger" type="button" (click)="eliminar(x)">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+      } @empty {
+      <tr>
+        <td colspan="7">No hay registros.</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</section>
