@@ -1,1 +1,229 @@
-<p>carreras works!</p>
+<div class="pagina">
+
+  <header class="encabezado">
+
+    <div>
+      <a
+        routerLink="/dashboard"
+        class="volver"
+      >
+        ← Volver al panel
+      </a>
+
+      <h1>Gestión de Carreras</h1>
+
+      <p>
+        Administración de carreras universitarias
+      </p>
+    </div>
+
+  </header>
+
+
+  <main class="contenido">
+
+    @if (mensaje) {
+      <div class="mensaje exito">
+        {{ mensaje }}
+      </div>
+    }
+
+    @if (error) {
+      <div class="mensaje error">
+        {{ error }}
+      </div>
+    }
+
+
+    <!-- SOLO ADMIN -->
+    @if (esAdmin()) {
+
+      <section class="formulario-card">
+
+        <h2>
+          {{ editandoId ? 'Editar carrera' : 'Nueva carrera' }}
+        </h2>
+
+        <form (ngSubmit)="guardar()">
+
+          <div class="campo">
+            <label>Nombre</label>
+
+            <input
+              type="text"
+              name="nombre"
+              [(ngModel)]="formulario.nombre"
+              placeholder="Ej. Ingeniería en Sistemas"
+            >
+          </div>
+
+          <div class="campo">
+            <label>Descripción</label>
+
+            <textarea
+              name="descripcion"
+              [(ngModel)]="formulario.descripcion"
+              placeholder="Descripción de la carrera"
+            ></textarea>
+          </div>
+
+          <div class="estado">
+
+            <input
+              type="checkbox"
+              name="activa"
+              [(ngModel)]="formulario.activa"
+            >
+
+            <label>
+              Carrera activa
+            </label>
+
+          </div>
+
+          <div class="acciones-form">
+
+            <button
+              type="submit"
+              class="btn-principal"
+            >
+              {{ editandoId ? 'Actualizar' : 'Guardar' }}
+            </button>
+
+            @if (editandoId) {
+
+              <button
+                type="button"
+                class="btn-secundario"
+                (click)="limpiar()"
+              >
+                Cancelar
+              </button>
+
+            }
+
+          </div>
+
+        </form>
+
+      </section>
+
+    }
+
+
+    <section class="tabla-card">
+
+      <div class="tabla-titulo">
+
+        <h2>Carreras registradas</h2>
+
+        <span>
+          {{ carreras.length }} registros
+        </span>
+
+      </div>
+
+      <div class="tabla-responsive">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+
+              @if (esAdmin()) {
+                <th>Acciones</th>
+              }
+
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (carrera of carreras; track carrera.id) {
+
+              <tr>
+
+                <td>
+                  {{ carrera.id }}
+                </td>
+
+                <td>
+                  <strong>
+                    {{ carrera.nombre }}
+                  </strong>
+                </td>
+
+                <td>
+                  {{ carrera.descripcion }}
+                </td>
+
+                <td>
+
+                  @if (carrera.activa) {
+
+                    <span class="estado-activo">
+                      Activa
+                    </span>
+
+                  } @else {
+
+                    <span class="estado-inactivo">
+                      Inactiva
+                    </span>
+
+                  }
+
+                </td>
+
+                @if (esAdmin()) {
+
+                  <td class="acciones">
+
+                    <button
+                      class="btn-editar"
+                      (click)="editar(carrera)"
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      class="btn-eliminar"
+                      (click)="eliminar(carrera)"
+                    >
+                      Eliminar
+                    </button>
+
+                  </td>
+
+                }
+
+              </tr>
+
+            } @empty {
+
+              <tr>
+                <td
+                  colspan="5"
+                  class="vacio"
+                >
+                  No existen carreras registradas.
+                </td>
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

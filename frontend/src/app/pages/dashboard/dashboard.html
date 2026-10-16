@@ -1,1 +1,180 @@
-<p>dashboard works!</p>
+<div class="pagina">
+
+  <!-- =============================== -->
+  <!-- BARRA SUPERIOR -->
+  <!-- =============================== -->
+
+  <header class="topbar">
+
+    <div>
+      <h2>Sistema Universitario</h2>
+      <span>Gestión de Matrículas</span>
+    </div>
+
+    <div class="usuario">
+
+      <div class="datos-usuario">
+        <strong>{{ nombre }}</strong>
+        <span>{{ rol }}</span>
+      </div>
+
+      <button
+        class="btn-salir"
+        (click)="cerrarSesion()"
+      >
+        Cerrar sesión
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- =============================== -->
+  <!-- CONTENIDO -->
+  <!-- =============================== -->
+
+  <main class="contenido">
+
+    <section class="bienvenida">
+
+      <div>
+
+        <p class="etiqueta">
+          PANEL PRINCIPAL
+        </p>
+
+        <h1>
+          Bienvenido, {{ nombre }}
+        </h1>
+
+        <p>
+          Administra la información académica
+          del sistema de matrículas universitarias.
+        </p>
+
+      </div>
+
+      <div class="rol">
+        {{ rol }}
+      </div>
+
+    </section>
+
+
+    <!-- =============================== -->
+    <!-- OPCIONES DEL SISTEMA -->
+    <!-- =============================== -->
+
+    <section class="modulos">
+
+      <!-- SOLO ADMIN -->
+      @if (esAdmin()) {
+
+        <a
+          routerLink="/estudiantes"
+          class="tarjeta"
+        >
+
+          <div class="icono">
+            👨‍🎓
+          </div>
+
+          <div>
+            <h3>Estudiantes</h3>
+
+            <p>
+              Registrar, consultar, actualizar
+              y eliminar estudiantes.
+            </p>
+          </div>
+
+          <span class="flecha">
+            →
+          </span>
+
+        </a>
+
+      }
+
+
+      <!-- ADMIN Y ESTUDIANTE -->
+      <a
+        routerLink="/carreras"
+        class="tarjeta"
+      >
+
+        <div class="icono">
+          🎓
+        </div>
+
+        <div>
+          <h3>Carreras</h3>
+
+          <p>
+            Consulta y administración de
+            carreras universitarias.
+          </p>
+        </div>
+
+        <span class="flecha">
+          →
+        </span>
+
+      </a>
+
+
+      <a
+        routerLink="/asignaturas"
+        class="tarjeta"
+      >
+
+        <div class="icono">
+          📚
+        </div>
+
+        <div>
+          <h3>Asignaturas</h3>
+
+          <p>
+            Gestión de materias, créditos
+            y niveles académicos.
+          </p>
+        </div>
+
+        <span class="flecha">
+          →
+        </span>
+
+      </a>
+
+
+      <a
+        routerLink="/matriculas"
+        class="tarjeta"
+      >
+
+        <div class="icono">
+          📝
+        </div>
+
+        <div>
+          <h3>Matrículas</h3>
+
+          <p>
+            Registro y consulta de
+            matrículas universitarias.
+          </p>
+        </div>
+
+        <span class="flecha">
+          →
+        </span>
+
+      </a>
+
+    </section>
+
+  </main>
+
+</div>

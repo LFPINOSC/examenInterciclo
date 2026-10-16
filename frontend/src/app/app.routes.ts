@@ -7,55 +7,99 @@ import { Estudiantes } from './pages/estudiantes/estudiantes';
 import { Asignaturas } from './pages/asignaturas/asignaturas';
 import { Matriculas } from './pages/matriculas/matriculas';
 
+import { authGuard } from './guards/auth.guard';
+import { roleGuard } from './guards/role.guard';
+
 export const routes: Routes = [
 
-  // Al ingresar al sistema se dirige al login
+  // Ruta inicial
   {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'
   },
 
-  // Página de inicio de sesión
+  // LOGIN: ruta pública
   {
     path: 'login',
     component: Login
   },
 
-  // Panel principal
+  // Dashboard: necesita iniciar sesión
   {
     path: 'dashboard',
-    component: Dashboard
+    component: Dashboard,
+    canActivate: [
+      authGuard
+    ]
   },
 
-  // Gestión de carreras
+  // Carreras: ADMIN y ESTUDIANTE
   {
     path: 'carreras',
-    component: Carreras
+    component: Carreras,
+    canActivate: [
+      authGuard,
+      roleGuard
+    ],
+    data: {
+      roles: [
+        'ADMIN',
+        'ESTUDIANTE'
+      ]
+    }
   },
 
-  // Gestión de estudiantes
+  // Estudiantes: SOLO ADMIN
   {
     path: 'estudiantes',
-    component: Estudiantes
+    component: Estudiantes,
+    canActivate: [
+      authGuard,
+      roleGuard
+    ],
+    data: {
+      roles: [
+        'ADMIN'
+      ]
+    }
   },
 
-  // Gestión de asignaturas
+  // Asignaturas: ADMIN y ESTUDIANTE
   {
     path: 'asignaturas',
-    component: Asignaturas
+    component: Asignaturas,
+    canActivate: [
+      authGuard,
+      roleGuard
+    ],
+    data: {
+      roles: [
+        'ADMIN',
+        'ESTUDIANTE'
+      ]
+    }
   },
 
-  // Gestión de matrículas
+  // Matrículas: ambos roles
   {
     path: 'matriculas',
-    component: Matriculas
+    component: Matriculas,
+    canActivate: [
+      authGuard,
+      roleGuard
+    ],
+    data: {
+      roles: [
+        'ADMIN',
+        'ESTUDIANTE'
+      ]
+    }
   },
 
-  // Si escribe una ruta que no existe vuelve al login
+  // Ruta inexistente
   {
     path: '**',
     redirectTo: 'login'
   }
-
 ];

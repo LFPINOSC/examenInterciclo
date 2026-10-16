@@ -1,0 +1,359 @@
+* {
+  box-sizing: border-box;
+}
+
+.pagina {
+  min-height: 100vh;
+  background: #f4f7fb;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1e293b;
+}
+
+/* ENCABEZADO */
+
+.encabezado {
+  padding: 25px 50px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.encabezado h1 {
+  margin: 12px 0 5px;
+  font-size: 30px;
+}
+
+.encabezado p {
+  margin: 0;
+  color: #64748b;
+}
+
+.volver {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+
+/* CONTENIDO */
+
+.contenido {
+  max-width: 1200px;
+  margin: auto;
+  padding: 35px 25px;
+}
+
+
+/* TARJETAS */
+
+.formulario-card,
+.tabla-card {
+  margin-bottom: 25px;
+  padding: 25px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  box-shadow:
+    0 4px 15px rgba(15, 23, 42, 0.04);
+}
+
+.formulario-card h2,
+.tabla-card h2 {
+  margin-top: 0;
+}
+
+
+/* FORMULARIO */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+
+  margin-bottom: 20px;
+}
+
+.campo label {
+  margin-bottom: 7px;
+
+  color: #334155;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.campo input,
+.campo select {
+  padding: 11px 12px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+
+  font-size: 14px;
+}
+
+
+/* MATERIAS */
+
+.materias {
+  margin: 25px 0;
+}
+
+.materias h3 {
+  margin-bottom: 15px;
+}
+
+.materias-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.materia {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 12px;
+
+  padding: 15px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.materia:hover {
+  border-color: #93c5fd;
+  background: #f8fbff;
+}
+
+.materia input {
+  margin-top: 4px;
+}
+
+.materia div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.materia strong {
+  font-size: 14px;
+}
+
+.materia span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.materia small {
+  color: #2563eb;
+}
+
+.sin-materias {
+  color: #64748b;
+}
+
+
+/* BOTONES */
+
+.acciones-form {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  padding: 10px 15px;
+
+  border: none;
+  border-radius: 7px;
+
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-principal {
+  background: #1e3a8a;
+  color: white;
+}
+
+.btn-secundario {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.btn-eliminar {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.btn-cancelar {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+
+/* TABLA */
+
+.tabla-titulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tabla-titulo h2 {
+  margin-bottom: 4px;
+}
+
+.tabla-titulo p {
+  margin-top: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.tabla-responsive {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 850px;
+
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 14px 12px;
+
+  text-align: left;
+
+  border-bottom:
+    1px solid #e2e8f0;
+}
+
+th {
+  color: #64748b;
+
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+td {
+  font-size: 14px;
+}
+
+
+/* MATERIAS EN TABLA */
+
+.lista-materias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.materia-chip {
+  padding: 4px 7px;
+
+  background: #eff6ff;
+  color: #1d4ed8;
+
+  border-radius: 12px;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
+/* ESTADOS */
+
+.estado-activo {
+  display: inline-block;
+
+  padding: 5px 9px;
+
+  background: #dcfce7;
+  color: #166534;
+
+  border-radius: 15px;
+
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.estado-cancelado {
+  display: inline-block;
+
+  padding: 5px 9px;
+
+  background: #fee2e2;
+  color: #b91c1c;
+
+  border-radius: 15px;
+
+  font-size: 11px;
+  font-weight: bold;
+}
+
+
+/* MENSAJES */
+
+.mensaje {
+  margin-bottom: 20px;
+  padding: 12px 15px;
+
+  border-radius: 7px;
+}
+
+.exito {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.error {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.vacio {
+  padding: 35px !important;
+
+  text-align: center;
+  color: #64748b;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 800px) {
+
+  .encabezado {
+    padding: 20px;
+  }
+
+  .contenido {
+    padding: 25px 20px;
+  }
+
+  .materias-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones-form {
+    flex-wrap: wrap;
+  }
+}

@@ -1,1 +1,304 @@
-<p>asignaturas works!</p>
+<div class="pagina">
+
+  <header class="encabezado">
+
+    <a routerLink="/dashboard" class="volver">
+      ← Volver al panel
+    </a>
+
+    <h1>Gestión de Asignaturas</h1>
+
+    <p>
+      Administración de materias universitarias
+    </p>
+
+  </header>
+
+  <main class="contenido">
+
+    @if (mensaje) {
+      <div class="mensaje exito">
+        {{ mensaje }}
+      </div>
+    }
+
+    @if (error) {
+      <div class="mensaje error">
+        {{ error }}
+      </div>
+    }
+
+
+    @if (esAdmin()) {
+
+      <section class="formulario-card">
+
+        <h2>
+          {{ editandoId ? 'Editar asignatura' : 'Nueva asignatura' }}
+        </h2>
+
+        <form (ngSubmit)="guardar()">
+
+          <div class="grid">
+
+            <div class="campo">
+
+              <label>Código *</label>
+
+              <input
+                type="text"
+                name="codigo"
+                [(ngModel)]="formulario.codigo"
+                placeholder="Ej. SIS-101"
+              >
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>Nombre *</label>
+
+              <input
+                type="text"
+                name="nombre"
+                [(ngModel)]="formulario.nombre"
+                placeholder="Programación Web"
+              >
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>Créditos *</label>
+
+              <input
+                type="number"
+                min="1"
+                name="creditos"
+                [(ngModel)]="formulario.creditos"
+              >
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>Nivel *</label>
+
+              <input
+                type="number"
+                min="1"
+                name="nivel"
+                [(ngModel)]="formulario.nivel"
+              >
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>Carrera *</label>
+
+              <select
+                name="carreraId"
+                [(ngModel)]="formulario.carreraId"
+              >
+
+                <option [ngValue]="null">
+                  Seleccione una carrera
+                </option>
+
+                @for (carrera of carreras; track carrera.id) {
+
+                  <option [ngValue]="carrera.id">
+                    {{ carrera.nombre }}
+                  </option>
+
+                }
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+          <div class="estado">
+
+            <input
+              type="checkbox"
+              name="activa"
+              [(ngModel)]="formulario.activa"
+            >
+
+            <label>
+              Asignatura activa
+            </label>
+
+          </div>
+
+
+          <div class="acciones-form">
+
+            <button
+              type="submit"
+              class="btn-principal"
+            >
+              {{ editandoId ? 'Actualizar' : 'Guardar' }}
+            </button>
+
+            @if (editandoId) {
+
+              <button
+                type="button"
+                class="btn-secundario"
+                (click)="limpiar()"
+              >
+                Cancelar
+              </button>
+
+            }
+
+          </div>
+
+        </form>
+
+      </section>
+
+    }
+
+
+    <section class="tabla-card">
+
+      <div class="tabla-titulo">
+
+        <h2>Asignaturas registradas</h2>
+
+        <span>
+          {{ asignaturas.length }} registros
+        </span>
+
+      </div>
+
+
+      <div class="tabla-responsive">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>Código</th>
+              <th>Asignatura</th>
+              <th>Carrera</th>
+              <th>Créditos</th>
+              <th>Nivel</th>
+              <th>Estado</th>
+
+              @if (esAdmin()) {
+                <th>Acciones</th>
+              }
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            @for (
+              asignatura of asignaturas;
+              track asignatura.id
+            ) {
+
+              <tr>
+
+                <td>
+                  {{ asignatura.codigo }}
+                </td>
+
+                <td>
+                  <strong>
+                    {{ asignatura.nombre }}
+                  </strong>
+                </td>
+
+                <td>
+                  {{ asignatura.carrera.nombre }}
+                </td>
+
+                <td>
+                  {{ asignatura.creditos }}
+                </td>
+
+                <td>
+                  {{ asignatura.nivel }}
+                </td>
+
+                <td>
+
+                  @if (asignatura.activa) {
+
+                    <span class="estado-activo">
+                      Activa
+                    </span>
+
+                  } @else {
+
+                    <span class="estado-inactivo">
+                      Inactiva
+                    </span>
+
+                  }
+
+                </td>
+
+                @if (esAdmin()) {
+
+                  <td class="acciones">
+
+                    <button
+                      class="btn-editar"
+                      (click)="editar(asignatura)"
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      class="btn-eliminar"
+                      (click)="eliminar(asignatura)"
+                    >
+                      Eliminar
+                    </button>
+
+                  </td>
+
+                }
+
+              </tr>
+
+            } @empty {
+
+              <tr>
+                <td
+                  colspan="7"
+                  class="vacio"
+                >
+                  No existen asignaturas registradas.
+                </td>
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

@@ -1,0 +1,243 @@
+* {
+  box-sizing: border-box;
+}
+
+.pagina {
+  min-height: 100vh;
+  background: #f4f7fb;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1e293b;
+}
+
+/* ============================= */
+/* BARRA SUPERIOR */
+/* ============================= */
+
+.topbar {
+  height: 80px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 50px;
+}
+
+.topbar h2 {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 22px;
+}
+
+.topbar > div > span {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.datos-usuario {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.datos-usuario strong {
+  font-size: 14px;
+}
+
+.datos-usuario span {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.btn-salir {
+  border: none;
+  background: #fee2e2;
+  color: #b91c1c;
+
+  padding: 10px 15px;
+  border-radius: 7px;
+
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-salir:hover {
+  background: #fecaca;
+}
+
+
+/* ============================= */
+/* CONTENIDO */
+/* ============================= */
+
+.contenido {
+  max-width: 1200px;
+  margin: auto;
+  padding: 45px 30px;
+}
+
+
+/* ============================= */
+/* BIENVENIDA */
+/* ============================= */
+
+.bienvenida {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 35px;
+}
+
+.etiqueta {
+  margin: 0 0 5px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.bienvenida h1 {
+  margin: 0 0 10px;
+  font-size: 30px;
+}
+
+.bienvenida p {
+  color: #64748b;
+}
+
+.rol {
+  background: #dbeafe;
+  color: #1d4ed8;
+
+  padding: 10px 18px;
+  border-radius: 20px;
+
+  font-size: 12px;
+  font-weight: bold;
+}
+
+
+/* ============================= */
+/* TARJETAS */
+/* ============================= */
+
+.modulos {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(260px, 1fr));
+
+  gap: 20px;
+}
+
+.tarjeta {
+  min-height: 180px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  padding: 25px;
+
+  text-decoration: none;
+  color: #1e293b;
+
+  position: relative;
+
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.tarjeta:hover {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.10);
+}
+
+.icono {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #eff6ff;
+  border-radius: 10px;
+
+  font-size: 24px;
+
+  margin-bottom: 18px;
+}
+
+.tarjeta h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.tarjeta p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.flecha {
+  position: absolute;
+
+  right: 22px;
+  bottom: 20px;
+
+  color: #2563eb;
+  font-size: 22px;
+}
+
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 700px) {
+
+  .topbar {
+    height: auto;
+    padding: 20px;
+
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 18px;
+  }
+
+  .usuario {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .datos-usuario {
+    text-align: left;
+  }
+
+  .contenido {
+    padding: 30px 20px;
+  }
+
+  .bienvenida {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+}

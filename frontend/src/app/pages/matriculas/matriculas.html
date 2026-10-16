@@ -1,1 +1,385 @@
-<p>matriculas works!</p>
+<div class="pagina">
+
+  <header class="encabezado">
+
+    <a routerLink="/dashboard" class="volver">
+      &larr; Volver al panel
+    </a>
+
+    <h1>Gestión de Matrículas</h1>
+
+    <p>
+      Registro y consulta de matrículas universitarias
+    </p>
+
+  </header>
+
+
+  <main class="contenido">
+
+    @if (mensaje) {
+
+      <div class="mensaje exito">
+        {{ mensaje }}
+      </div>
+
+    }
+
+    @if (error) {
+
+      <div class="mensaje error">
+        {{ error }}
+      </div>
+
+    }
+
+
+    <!-- ================================= -->
+    <!-- NUEVA MATRÍCULA -->
+    <!-- ================================= -->
+
+    <section class="formulario-card">
+
+      <h2>
+        Nueva matrícula
+      </h2>
+
+      <form (ngSubmit)="guardar()">
+
+
+        <!-- Solo ADMIN selecciona estudiante -->
+
+        @if (esAdmin()) {
+
+          <div class="campo">
+
+            <label>
+              Estudiante *
+            </label>
+
+            <select
+              name="estudianteId"
+              [(ngModel)]="formulario.estudianteId"
+            >
+
+              <option [ngValue]="null">
+                Seleccione un estudiante
+              </option>
+
+              @for (
+                estudiante of estudiantes;
+                track estudiante.id
+              ) {
+
+                <option
+                  [ngValue]="estudiante.id"
+                >
+                  {{ estudiante.nombres }}
+                  {{ estudiante.apellidos }}
+                  - {{ estudiante.cedula }}
+                </option>
+
+              }
+
+            </select>
+
+          </div>
+
+        }
+
+
+        <div class="campo">
+
+          <label>
+            Período académico *
+          </label>
+
+          <input
+            type="text"
+            name="periodo"
+            [(ngModel)]="formulario.periodo"
+            placeholder="Ej. 2026-2"
+          >
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- ASIGNATURAS -->
+        <!-- ================================= -->
+
+        <div class="materias">
+
+          <h3>
+            Seleccione las asignaturas
+          </h3>
+
+          <div class="materias-grid">
+
+            @for (
+              asignatura of asignaturas;
+              track asignatura.id
+            ) {
+
+              <label class="materia">
+
+                <input
+                  type="checkbox"
+                  [checked]="estaSeleccionada(asignatura.id!)"
+                  (change)="cambiarAsignatura(
+                    asignatura.id!,
+                    $any($event.target).checked
+                  )"
+                >
+
+                <div>
+
+                  <strong>
+                    {{ asignatura.codigo }}
+                    -
+                    {{ asignatura.nombre }}
+                  </strong>
+
+                  <span>
+                    {{ asignatura.creditos }} créditos
+                    · Nivel {{ asignatura.nivel }}
+                  </span>
+
+                  <small>
+                    {{ asignatura.carrera.nombre }}
+                  </small>
+
+                </div>
+
+              </label>
+
+            } @empty {
+
+              <div class="sin-materias">
+                No existen asignaturas activas.
+              </div>
+
+            }
+
+          </div>
+
+        </div>
+
+
+        <div class="acciones-form">
+
+          <button
+            type="submit"
+            class="btn-principal"
+            [disabled]="cargando"
+          >
+
+            @if (cargando) {
+              Guardando...
+            } @else {
+              Registrar matrícula
+            }
+
+          </button>
+
+          <button
+            type="button"
+            class="btn-secundario"
+            (click)="limpiar()"
+          >
+            Limpiar
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+
+    <!-- ================================= -->
+    <!-- MATRÍCULAS REGISTRADAS -->
+    <!-- ================================= -->
+
+    <section class="tabla-card">
+
+      <div class="tabla-titulo">
+
+        <div>
+
+          <h2>
+            @if (esAdmin()) {
+              Matrículas registradas
+            } @else {
+              Mis matrículas
+            }
+          </h2>
+
+          <p>
+            {{ matriculas.length }} registros
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="tabla-responsive">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>ID</th>
+
+              @if (esAdmin()) {
+                <th>Estudiante</th>
+              }
+
+              <th>Fecha</th>
+              <th>Período</th>
+              <th>Asignaturas</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            @for (
+              matricula of matriculas;
+              track matricula.id
+            ) {
+
+              <tr>
+
+                <td>
+                  #{{ matricula.id }}
+                </td>
+
+
+                @if (esAdmin()) {
+
+                  <td>
+                    <strong>
+                      {{ matricula.estudiante }}
+                    </strong>
+                  </td>
+
+                }
+
+
+                <td>
+                  {{ matricula.fecha }}
+                </td>
+
+
+                <td>
+                  {{ matricula.periodo }}
+                </td>
+
+
+                <td>
+
+                  <div class="lista-materias">
+
+                    @for (
+                      asignatura of matricula.asignaturas;
+                      track asignatura.id
+                    ) {
+
+                      <span class="materia-chip">
+                        {{ asignatura.codigo }}
+                      </span>
+
+                    }
+
+                  </div>
+
+                </td>
+
+
+                <td>
+
+                  @if (
+                    matricula.estado === 'ACTIVA'
+                  ) {
+
+                    <span class="estado-activo">
+                      ACTIVA
+                    </span>
+
+                  } @else {
+
+                    <span class="estado-cancelado">
+                      CANCELADA
+                    </span>
+
+                  }
+
+                </td>
+
+
+                <td>
+
+                  @if (esAdmin()) {
+
+                    <button
+                      class="btn-eliminar"
+                      (click)="eliminar(matricula)"
+                    >
+                      Eliminar
+                    </button>
+
+                  }
+
+
+                  @if (
+                    esEstudiante() &&
+                    matricula.estado === 'ACTIVA'
+                  ) {
+
+                    <button
+                      class="btn-cancelar"
+                      (click)="cancelar(matricula)"
+                    >
+                      Cancelar
+                    </button>
+
+                  }
+
+                </td>
+
+              </tr>
+
+            } @empty {
+
+              <tr>
+
+                <td
+                  [attr.colspan]="esAdmin() ? 7 : 6"
+                  class="vacio"
+                >
+                  No existen matrículas registradas.
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

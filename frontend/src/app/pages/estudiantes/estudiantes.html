@@ -1,1 +1,273 @@
-<p>estudiantes works!</p>
+<div class="pagina">
+
+  <header class="encabezado">
+
+    <a routerLink="/dashboard" class="volver">
+      &larr; Volver al panel
+    </a>
+
+    <h1>Gestión de Estudiantes</h1>
+
+    <p>
+      Registro y administración de estudiantes
+    </p>
+
+  </header>
+
+  <main class="contenido">
+
+    @if (mensaje) {
+      <div class="mensaje exito">
+        {{ mensaje }}
+      </div>
+    }
+
+    @if (error) {
+      <div class="mensaje error">
+        {{ error }}
+      </div>
+    }
+
+    <section class="formulario-card">
+
+      <h2>
+        {{ editandoId ? 'Editar estudiante' : 'Nuevo estudiante' }}
+      </h2>
+
+      <form (ngSubmit)="guardar()">
+
+        <div class="grid">
+
+          <div class="campo">
+
+            <label>Cédula *</label>
+
+            <input
+              type="text"
+              maxlength="10"
+              name="cedula"
+              [(ngModel)]="formulario.cedula"
+              placeholder="0151158433"
+            >
+
+          </div>
+
+          <div class="campo">
+
+            <label>Nombres *</label>
+
+            <input
+              type="text"
+              name="nombres"
+              [(ngModel)]="formulario.nombres"
+              placeholder="Pablo Javier"
+            >
+
+          </div>
+
+          <div class="campo">
+
+            <label>Apellidos *</label>
+
+            <input
+              type="text"
+              name="apellidos"
+              [(ngModel)]="formulario.apellidos"
+              placeholder="Garcia Barbecho"
+            >
+
+          </div>
+
+          <div class="campo">
+
+            <label>Teléfono</label>
+
+            <input
+              type="text"
+              name="telefono"
+              [(ngModel)]="formulario.telefono"
+              placeholder="0999999999"
+            >
+
+          </div>
+
+          <div class="campo">
+
+            <label>Carrera *</label>
+
+            <select
+              name="carreraId"
+              [(ngModel)]="formulario.carreraId"
+            >
+
+              <option [ngValue]="null">
+                Seleccione una carrera
+              </option>
+
+              @for (carrera of carreras; track carrera.id) {
+
+                <option [ngValue]="carrera.id">
+                  {{ carrera.nombre }}
+                </option>
+
+              }
+
+            </select>
+
+          </div>
+
+          <div class="campo">
+
+            <label>ID Usuario *</label>
+
+            <input
+              type="number"
+              min="1"
+              name="usuarioId"
+              [(ngModel)]="formulario.usuarioId"
+              [disabled]="editandoId !== null"
+              placeholder="Ej. 2"
+            >
+
+          </div>
+
+        </div>
+
+        <p class="ayuda">
+          El ID Usuario corresponde a una cuenta registrada
+          con rol ESTUDIANTE.
+        </p>
+
+        <div class="acciones-form">
+
+          <button
+            type="submit"
+            class="btn-principal"
+          >
+            {{ editandoId ? 'Actualizar' : 'Guardar' }}
+          </button>
+
+          @if (editandoId) {
+
+            <button
+              type="button"
+              class="btn-secundario"
+              (click)="limpiar()"
+            >
+              Cancelar
+            </button>
+
+          }
+
+        </div>
+
+      </form>
+
+    </section>
+
+
+    <section class="tabla-card">
+
+      <div class="tabla-titulo">
+
+        <h2>Estudiantes registrados</h2>
+
+        <span>
+          {{ estudiantes.length }} registros
+        </span>
+
+      </div>
+
+      <div class="tabla-responsive">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>Cédula</th>
+              <th>Estudiante</th>
+              <th>Correo</th>
+              <th>Carrera</th>
+              <th>Teléfono</th>
+              <th>Acciones</th>
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            @for (
+              estudiante of estudiantes;
+              track estudiante.id
+            ) {
+
+              <tr>
+
+                <td>
+                  {{ estudiante.cedula }}
+                </td>
+
+                <td>
+                  <strong>
+                    {{ estudiante.nombres }}
+                    {{ estudiante.apellidos }}
+                  </strong>
+                </td>
+
+                <td>
+                  {{ estudiante.correo }}
+                </td>
+
+                <td>
+                  {{ estudiante.carrera }}
+                </td>
+
+                <td>
+                  {{ estudiante.telefono }}
+                </td>
+
+                <td class="acciones">
+
+                  <button
+                    class="btn-editar"
+                    (click)="editar(estudiante)"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    class="btn-eliminar"
+                    (click)="eliminar(estudiante)"
+                  >
+                    Eliminar
+                  </button>
+
+                </td>
+
+              </tr>
+
+            } @empty {
+
+              <tr>
+                <td
+                  colspan="6"
+                  class="vacio"
+                >
+                  No existen estudiantes registrados.
+                </td>
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
