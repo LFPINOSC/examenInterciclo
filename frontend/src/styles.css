@@ -85,7 +85,7 @@ a.btn { text-decoration: none; display: inline-block; text-align: center; }
 .btn:disabled { opacity: 0.6; cursor: wait; }
 aside .btn.ghost { color: white; border-color: rgba(255,255,255,.25); }
 
-.stats, .split, .role-notes, .rooms, .form-grid { display: grid; gap: 14px; }
+.stats, .split, .role-notes, .rooms, .demo-grid, .form-grid { display: grid; gap: 14px; }
 .stats { grid-template-columns: repeat(4, 1fr); margin-bottom: 18px; }
 .stats article, .card, .role-notes article, .login-card, .modal {
   background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
@@ -177,6 +177,12 @@ th { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; colo
 .login-copy ul { margin: 22px 0 0; padding-left: 18px; display: grid; gap: 8px; }
 .login-card { margin: auto 48px auto 0; padding: 28px; width: min(440px, calc(100% - 48px)); }
 .login-card h2 { margin-bottom: 6px; }
+.demo-grid { margin-top: 16px; }
+.demo {
+  text-align: left; border: 1px solid var(--line); background: #faf7f1; border-radius: 12px; padding: 10px 12px;
+}
+.demo span { display: block; color: var(--muted); font-size: 0.85rem; }
+.demo:disabled { opacity: 0.6; }
 
 @media (max-width: 980px) {
   .shell, .login, .split, .role-notes, .form-grid { grid-template-columns: 1fr; }
