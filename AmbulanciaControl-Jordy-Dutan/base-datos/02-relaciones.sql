@@ -1,0 +1,9 @@
+-- Modelo lógico de referencia. No ejecutes junto al arranque JPA.
+-- usuarios(id PK, nombre, correo UNIQUE, clave_hash, rol)
+-- ambulancias(id PK, placa UNIQUE, codigo, tipo, estado)
+-- conductores(id PK, nombre, licencia UNIQUE, telefono, estado)
+-- solicitudes(id PK, paciente, telefono, origen, destino, prioridad, estado, observaciones, usuario_id FK -> usuarios.id)
+-- asignaciones(id PK, solicitud_id FK -> solicitudes.id, ambulancia_id FK -> ambulancias.id,
+--              conductor_id FK -> conductores.id, estado, observaciones)
+-- Las relaciones ManyToOne de JPA generan las claves foráneas físicas.
+-- El backend también valida estados y disponibilidad al realizar asignaciones.

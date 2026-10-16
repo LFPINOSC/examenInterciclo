@@ -1,0 +1,23 @@
+flowchart LR
+ U[usuarios
+id PK
+correo UNIQUE
+nombre, clave_hash, rol] -->|1 a N| S[solicituds
+id PK
+usuario_id FK
+paciente, telefono, origen, destino
+prioridad, estado, observaciones]
+ S -->|1 a 0..1| A[asignacions
+id PK
+solicitud_id FK
+ambulancia_id FK
+conductor_id FK
+estado, observaciones]
+ B[ambulancias
+id PK
+placa UNIQUE
+codigo, tipo, estado] -->|1 a N| A
+ C[conductors
+id PK
+licencia UNIQUE
+nombre, telefono, estado] -->|1 a N| A

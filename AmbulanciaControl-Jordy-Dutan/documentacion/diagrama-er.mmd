@@ -1,0 +1,10 @@
+erDiagram
+ USUARIO ||--o{ SOLICITUD : registra
+ SOLICITUD ||--o| ASIGNACION : recibe
+ AMBULANCIA ||--o{ ASIGNACION : atiende
+ CONDUCTOR ||--o{ ASIGNACION : conduce
+ USUARIO { bigint id PK string nombre string correo UK string claveHash string rol }
+ SOLICITUD { bigint id PK bigint usuarioId FK string paciente string origen string destino string prioridad string estado }
+ AMBULANCIA { bigint id PK string placa UK string codigo string tipo string estado }
+ CONDUCTOR { bigint id PK string licencia UK string nombre string telefono string estado }
+ ASIGNACION { bigint id PK bigint solicitudId FK bigint ambulanciaId FK bigint conductorId FK string estado }

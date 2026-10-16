@@ -1,0 +1,11 @@
+
+# Proyecto AmbulanciaControl
+**/node_modules/
+**/.angular/
+**/dist/
+**/target/
+**/.env
+**/.env.*
+**/application-local.properties
+**/application-secret.properties
+**/secrets.properties
