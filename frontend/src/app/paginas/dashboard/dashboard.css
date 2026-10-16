@@ -1,0 +1,250 @@
+/* ==========================================
+   DASHBOARD - CONTROL DE CITAS MEDICAS
+========================================== */
+
+/* Contenedor principal */
+:host {
+  display: block;
+}
+
+.dashboard {
+  min-height: 100vh;
+  background: #f4f8fc;
+  color: #213547;
+  font-family: Arial, sans-serif;
+}
+
+/* ENCABEZADO */
+.encabezado {
+  background: white;
+  padding: 18px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.icono-marca {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #087f8c;
+  color: white;
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.marca h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #173750;
+}
+
+.marca p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  color: #8190a0;
+}
+
+/* USUARIO */
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.datos-usuario {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: right;
+}
+
+.datos-usuario strong {
+  font-size: 14px;
+}
+
+.datos-usuario span {
+  font-size: 12px;
+  color: #087f8c;
+}
+
+.boton-salir {
+  background: #fff0f0;
+  color: #c0392b;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 9px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.boton-salir:hover {
+  background: #fbdada;
+}
+
+/* CONTENIDO */
+.contenido {
+  max-width: 1200px;
+  margin: auto;
+  padding: 48px 24px;
+}
+
+/* BIENVENIDA */
+.bienvenida {
+  margin-bottom: 42px;
+}
+
+.etiqueta {
+  display: inline-block;
+  background: #e1f4f5;
+  color: #087f8c;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.bienvenida h1 {
+  font-size: 32px;
+  margin: 0 0 14px;
+  color: #173750;
+}
+
+.bienvenida p {
+  color: #718397;
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+/* MODULOS */
+.seccion-modulos h2 {
+  margin-bottom: 24px;
+  color: #173750;
+  font-size: 22px;
+}
+
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* TARJETAS */
+.tarjeta {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid #e5edf4;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
+  transition: 0.2s;
+}
+
+.tarjeta:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.09);
+  border-color: #9dd7dc;
+}
+
+.icono {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.icono-pacientes {
+  background: #e4f2ff;
+  color: #2875b9;
+}
+
+.icono-medicos {
+  background: #e4f7e9;
+  color: #288c54;
+}
+
+.icono-citas {
+  background: #fff1df;
+  color: #b77723;
+}
+
+.icono-usuarios {
+  background: #f0e7ff;
+  color: #7450ad;
+}
+
+.tarjeta h3 {
+  margin: 0 0 12px;
+  font-size: 19px;
+  color: #173750;
+}
+
+.tarjeta p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #8190a0;
+  min-height: 48px;
+}
+
+.enlace {
+  display: inline-block;
+  margin-top: 14px;
+  color: #087f8c;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* PIE */
+.pie {
+  text-align: center;
+  padding: 24px;
+  color: #94a3b1;
+  font-size: 12px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+
+  .encabezado {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .usuario {
+    justify-content: space-between;
+  }
+
+  .contenido {
+    padding: 32px 18px;
+  }
+
+  .bienvenida h1 {
+    font-size: 26px;
+  }
+
+  .tarjetas {
+    grid-template-columns: 1fr;
+  }
+
+  .tarjeta {
+    padding: 24px;
+  }
+}

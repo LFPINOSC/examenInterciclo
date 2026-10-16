@@ -1,0 +1,16 @@
+
+# Configuracion de VS Code
+.vscode/
+
+# Angular
+frontend/node_modules/
+frontend/.angular/
+frontend/dist/
+
+# Spring Boot
+backend/target/
+
+# Credenciales y configuraciones privadas
+backend/src/main/resources/application.properties
+.env
+.env.*

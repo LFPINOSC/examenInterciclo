@@ -1,0 +1,492 @@
+
+<!-- ==========================================
+     GESTION DE CITAS MEDICAS
+========================================== -->
+
+<div class="pagina">
+
+  <!-- ENCABEZADO -->
+  <header class="encabezado">
+
+    <div>
+      <a routerLink="/dashboard" class="volver">
+        ← Volver al Dashboard
+      </a>
+
+      <h1>Gestión de Citas Médicas</h1>
+
+      <p>
+        Programa citas, consulta los horarios
+        y administra sus estados.
+      </p>
+    </div>
+
+    <!-- CREAR NUEVA CITA -->
+    <button
+      type="button"
+      class="boton-primario"
+      (click)="nuevo()"
+      [disabled]="guardando() || pacientes().length === 0 || medicos().length === 0"
+    >
+      + Nueva cita
+    </button>
+
+  </header>
+
+  <main class="contenedor">
+
+    <!-- MENSAJES DEL SISTEMA -->
+    @if (mensaje()) {
+      <div class="alerta exito" role="status">
+        ✓ {{ mensaje() }}
+      </div>
+    }
+
+    @if (error()) {
+      <div class="alerta error" role="alert">
+        {{ error() }}
+      </div>
+    }
+
+    <!-- AVISO SI FALTAN DATOS RELACIONADOS -->
+    @if (!cargando() && (pacientes().length === 0 || medicos().length === 0)) {
+
+      <div class="alerta aviso">
+        Para registrar una cita, primero debe existir
+        al menos un paciente y un médico registrados.
+      </div>
+
+    }
+
+    <!-- ======================================
+         FORMULARIO DE CITAS
+    ======================================= -->
+    @if (mostrarFormulario()) {
+
+      <section class="tarjeta formulario-tarjeta">
+
+        <div class="titulo-formulario">
+
+          <div>
+
+            <h2>
+              {{ idEdicion === null
+                 ? 'Programar nueva cita'
+                 : 'Editar cita médica' }}
+            </h2>
+
+            <p>
+              Seleccione paciente, médico, fecha y hora.
+            </p>
+
+          </div>
+
+          <!-- CERRAR -->
+          <button
+            type="button"
+            class="boton-cerrar"
+            (click)="cancelar()"
+            [disabled]="guardando()"
+          >
+            ✕
+          </button>
+
+        </div>
+
+        <form
+          (ngSubmit)="guardar()"
+          #formCita="ngForm"
+        >
+
+          <div class="form-grid">
+
+            <!-- PACIENTE -->
+            <div class="campo">
+
+              <label for="paciente">
+                Paciente *
+              </label>
+
+              <select
+                id="paciente"
+                name="pacienteId"
+                [(ngModel)]="formulario.pacienteId"
+                required
+                [disabled]="guardando()"
+              >
+
+                <option [ngValue]="0">
+                  Seleccione un paciente
+                </option>
+
+                @for (paciente of pacientes(); track paciente.id) {
+
+                  <option [ngValue]="paciente.id">
+                    {{ paciente.nombre }} {{ paciente.apellido }}
+                    - {{ paciente.cedula }}
+                  </option>
+
+                }
+
+              </select>
+
+            </div>
+
+            <!-- MEDICO -->
+            <div class="campo">
+
+              <label for="medico">
+                Médico *
+              </label>
+
+              <select
+                id="medico"
+                name="medicoId"
+                [(ngModel)]="formulario.medicoId"
+                required
+                [disabled]="guardando()"
+              >
+
+                <option [ngValue]="0">
+                  Seleccione un médico
+                </option>
+
+                @for (medico of medicos(); track medico.id) {
+
+                  <option [ngValue]="medico.id">
+                    {{ medico.nombre }} {{ medico.apellido }}
+                    - {{ medico.especialidad }}
+                  </option>
+
+                }
+
+              </select>
+
+            </div>
+
+            <!-- FECHA -->
+            <div class="campo">
+
+              <label for="fecha">
+                Fecha de la cita *
+              </label>
+
+              <input
+                id="fecha"
+                type="date"
+                name="fecha"
+                [(ngModel)]="formulario.fecha"
+                [min]="idEdicion === null ? fechaMinima : null"
+                required
+                [disabled]="guardando()"
+              />
+
+            </div>
+
+            <!-- HORA -->
+            <div class="campo">
+
+              <label for="hora">
+                Hora de la cita *
+              </label>
+
+              <input
+                id="hora"
+                type="time"
+                name="hora"
+                [(ngModel)]="formulario.hora"
+                required
+                [disabled]="guardando()"
+              />
+
+            </div>
+
+            <!-- MOTIVO -->
+            <div class="campo campo-completo">
+
+              <label for="motivo">
+                Motivo de la consulta *
+              </label>
+
+              <textarea
+                id="motivo"
+                name="motivo"
+                [(ngModel)]="formulario.motivo"
+                placeholder="Describa el motivo de la cita médica..."
+                rows="3"
+                maxlength="500"
+                required
+                [disabled]="guardando()"
+              ></textarea>
+
+            </div>
+
+            <!-- ESTADO: SOLO EN EDICION -->
+            @if (idEdicion !== null) {
+
+              <div class="campo campo-completo">
+
+                <label for="estado">
+                  Estado de la cita *
+                </label>
+
+                <select
+                  id="estado"
+                  name="estado"
+                  [(ngModel)]="formulario.estado"
+                  required
+                  [disabled]="guardando()"
+                >
+
+                  <option value="PENDIENTE">
+                    Pendiente
+                  </option>
+
+                  <option value="CONFIRMADA">
+                    Confirmada
+                  </option>
+
+                  <option value="ATENDIDA">
+                    Atendida
+                  </option>
+
+                  <option value="CANCELADA">
+                    Cancelada
+                  </option>
+
+                </select>
+
+              </div>
+
+            } @else {
+
+              <div class="campo campo-completo">
+                <p class="nota">
+                  Las citas nuevas se registran
+                  automáticamente con estado PENDIENTE.
+                </p>
+              </div>
+
+            }
+
+          </div>
+
+          <!-- ACCIONES -->
+          <div class="acciones-formulario">
+
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="cancelar()"
+              [disabled]="guardando()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="boton-primario"
+              [disabled]="formCita.invalid || guardando()"
+            >
+              {{ guardando()
+                 ? 'Guardando...'
+                 : (idEdicion === null
+                    ? 'Registrar cita'
+                    : 'Guardar cambios') }}
+            </button>
+
+          </div>
+
+        </form>
+
+      </section>
+
+    }
+
+    <!-- ======================================
+         TABLA DE CITAS
+    ======================================= -->
+    <section class="tarjeta">
+
+      <div class="tabla-encabezado">
+
+        <div>
+          <h2>Citas registradas</h2>
+
+          <p>
+            Total de citas:
+            <strong>{{ citas().length }}</strong>
+          </p>
+        </div>
+
+      </div>
+
+      <!-- FILTROS -->
+      <div class="filtros">
+
+        <div class="campo-filtro">
+
+          <label for="busqueda">Buscar</label>
+
+          <input
+            id="busqueda"
+            type="search"
+            name="busqueda"
+            [(ngModel)]="busqueda"
+            placeholder="Paciente, médico o motivo"
+          />
+
+        </div>
+
+        <div class="campo-filtro">
+
+          <label for="filtroEstado">Estado</label>
+
+          <select
+            id="filtroEstado"
+            name="filtroEstado"
+            [(ngModel)]="filtroEstado"
+          >
+
+            <option value="">Todos</option>
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="CONFIRMADA">Confirmada</option>
+            <option value="ATENDIDA">Atendida</option>
+            <option value="CANCELADA">Cancelada</option>
+
+          </select>
+
+        </div>
+
+        <div class="campo-filtro">
+
+          <label for="filtroFecha">Fecha</label>
+
+          <input
+            id="filtroFecha"
+            type="date"
+            name="filtroFecha"
+            [(ngModel)]="filtroFecha"
+          />
+
+        </div>
+
+      </div>
+
+      <!-- LISTADO -->
+      @if (cargando()) {
+
+        <div class="estado-carga">
+          Cargando citas médicas...
+        </div>
+
+      } @else {
+
+        <div class="tabla-responsive">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Paciente</th>
+                <th>Médico</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Motivo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              @for (cita of citasFiltradas; track cita.id) {
+
+                <tr>
+
+                  <td>{{ cita.id }}</td>
+
+                  <td class="nombre">
+                    {{ cita.paciente?.nombre }}
+                    {{ cita.paciente?.apellido }}
+                  </td>
+
+                  <td>
+                    {{ cita.medico?.nombre }}
+                    {{ cita.medico?.apellido }}
+                  </td>
+
+                  <td>{{ cita.fecha }}</td>
+
+                  <td>{{ cita.hora }}</td>
+
+                  <td>{{ cita.motivo }}</td>
+
+                  <td>
+
+                    <span
+                      class="etiqueta-estado"
+                      [class.pendiente]="cita.estado === 'PENDIENTE'"
+                      [class.confirmada]="cita.estado === 'CONFIRMADA'"
+                      [class.atendida]="cita.estado === 'ATENDIDA'"
+                      [class.cancelada]="cita.estado === 'CANCELADA'"
+                    >
+                      {{ cita.estado }}
+                    </span>
+
+                  </td>
+
+                  <td>
+
+                    <div class="acciones-tabla">
+
+                      <button
+                        type="button"
+                        class="boton-editar"
+                        (click)="editar(cita)"
+                        [disabled]="guardando() || eliminandoId() !== null"
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        class="boton-eliminar"
+                        (click)="eliminar(cita)"
+                        [disabled]="guardando() || eliminandoId() !== null"
+                      >
+                        {{ eliminandoId() === cita.id
+                           ? 'Eliminando...'
+                           : 'Eliminar' }}
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              } @empty {
+
+                <tr>
+                  <td colspan="8" class="sin-registros">
+                    No se encontraron citas médicas.
+                  </td>
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      }
+
+    </section>
+
+  </main>
+
+</div>

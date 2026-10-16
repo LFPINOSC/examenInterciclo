@@ -1,0 +1,158 @@
+/* ==========================================
+   DISEÑO DEL LOGIN
+   SISTEMA DE CONTROL DE CITAS MEDICAS
+========================================== */
+
+/* Pantalla completa con fondo suave */
+.pagina-login {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #e8f4ff, #f2fbf9);
+  font-family: Arial, sans-serif;
+}
+
+/* Tarjeta principal */
+.tarjeta-login {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  padding: 40px 32px;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(22, 62, 94, 0.12);
+}
+
+/* Encabezado */
+.encabezado {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.icono-medico {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 16px;
+  border-radius: 15px;
+  background: #087f8c;
+  color: white;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 56px;
+}
+
+.encabezado h1 {
+  font-size: 25px;
+  color: #173750;
+  margin: 0 0 12px;
+}
+
+.encabezado p {
+  color: #718397;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Campos del formulario */
+.campo {
+  margin-bottom: 20px;
+}
+
+.campo label {
+  display: block;
+  margin-bottom: 8px;
+  color: #33485b;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.campo input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d5dfe7;
+  border-radius: 9px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  background: white;
+  color: #173750;
+}
+
+.campo input:focus {
+  border-color: #087f8c;
+}
+
+/* Contraseña con boton de visibilidad */
+.campo-password {
+  position: relative;
+}
+
+.campo-password input {
+  padding-right: 85px;
+}
+
+.boton-ver {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #087f8c;
+  cursor: pointer;
+  padding: 8px;
+  font-weight: 600;
+}
+
+/* Errores de autenticacion */
+.mensaje-error {
+  background: #fff0f0;
+  border: 1px solid #f5c8c8;
+  color: #a32828;
+  padding: 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+/* Boton de ingreso */
+.boton-ingresar {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  background: #087f8c;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.boton-ingresar:hover:not(:disabled) {
+  background: #076571;
+}
+
+.boton-ingresar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Pie del formulario */
+.pie {
+  margin-top: 28px;
+  text-align: center;
+  color: #94a3b1;
+  font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  .tarjeta-login {
+    padding: 28px 20px;
+  }
+
+  .encabezado h1 {
+    font-size: 22px;
+  }
+}

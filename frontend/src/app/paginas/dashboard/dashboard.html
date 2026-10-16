@@ -1,0 +1,140 @@
+<!-- ==========================================
+     DASHBOARD - CONTROL DE CITAS MEDICAS
+========================================== -->
+
+<div class="dashboard">
+
+  <!-- ENCABEZADO PRINCIPAL -->
+  <header class="encabezado">
+
+    <div class="marca">
+      <span class="icono-marca">+</span>
+
+      <div>
+        <h2>Control de Citas Médicas</h2>
+        <p>Sistema de administración</p>
+      </div>
+    </div>
+
+    <div class="usuario">
+
+      <div class="datos-usuario">
+        <strong>{{ usuario }}</strong>
+        <span>{{ rol }}</span>
+      </div>
+
+      <button
+        type="button"
+        class="boton-salir"
+        (click)="cerrarSesion()"
+      >
+        Cerrar sesión
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- CONTENIDO -->
+  <main class="contenido">
+
+    <section class="bienvenida">
+
+      <div class="etiqueta">Panel principal</div>
+
+      <h1>Bienvenido, {{ usuario }}</h1>
+
+      <p>
+        Gestiona la información de pacientes,
+        médicos y citas médicas desde un solo lugar.
+      </p>
+
+    </section>
+
+    <!-- MODULOS -->
+    <section class="seccion-modulos">
+
+      <h2>Módulos del sistema</h2>
+
+      <div class="tarjetas">
+
+        <!-- PACIENTES -->
+        <a routerLink="/pacientes" class="tarjeta">
+
+          <div class="icono icono-pacientes">P</div>
+
+          <h3>Pacientes</h3>
+
+          <p>
+            Registrar, consultar, actualizar
+            y eliminar pacientes.
+          </p>
+
+          <span class="enlace">Administrar pacientes →</span>
+
+        </a>
+
+        <!-- MEDICOS -->
+        <a routerLink="/medicos" class="tarjeta">
+
+          <div class="icono icono-medicos">M</div>
+
+          <h3>Médicos</h3>
+
+          <p>
+            Gestionar médicos, información personal
+            y especialidades.
+          </p>
+
+          <span class="enlace">Administrar médicos →</span>
+
+        </a>
+
+        <!-- CITAS -->
+        <a routerLink="/citas" class="tarjeta">
+
+          <div class="icono icono-citas">C</div>
+
+          <h3>Citas médicas</h3>
+
+          <p>
+            Programar citas, consultar horarios
+            y actualizar estados.
+          </p>
+
+          <span class="enlace">Administrar citas →</span>
+
+        </a>
+
+        <!-- USUARIOS: SOLO ADMIN -->
+        @if (esAdmin) {
+
+          <a routerLink="/usuarios" class="tarjeta">
+
+            <div class="icono icono-usuarios">U</div>
+
+            <h3>Usuarios</h3>
+
+            <p>
+              Gestionar cuentas, roles
+              y estados de los usuarios.
+            </p>
+
+            <span class="enlace">Administrar usuarios →</span>
+
+          </a>
+
+        }
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- PIE DE PAGINA -->
+  <footer class="pie">
+    Control de Citas Médicas | Angular + Spring Boot
+  </footer>
+
+</div>

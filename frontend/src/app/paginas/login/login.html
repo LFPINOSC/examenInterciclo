@@ -1,0 +1,98 @@
+<!-- ==========================================
+     LOGIN - SISTEMA DE CITAS MEDICAS
+========================================== -->
+
+<div class="pagina-login">
+
+  <div class="tarjeta-login">
+
+    <!-- Encabezado -->
+    <div class="encabezado">
+
+      <div class="icono-medico">+</div>
+
+      <h1>Control de Citas Médicas</h1>
+
+      <p>Accede a tu cuenta para administrar el sistema</p>
+
+    </div>
+
+    <!-- Formulario de autenticacion -->
+    <form (ngSubmit)="iniciarSesion()">
+
+      <!-- Nombre de usuario -->
+      <div class="campo">
+
+        <label for="username">Usuario</label>
+
+        <input
+          id="username"
+          type="text"
+          name="username"
+          [(ngModel)]="username"
+          placeholder="Ingrese su usuario"
+          autocomplete="username"
+          maxlength="50"
+          [disabled]="cargando()"
+          required
+        />
+
+      </div>
+
+      <!-- Contraseña -->
+      <div class="campo">
+
+        <label for="password">Contraseña</label>
+
+        <div class="campo-password">
+
+          <input
+            id="password"
+            [type]="mostrarPassword() ? 'text' : 'password'"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="Ingrese su contraseña"
+            autocomplete="current-password"
+            [disabled]="cargando()"
+            required
+          />
+
+          <button
+            type="button"
+            class="boton-ver"
+            (click)="alternarPassword()"
+            [disabled]="cargando()"
+          >
+            {{ mostrarPassword() ? 'Ocultar' : 'Ver' }}
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- Mensaje de error -->
+      @if (error()) {
+        <div class="mensaje-error" role="alert">
+          {{ error() }}
+        </div>
+      }
+
+      <!-- Boton de login -->
+      <button
+        class="boton-ingresar"
+        type="submit"
+        [disabled]="cargando()"
+      >
+        {{ cargando() ? 'Ingresando...' : 'Iniciar sesión' }}
+      </button>
+
+    </form>
+
+    <!-- Pie de pagina -->
+    <p class="pie">
+      Sistema de Gestión de Citas Médicas
+    </p>
+
+  </div>
+
+</div>

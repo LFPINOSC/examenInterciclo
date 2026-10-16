@@ -1,0 +1,428 @@
+
+<!-- ==========================================
+     GESTION DE PACIENTES
+     SISTEMA DE CONTROL DE CITAS MEDICAS
+========================================== -->
+
+<div class="pagina">
+
+  <!-- ======================================
+       ENCABEZADO
+  ======================================= -->
+  <header class="encabezado">
+
+    <div class="encabezado-texto">
+
+      <!-- Regresar al Dashboard -->
+      <a routerLink="/dashboard" class="volver">
+        ← Volver al Dashboard
+      </a>
+
+      <h1>Gestión de Pacientes</h1>
+
+      <p>
+        Registra, consulta, actualiza y elimina
+        pacientes del sistema.
+      </p>
+
+    </div>
+
+    <!-- Abrir el formulario de registro -->
+    <button
+      type="button"
+      class="boton-primario"
+      (click)="nuevo()"
+      [disabled]="guardando()"
+    >
+      + Nuevo paciente
+    </button>
+
+  </header>
+
+  <!-- ======================================
+       CONTENIDO PRINCIPAL
+  ======================================= -->
+  <main class="contenedor">
+
+    <!-- ====================================
+         MENSAJES DEL SISTEMA
+    ===================================== -->
+
+    <!-- Mensaje de confirmacion -->
+    @if (mensaje()) {
+      <div class="alerta exito" role="status">
+        ✓ {{ mensaje() }}
+      </div>
+    }
+
+    <!-- Mensaje de error -->
+    @if (error()) {
+      <div class="alerta error" role="alert">
+        {{ error() }}
+      </div>
+    }
+
+    <!-- ====================================
+         FORMULARIO DE PACIENTES
+    ===================================== -->
+
+    <!-- Solo se muestra al registrar o editar -->
+    @if (mostrarFormulario()) {
+
+      <section class="tarjeta formulario-tarjeta">
+
+        <!-- Titulo del formulario -->
+        <div class="titulo-formulario">
+
+          <div>
+            <h2>
+              {{ idEdicion === null
+                  ? 'Registrar nuevo paciente'
+                  : 'Editar paciente' }}
+            </h2>
+
+            <p>
+              Complete la información solicitada.
+            </p>
+          </div>
+
+          <!-- Cerrar formulario -->
+          <button
+            type="button"
+            class="boton-cerrar"
+            (click)="cancelar()"
+            [disabled]="guardando()"
+            aria-label="Cerrar formulario"
+          >
+            ✕
+          </button>
+
+        </div>
+
+        <!-- Formulario conectado con pacientes.ts -->
+        <form
+          (ngSubmit)="guardar()"
+          #formPaciente="ngForm"
+        >
+
+          <div class="form-grid">
+
+            <!-- ============================
+                 NOMBRE
+            ============================= -->
+            <div class="campo">
+
+              <label for="nombre">
+                Nombre *
+              </label>
+
+              <input
+                id="nombre"
+                type="text"
+                name="nombre"
+                [(ngModel)]="formulario.nombre"
+                placeholder="Ej. Juan"
+                maxlength="100"
+                required
+                [disabled]="guardando()"
+              />
+
+            </div>
+
+            <!-- ============================
+                 APELLIDO
+            ============================= -->
+            <div class="campo">
+
+              <label for="apellido">
+                Apellido *
+              </label>
+
+              <input
+                id="apellido"
+                type="text"
+                name="apellido"
+                [(ngModel)]="formulario.apellido"
+                placeholder="Ej. Pérez"
+                maxlength="100"
+                required
+                [disabled]="guardando()"
+              />
+
+            </div>
+
+            <!-- ============================
+                 CEDULA
+            ============================= -->
+            <div class="campo">
+
+              <label for="cedula">
+                Cédula *
+              </label>
+
+              <input
+                id="cedula"
+                type="text"
+                name="cedula"
+                [(ngModel)]="formulario.cedula"
+                placeholder="Ingrese 10 dígitos"
+                minlength="10"
+                maxlength="10"
+                pattern="[0-9]{10}"
+                inputmode="numeric"
+                required
+                [disabled]="guardando()"
+              />
+
+              <small>
+                Debe contener exactamente 10 dígitos.
+              </small>
+
+            </div>
+
+            <!-- ============================
+                 TELEFONO
+            ============================= -->
+            <div class="campo">
+
+              <label for="telefono">
+                Teléfono *
+              </label>
+
+              <input
+                id="telefono"
+                type="tel"
+                name="telefono"
+                [(ngModel)]="formulario.telefono"
+                placeholder="Ej. 0991234567"
+                maxlength="20"
+                required
+                [disabled]="guardando()"
+              />
+
+            </div>
+
+            <!-- ============================
+                 CORREO ELECTRONICO
+            ============================= -->
+            <div class="campo campo-completo">
+
+              <label for="correo">
+                Correo electrónico *
+              </label>
+
+              <input
+                id="correo"
+                type="email"
+                name="correo"
+                [(ngModel)]="formulario.correo"
+                placeholder="paciente@correo.com"
+                maxlength="120"
+                required
+                email
+                [disabled]="guardando()"
+              />
+
+            </div>
+
+          </div>
+
+          <!-- =================================
+               BOTONES DEL FORMULARIO
+          ================================== -->
+          <div class="acciones-formulario">
+
+            <!-- Cancelar el registro o edicion -->
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="cancelar()"
+              [disabled]="guardando()"
+            >
+              Cancelar
+            </button>
+
+            <!-- Registrar o actualizar -->
+            <button
+              type="submit"
+              class="boton-primario"
+              [disabled]="formPaciente.invalid || guardando()"
+            >
+              @if (guardando()) {
+                Guardando...
+              } @else {
+                {{ idEdicion === null
+                    ? 'Registrar paciente'
+                    : 'Guardar cambios' }}
+              }
+            </button>
+
+          </div>
+
+        </form>
+
+      </section>
+
+    }
+
+    <!-- ====================================
+         TABLA DE PACIENTES
+    ===================================== -->
+    <section class="tarjeta">
+
+      <!-- Encabezado de la tabla -->
+      <div class="tabla-encabezado">
+
+        <div>
+
+          <h2>Pacientes registrados</h2>
+
+          <p>
+            Total de pacientes:
+            <strong>{{ pacientes().length }}</strong>
+          </p>
+
+        </div>
+
+        <!-- Buscador de pacientes -->
+        <div class="buscador-contenedor">
+
+          <input
+            type="search"
+            class="buscador"
+            name="busqueda"
+            [(ngModel)]="busqueda"
+            placeholder="Buscar por nombre, cédula o ID..."
+            aria-label="Buscar pacientes"
+          />
+
+        </div>
+
+      </div>
+
+      <!-- ==================================
+           ESTADO DE CARGA
+      =================================== -->
+      @if (cargando()) {
+
+        <div class="estado">
+          Cargando pacientes...
+        </div>
+
+      } @else {
+
+        <!-- ==================================
+             TABLA RESPONSIVA
+        =================================== -->
+        <div class="tabla-responsive">
+
+          <table>
+
+            <!-- Cabecera -->
+            <thead>
+
+              <tr>
+                <th>ID</th>
+                <th>Nombre completo</th>
+                <th>Cédula</th>
+                <th>Teléfono</th>
+                <th>Correo electrónico</th>
+                <th>Acciones</th>
+              </tr>
+
+            </thead>
+
+            <!-- Registros -->
+            <tbody>
+
+              <!-- Recorrer los pacientes -->
+              @for (
+                paciente of pacientesFiltrados;
+                track paciente.id
+              ) {
+
+                <tr>
+
+                  <!-- ID -->
+                  <td>
+                    {{ paciente.id }}
+                  </td>
+
+                  <!-- Nombre y apellido -->
+                  <td class="nombre">
+                    {{ paciente.nombre }}
+                    {{ paciente.apellido }}
+                  </td>
+
+                  <!-- Cedula -->
+                  <td>
+                    {{ paciente.cedula }}
+                  </td>
+
+                  <!-- Telefono -->
+                  <td>
+                    {{ paciente.telefono }}
+                  </td>
+
+                  <!-- Correo -->
+                  <td>
+                    {{ paciente.correo }}
+                  </td>
+
+                  <!-- Acciones -->
+                  <td>
+
+                    <div class="acciones-tabla">
+
+                      <!-- Editar -->
+                      <button
+                        type="button"
+                        class="boton-editar"
+                        (click)="editar(paciente)"
+                        [disabled]="eliminandoId() !== null || guardando()"
+                      >
+                        Editar
+                      </button>
+
+                      <!-- Eliminar -->
+                      <button
+                        type="button"
+                        class="boton-eliminar"
+                        (click)="eliminar(paciente)"
+                        [disabled]="eliminandoId() !== null || guardando()"
+                      >
+                        {{ eliminandoId() === paciente.id
+                            ? 'Eliminando...'
+                            : 'Eliminar' }}
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              } @empty {
+
+                <!-- Sin resultados -->
+                <tr>
+                  <td colspan="6" class="sin-registros">
+                    No se encontraron pacientes registrados.
+                  </td>
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      }
+
+    </section>
+
+  </main>
+
+</div>

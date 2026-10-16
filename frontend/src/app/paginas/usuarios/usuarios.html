@@ -1,0 +1,498 @@
+
+<!-- ==========================================
+     ADMINISTRACION DE USUARIOS
+     CONTROL DE CITAS MEDICAS
+========================================== -->
+
+<div class="pagina">
+
+  <!-- ENCABEZADO -->
+  <header class="encabezado">
+
+    <div>
+      <a routerLink="/dashboard" class="volver">
+        ← Volver al Dashboard
+      </a>
+
+      <h1>Administración de Usuarios</h1>
+
+      <p>
+        Gestiona cuentas, roles, contraseñas
+        y estados de acceso al sistema.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="boton-primario"
+      (click)="nuevo()"
+      [disabled]="guardando() || guardandoClave()"
+    >
+      + Nuevo usuario
+    </button>
+
+  </header>
+
+  <main class="contenedor">
+
+    <!-- MENSAJES DEL SISTEMA -->
+    @if (mensaje()) {
+      <div class="alerta exito" role="status">
+        ✓ {{ mensaje() }}
+      </div>
+    }
+
+    @if (error()) {
+      <div class="alerta error" role="alert">
+        {{ error() }}
+      </div>
+    }
+
+    <!-- ====================================
+         REGISTRAR O EDITAR USUARIO
+    ===================================== -->
+    @if (mostrarFormulario()) {
+
+      <section class="tarjeta formulario-tarjeta">
+
+        <div class="titulo-formulario">
+
+          <div>
+            <h2>
+              {{ idEdicion === null
+                 ? 'Registrar nuevo usuario'
+                 : 'Editar usuario' }}
+            </h2>
+
+            <p>Complete la información de la cuenta.</p>
+          </div>
+
+          <button
+            type="button"
+            class="boton-cerrar"
+            (click)="cancelar()"
+            [disabled]="guardando()"
+            aria-label="Cerrar formulario"
+          >
+            ✕
+          </button>
+
+        </div>
+
+        <form
+          (ngSubmit)="guardar()"
+          #formUsuario="ngForm"
+        >
+
+          <div class="form-grid">
+
+            <!-- NOMBRE DE USUARIO -->
+            <div class="campo">
+
+              <label for="username">
+                Nombre de usuario *
+              </label>
+
+              <input
+                id="username"
+                type="text"
+                name="username"
+                [(ngModel)]="formulario.username"
+                placeholder="Ej. recepcion01"
+                maxlength="50"
+                required
+                autocomplete="off"
+                [disabled]="guardando()"
+              />
+
+            </div>
+
+            <!-- CONTRASEÑA SOLO AL REGISTRAR -->
+            @if (idEdicion === null) {
+
+              <div class="campo">
+
+                <label for="password">
+                  Contraseña *
+                </label>
+
+                <input
+                  id="password"
+                  type="password"
+                  name="password"
+                  [(ngModel)]="formulario.password"
+                  placeholder="Mínimo 8 caracteres"
+                  minlength="8"
+                  required
+                  autocomplete="new-password"
+                  [disabled]="guardando()"
+                />
+
+              </div>
+
+              <div class="campo campo-completo">
+
+                <p class="nota">
+                  Los usuarios nuevos se registran
+                  con rol RECEPCIONISTA y estado activo.
+                  Después puedes cambiar su rol.
+                </p>
+
+              </div>
+
+            } @else {
+
+              <!-- ROL DEL USUARIO -->
+              <div class="campo">
+
+                <label for="rol">
+                  Rol del usuario *
+                </label>
+
+                <select
+                  id="rol"
+                  name="rol"
+                  [(ngModel)]="formulario.rol"
+                  required
+                  [disabled]="guardando()"
+                >
+                  <option value="RECEPCIONISTA">
+                    RECEPCIONISTA
+                  </option>
+
+                  <option value="ADMIN">
+                    ADMIN
+                  </option>
+                </select>
+
+              </div>
+
+              <!-- ESTADO DE LA CUENTA -->
+              <div class="campo campo-completo">
+
+                <label for="activo">
+                  Estado de la cuenta
+                </label>
+
+                <select
+                  id="activo"
+                  name="activo"
+                  [(ngModel)]="formulario.activo"
+                  [disabled]="guardando()"
+                >
+                  <option [ngValue]="true">
+                    ACTIVO
+                  </option>
+
+                  <option [ngValue]="false">
+                    INACTIVO
+                  </option>
+                </select>
+
+              </div>
+
+            }
+
+          </div>
+
+          <!-- BOTONES -->
+          <div class="acciones-formulario">
+
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="cancelar()"
+              [disabled]="guardando()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="boton-primario"
+              [disabled]="formUsuario.invalid || guardando()"
+            >
+              {{ guardando()
+                 ? 'Guardando...'
+                 : (idEdicion === null
+                    ? 'Registrar usuario'
+                    : 'Guardar cambios') }}
+            </button>
+
+          </div>
+
+        </form>
+
+      </section>
+
+    }
+
+    <!-- ====================================
+         CAMBIAR CONTRASEÑA
+    ===================================== -->
+    @if (usuarioClave !== null) {
+
+      <section class="tarjeta formulario-tarjeta">
+
+        <div class="titulo-formulario">
+
+          <div>
+            <h2>Cambiar contraseña</h2>
+
+            <p>
+              Usuario:
+              <strong>{{ usuarioClave.username }}</strong>
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="boton-cerrar"
+            (click)="cancelarCambioPassword()"
+            [disabled]="guardandoClave()"
+            aria-label="Cerrar cambio de contraseña"
+          >
+            ✕
+          </button>
+
+        </div>
+
+        <form
+          (ngSubmit)="cambiarPassword()"
+          #formClave="ngForm"
+        >
+
+          <div class="form-grid">
+
+            <!-- NUEVA CONTRASEÑA -->
+            <div class="campo">
+
+              <label for="nuevaPassword">
+                Nueva contraseña *
+              </label>
+
+              <input
+                id="nuevaPassword"
+                type="password"
+                name="nuevaPassword"
+                [(ngModel)]="nuevaPassword"
+                placeholder="Mínimo 8 caracteres"
+                minlength="8"
+                required
+                autocomplete="new-password"
+                [disabled]="guardandoClave()"
+              />
+
+            </div>
+
+            <!-- CONFIRMAR CONTRASEÑA -->
+            <div class="campo">
+
+              <label for="confirmarPassword">
+                Confirmar contraseña *
+              </label>
+
+              <input
+                id="confirmarPassword"
+                type="password"
+                name="confirmarPassword"
+                [(ngModel)]="confirmarPassword"
+                placeholder="Repita la contraseña"
+                minlength="8"
+                required
+                autocomplete="new-password"
+                [disabled]="guardandoClave()"
+              />
+
+            </div>
+
+          </div>
+
+          <div class="acciones-formulario">
+
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="cancelarCambioPassword()"
+              [disabled]="guardandoClave()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="boton-primario"
+              [disabled]="formClave.invalid || guardandoClave()"
+            >
+              {{ guardandoClave()
+                 ? 'Actualizando...'
+                 : 'Cambiar contraseña' }}
+            </button>
+
+          </div>
+
+        </form>
+
+      </section>
+
+    }
+
+    <!-- ====================================
+         TABLA DE USUARIOS
+    ===================================== -->
+    <section class="tarjeta">
+
+      <div class="tabla-encabezado">
+
+        <div>
+          <h2>Usuarios registrados</h2>
+
+          <p>
+            Total:
+            <strong>{{ usuarios().length }}</strong>
+          </p>
+        </div>
+
+        <!-- BUSCADOR -->
+        <input
+          type="search"
+          class="buscador"
+          name="busqueda"
+          [(ngModel)]="busqueda"
+          placeholder="Buscar usuario, rol o estado..."
+          aria-label="Buscar usuarios"
+        />
+
+      </div>
+
+      @if (cargando()) {
+
+        <div class="estado">
+          Cargando usuarios...
+        </div>
+
+      } @else {
+
+        <div class="tabla-responsive">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              @for (usuario of usuariosFiltrados; track usuario.id) {
+
+                <tr>
+
+                  <td>{{ usuario.id }}</td>
+
+                  <td class="nombre">
+
+                    {{ usuario.username }}
+
+                    @if (esMiCuenta(usuario)) {
+                      <span class="mi-cuenta">
+                        Mi cuenta
+                      </span>
+                    }
+
+                  </td>
+
+                  <td>
+
+                    <span
+                      class="etiqueta-rol"
+                      [class.rol-admin]="usuario.rol === 'ADMIN'"
+                      [class.rol-recepcion]="usuario.rol === 'RECEPCIONISTA'"
+                    >
+                      {{ usuario.rol }}
+                    </span>
+
+                  </td>
+
+                  <td>
+
+                    <span
+                      class="etiqueta-estado"
+                      [class.activo]="usuario.activo"
+                      [class.inactivo]="!usuario.activo"
+                    >
+                      {{ usuario.activo ? 'ACTIVO' : 'INACTIVO' }}
+                    </span>
+
+                  </td>
+
+                  <td>
+
+                    <div class="acciones-tabla">
+
+                      <!-- EDITAR -->
+                      <button
+                        type="button"
+                        class="boton-editar"
+                        (click)="editar(usuario)"
+                        [disabled]="esMiCuenta(usuario) || guardando() || eliminandoId() !== null"
+                      >
+                        Editar
+                      </button>
+
+                      <!-- CAMBIAR CONTRASEÑA -->
+                      <button
+                        type="button"
+                        class="boton-clave"
+                        (click)="abrirCambioPassword(usuario)"
+                        [disabled]="guardando() || guardandoClave() || eliminandoId() !== null"
+                      >
+                        Contraseña
+                      </button>
+
+                      <!-- ELIMINAR -->
+                      <button
+                        type="button"
+                        class="boton-eliminar"
+                        (click)="eliminar(usuario)"
+                        [disabled]="esMiCuenta(usuario) || guardando() || eliminandoId() !== null"
+                      >
+                        {{ eliminandoId() === usuario.id
+                           ? 'Eliminando...'
+                           : 'Eliminar' }}
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              } @empty {
+
+                <tr>
+                  <td colspan="5" class="sin-registros">
+                    No se encontraron usuarios.
+                  </td>
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      }
+
+    </section>
+
+  </main>
+
+</div>

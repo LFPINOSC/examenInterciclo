@@ -1,0 +1,349 @@
+
+<!-- ==========================================
+     VISTA DE GESTION DE MEDICOS
+     SISTEMA DE CONTROL DE CITAS MEDICAS
+========================================== -->
+
+<div class="pagina">
+
+  <!-- ======================================
+       ENCABEZADO
+  ======================================= -->
+  <header class="encabezado">
+
+    <div>
+      <!-- Volver a la pantalla principal -->
+      <a routerLink="/dashboard" class="volver">
+        ← Volver al Dashboard
+      </a>
+
+      <h1>Gestión de Médicos</h1>
+
+      <p>
+        Registra, consulta, actualiza y elimina
+        los médicos del sistema.
+      </p>
+    </div>
+
+    <!-- Abrir formulario de registro -->
+    <button
+      type="button"
+      class="boton-primario"
+      (click)="nuevo()"
+      [disabled]="guardando() || eliminandoId() !== null"
+    >
+      + Nuevo médico
+    </button>
+
+  </header>
+
+  <!-- ======================================
+       CONTENIDO PRINCIPAL
+  ======================================= -->
+  <main class="contenedor">
+
+    <!-- Mensaje de confirmación -->
+    @if (mensaje()) {
+      <div class="alerta exito" role="status">
+        ✓ {{ mensaje() }}
+      </div>
+    }
+
+    <!-- Mensaje de error -->
+    @if (error()) {
+      <div class="alerta error" role="alert">
+        {{ error() }}
+      </div>
+    }
+
+    <!-- ====================================
+         FORMULARIO REGISTRAR / EDITAR
+    ===================================== -->
+    @if (mostrarFormulario()) {
+
+      <section class="tarjeta formulario-tarjeta">
+
+        <!-- Título dinámico -->
+        <div class="titulo-formulario">
+
+          <div>
+            <h2>
+              {{ idEdicion === null
+                 ? 'Registrar nuevo médico'
+                 : 'Editar médico' }}
+            </h2>
+
+            <p>Complete la información del profesional.</p>
+          </div>
+
+          <!-- Cerrar sin guardar -->
+          <button
+            type="button"
+            class="boton-cerrar"
+            (click)="cancelar()"
+            [disabled]="guardando()"
+            aria-label="Cerrar formulario"
+          >
+            ✕
+          </button>
+
+        </div>
+
+        <!-- Formulario conectado a medicos.ts -->
+        <form
+          (ngSubmit)="guardar()"
+          #formMedico="ngForm"
+        >
+
+          <div class="form-grid">
+
+            <!-- NOMBRE -->
+            <div class="campo">
+
+              <label for="nombre">
+                Nombre *
+              </label>
+
+              <input
+                id="nombre"
+                type="text"
+                name="nombre"
+                [(ngModel)]="formulario.nombre"
+                placeholder="Ej. Carlos"
+                maxlength="100"
+                required
+                [disabled]="guardando()"
+              />
+
+            </div>
+
+            <!-- APELLIDO -->
+            <div class="campo">
+
+              <label for="apellido">
+                Apellido *
+              </label>
+
+              <input
+                id="apellido"
+                type="text"
+                name="apellido"
+                [(ngModel)]="formulario.apellido"
+                placeholder="Ej. Martínez"
+                maxlength="100"
+                required
+                [disabled]="guardando()"
+              />
+
+            </div>
+
+            <!-- ESPECIALIDAD -->
+            <div class="campo">
+
+              <label for="especialidad">
+                Especialidad médica *
+              </label>
+
+              <input
+                id="especialidad"
+                type="text"
+                name="especialidad"
+                [(ngModel)]="formulario.especialidad"
+                placeholder="Ej. Medicina General"
+                maxlength="100"
+                required
+                [disabled]="guardando()"
+              />
+
+            </div>
+
+            <!-- TELÉFONO -->
+            <div class="campo">
+
+              <label for="telefono">
+                Teléfono *
+              </label>
+
+              <input
+                id="telefono"
+                type="tel"
+                name="telefono"
+                [(ngModel)]="formulario.telefono"
+                placeholder="Ej. 0998765432"
+                minlength="7"
+                maxlength="20"
+                pattern="[0-9+() \-]{7,20}"
+                required
+                [disabled]="guardando()"
+              />
+
+            </div>
+
+          </div>
+
+          <!-- BOTONES DEL FORMULARIO -->
+          <div class="acciones-formulario">
+
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="cancelar()"
+              [disabled]="guardando()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="boton-primario"
+              [disabled]="formMedico.invalid || guardando()"
+            >
+              @if (guardando()) {
+                Guardando...
+              } @else {
+                {{ idEdicion === null
+                   ? 'Registrar médico'
+                   : 'Guardar cambios' }}
+              }
+            </button>
+
+          </div>
+
+        </form>
+
+      </section>
+    }
+
+    <!-- ====================================
+         TABLA DE MÉDICOS REGISTRADOS
+    ===================================== -->
+    <section class="tarjeta">
+
+      <div class="tabla-encabezado">
+
+        <div>
+          <h2>Médicos registrados</h2>
+
+          <p>
+            Total de médicos:
+            <strong>{{ medicos().length }}</strong>
+          </p>
+        </div>
+
+        <!-- Buscar sin recargar la página -->
+        <input
+          type="search"
+          class="buscador"
+          name="busqueda"
+          [(ngModel)]="busqueda"
+          placeholder="Buscar médico o especialidad..."
+          aria-label="Buscar médicos"
+        />
+
+      </div>
+
+      <!-- Mostrar estado de carga -->
+      @if (cargando()) {
+
+        <div class="estado">
+          Cargando médicos...
+        </div>
+
+      } @else {
+
+        <!-- Tabla con desplazamiento horizontal -->
+        <div class="tabla-responsive">
+
+          <table>
+
+            <!-- ENCABEZADOS -->
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre completo</th>
+                <th>Especialidad</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+
+            <!-- REGISTROS -->
+            <tbody>
+
+              @for (medico of medicosFiltrados; track medico.id) {
+
+                <tr>
+
+                  <td>
+                    {{ medico.id }}
+                  </td>
+
+                  <td class="nombre">
+                    {{ medico.nombre }} {{ medico.apellido }}
+                  </td>
+
+                  <td>
+                    <span class="especialidad">
+                      {{ medico.especialidad }}
+                    </span>
+                  </td>
+
+                  <td>
+                    {{ medico.telefono }}
+                  </td>
+
+                  <td>
+
+                    <div class="acciones-tabla">
+
+                      <!-- Editar registro -->
+                      <button
+                        type="button"
+                        class="boton-editar"
+                        (click)="editar(medico)"
+                        [disabled]="guardando() || eliminandoId() !== null"
+                      >
+                        Editar
+                      </button>
+
+                      <!-- Eliminar registro -->
+                      <button
+                        type="button"
+                        class="boton-eliminar"
+                        (click)="eliminar(medico)"
+                        [disabled]="guardando() || eliminandoId() !== null"
+                      >
+                        {{ eliminandoId() === medico.id
+                           ? 'Eliminando...'
+                           : 'Eliminar' }}
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              } @empty {
+
+                <!-- Lista vacía -->
+                <tr>
+                  <td colspan="5" class="sin-registros">
+                    No se encontraron médicos registrados.
+                  </td>
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+      }
+
+    </section>
+
+  </main>
+
+</div>

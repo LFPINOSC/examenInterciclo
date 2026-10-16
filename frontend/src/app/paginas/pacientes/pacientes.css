@@ -1,0 +1,592 @@
+
+/* ==========================================
+   GESTION DE PACIENTES
+   SISTEMA DE CONTROL DE CITAS MEDICAS
+========================================== */
+
+/* ==========================================
+   CONFIGURACION PRINCIPAL
+========================================== */
+
+:host {
+  display: block;
+}
+
+.pagina {
+  min-height: 100vh;
+  background: #f4f8fc;
+  font-family: Arial, sans-serif;
+  color: #173750;
+  padding-bottom: 50px;
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   ENCABEZADO
+========================================== */
+
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+
+  padding: 35px 6%;
+
+  background: #ffffff;
+  border-bottom: 1px solid #e4edf4;
+}
+
+.encabezado h1 {
+  margin: 0 0 10px;
+  font-size: 29px;
+  font-weight: 700;
+  color: #173750;
+}
+
+.encabezado p {
+  margin: 0;
+  font-size: 14px;
+  color: #8190a0;
+  line-height: 1.6;
+}
+
+/* Regresar al Dashboard */
+
+.volver {
+  display: inline-block;
+  margin-bottom: 16px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #087f8c;
+  text-decoration: none;
+}
+
+.volver:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================
+   CONTENEDOR PRINCIPAL
+========================================== */
+
+.contenedor {
+  max-width: 1200px;
+  margin: 35px auto;
+  padding: 0 24px;
+}
+
+/* ==========================================
+   TARJETAS
+========================================== */
+
+.tarjeta {
+  background: #ffffff;
+
+  border: 1px solid #e4edf4;
+  border-radius: 16px;
+
+  padding: 28px;
+  margin-bottom: 25px;
+
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
+}
+
+/* ==========================================
+   BOTONES GENERALES
+========================================== */
+
+/* Boton principal */
+
+.boton-primario {
+  display: inline-block;
+
+  padding: 13px 20px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #087f8c;
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.boton-primario:hover:not(:disabled) {
+  background: #066a75;
+}
+
+/* Boton secundario */
+
+.boton-secundario {
+  padding: 12px 20px;
+
+  border: 1px solid #d5dfe7;
+  border-radius: 9px;
+
+  background: white;
+  color: #526477;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.boton-secundario:hover:not(:disabled) {
+  background: #f4f8fc;
+}
+
+/* Botones deshabilitados */
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   MENSAJES DE CONFIRMACION Y ERROR
+========================================== */
+
+.alerta {
+  padding: 15px 18px;
+  margin-bottom: 22px;
+
+  border-radius: 9px;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Mensaje de exito */
+
+.exito {
+  background: #e4f7e9;
+  color: #216b3a;
+
+  border: 1px solid #bce9c7;
+}
+
+/* Mensaje de error */
+
+.error {
+  background: #fff0f0;
+  color: #a32828;
+
+  border: 1px solid #f5c8c8;
+}
+
+/* ==========================================
+   FORMULARIO DE PACIENTES
+========================================== */
+
+.formulario-tarjeta {
+  border-top: 4px solid #087f8c;
+}
+
+/* Titulo */
+
+.titulo-formulario {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+
+  margin-bottom: 25px;
+}
+
+.titulo-formulario h2 {
+  margin: 0 0 8px;
+  font-size: 21px;
+  color: #173750;
+}
+
+.titulo-formulario p {
+  margin: 0;
+  font-size: 13px;
+  color: #8190a0;
+}
+
+/* Boton cerrar */
+
+.boton-cerrar {
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #eef2f6;
+  color: #526477;
+
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.boton-cerrar:hover:not(:disabled) {
+  background: #e0e7ee;
+}
+
+/* Distribucion de campos */
+
+.form-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+/* Campo */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  min-width: 0;
+}
+
+/* Campo que ocupa toda la fila */
+
+.campo-completo {
+  grid-column: 1 / -1;
+}
+
+/* Etiquetas */
+
+.campo label {
+  color: #33485b;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Entradas del formulario */
+
+.campo input {
+  width: 100%;
+  padding: 13px 14px;
+
+  border: 1px solid #d5dfe7;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #173750;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+  box-sizing: border-box;
+
+  transition: border-color 0.2s ease;
+}
+
+/* Campo seleccionado */
+
+.campo input:focus {
+  border-color: #087f8c;
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.1);
+}
+
+/* Campos invalidos */
+
+.campo input.ng-invalid.ng-touched {
+  border-color: #df7777;
+}
+
+/* Texto de ayuda */
+
+.campo small {
+  font-size: 12px;
+  color: #8190a0;
+}
+
+/* ==========================================
+   ACCIONES DEL FORMULARIO
+========================================== */
+
+.acciones-formulario {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  margin-top: 28px;
+}
+
+/* ==========================================
+   ENCABEZADO DE TABLA
+========================================== */
+
+.tabla-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  margin-bottom: 25px;
+}
+
+.tabla-encabezado h2 {
+  margin: 0 0 8px;
+
+  color: #173750;
+  font-size: 20px;
+}
+
+.tabla-encabezado p {
+  margin: 0;
+
+  color: #8190a0;
+  font-size: 13px;
+}
+
+/* ==========================================
+   BUSCADOR
+========================================== */
+
+.buscador-contenedor {
+  width: 320px;
+  max-width: 100%;
+}
+
+.buscador {
+  width: 100%;
+
+  padding: 13px 14px;
+
+  border: 1px solid #d5dfe7;
+  border-radius: 9px;
+
+  background: white;
+  color: #173750;
+
+  font-size: 14px;
+  font-family: inherit;
+
+  outline: none;
+  box-sizing: border-box;
+}
+
+.buscador:focus {
+  border-color: #087f8c;
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.1);
+}
+
+/* ==========================================
+   TABLA DE PACIENTES
+========================================== */
+
+/* Permite desplazamiento horizontal */
+
+.tabla-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Tabla */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+/* Encabezados */
+
+th {
+  padding: 16px;
+
+  background: #f2f7fa;
+  color: #526477;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+/* Celdas */
+
+td {
+  padding: 16px;
+
+  border-bottom: 1px solid #e9eff4;
+
+  font-size: 14px;
+  color: #33485b;
+}
+
+/* Efecto al pasar el mouse */
+
+tbody tr:hover {
+  background: #f9fcfd;
+}
+
+/* Nombre del paciente */
+
+.nombre {
+  font-weight: 700;
+  color: #173750;
+}
+
+/* ==========================================
+   BOTONES DE LA TABLA
+========================================== */
+
+.acciones-tabla {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* Boton editar */
+
+.boton-editar {
+  padding: 9px 13px;
+
+  border: none;
+  border-radius: 7px;
+
+  background: #e4f2ff;
+  color: #2875b9;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.boton-editar:hover:not(:disabled) {
+  background: #cde5fa;
+}
+
+/* Boton eliminar */
+
+.boton-eliminar {
+  padding: 9px 13px;
+
+  border: none;
+  border-radius: 7px;
+
+  background: #fff0f0;
+  color: #c0392b;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.boton-eliminar:hover:not(:disabled) {
+  background: #fbdada;
+}
+
+/* ==========================================
+   ESTADOS DE CARGA Y SIN REGISTROS
+========================================== */
+
+.estado {
+  padding: 40px;
+  text-align: center;
+
+  color: #8190a0;
+  font-size: 14px;
+}
+
+.sin-registros {
+  padding: 40px;
+  text-align: center;
+
+  color: #8190a0;
+  font-size: 14px;
+}
+
+/* ==========================================
+   DISEÑO RESPONSIVO
+========================================== */
+
+@media (max-width: 700px) {
+
+  /* Encabezado vertical */
+
+  .encabezado {
+    flex-direction: column;
+    align-items: stretch;
+
+    padding: 28px 22px;
+  }
+
+  .encabezado h1 {
+    font-size: 25px;
+  }
+
+  /* Contenido */
+
+  .contenedor {
+    margin-top: 22px;
+    padding: 0 14px;
+  }
+
+  .tarjeta {
+    padding: 18px;
+  }
+
+  /* Formulario de una columna */
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campo-completo {
+    grid-column: auto;
+  }
+
+  /* Botones del formulario */
+
+  .acciones-formulario {
+    flex-direction: column;
+  }
+
+  .acciones-formulario button {
+    width: 100%;
+  }
+
+  /* Encabezado de tabla */
+
+  .tabla-encabezado {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .buscador-contenedor {
+    width: 100%;
+  }
+
+  /* Evitar que los botones se compriman */
+
+  .acciones-tabla {
+    min-width: 145px;
+  }
+
+}
+
+@media (max-width: 400px) {
+
+  .titulo-formulario h2 {
+    font-size: 18px;
+  }
+
+  .encabezado h1 {
+    font-size: 23px;
+  }
+
+}
