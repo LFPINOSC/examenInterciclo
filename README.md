@@ -2,12 +2,29 @@
 
 **Estudiante:** Braddley Andrés Estrella Salinas  
 **Tema:** Gestión de biblioteca  
-**Stack:** Angular 22 + Spring Boot 3.5 + PostgreSQL + JWT
+**Stack:** Angular 22.2.3 + TypeScript 6.0.3 + Spring Boot 3.5 + PostgreSQL + JWT
+
+## Estado de esta versión
+
+Esta es la versión corregida del proyecto. Se corrigieron especialmente:
+
+- Refresco visual de Angular después de peticiones HTTP (`zone.js` habilitado explícitamente).
+- Las tablas se actualizan inmediatamente al crear, editar o eliminar.
+- TypeScript compatible con Angular 22 (`6.0.3`).
+- Se eliminaron `baseUrl` y `downlevelIteration` obsoletos.
+- Sesión JWT exclusiva para este examen, con detección de expiración.
+- Cierre automático de sesión cuando el backend devuelve `401`.
+- CORS compatible con `localhost`, `127.0.0.1` e IP LAN en puerto 4200.
+- Ya no se crean libros/autores/categorías de demostración al iniciar.
+- El préstamo y la devolución actualizan inmediatamente la disponibilidad.
+- Validaciones y mensajes de éxito/error más claros.
+- PostgreSQL local como servicio; no se usa Docker.
 
 ## Funcionalidades
 
 - Registro e inicio de sesión.
-- Seguridad JWT con roles `ADMIN` y `LECTOR`.
+- Seguridad JWT y BCrypt.
+- Roles `ADMIN` y `LECTOR`.
 - CRUD de autores.
 - CRUD de categorías.
 - CRUD y búsqueda de libros.
@@ -17,28 +34,47 @@
 - Administración de usuarios y roles.
 - Validaciones frontend/backend.
 - Diseño responsivo.
-- Persistencia PostgreSQL real; no usa mocks.
+- Persistencia PostgreSQL real, sin datos simulados en Angular.
 
-## 1. Base de datos
+## 1. PostgreSQL
 
-### Opción A — Docker
-
-Desde la raíz:
+Comprueba el servicio:
 
 ```bash
-docker compose up -d postgres
+sudo systemctl status postgresql --no-pager
 ```
 
-### Opción B — PostgreSQL instalado localmente
+Desde la raíz del proyecto prepara la base si todavía no existe:
 
 ```bash
-sudo -u postgres psql
-CREATE DATABASE biblioteca_examen;
-ALTER USER postgres WITH PASSWORD 'postgres';
-\q
+./scripts/prepare_database.sh
 ```
 
-> Hibernate crea/actualiza las tablas automáticamente. `database/schema.sql` documenta el modelo físico para el examen.
+El backend usa por defecto:
+
+```text
+Base: biblioteca_examen
+Host: localhost
+Puerto: 5432
+Usuario: postgres
+Contraseña: postgres
+```
+
+Si tu contraseña de PostgreSQL es distinta, no edites el código; inicia el backend así:
+
+```bash
+DB_PASSWORD='TU_PASSWORD' mvn spring-boot:run
+```
+
+### Si ya ejecutaste la versión anterior
+
+La versión anterior dejó libros de demostración guardados físicamente en PostgreSQL. Para iniciar limpio, **detén primero el backend** y ejecuta una sola vez:
+
+```bash
+./scripts/reset_database.sh
+```
+
+Escribe `REINICIAR` cuando lo pida. Después, al iniciar Spring Boot, Hibernate creará las tablas y únicamente se crearán las cuentas `admin` y `lector`.
 
 ## 2. Backend
 
@@ -49,89 +85,120 @@ cd backend
 mvn spring-boot:run
 ```
 
-API: `http://localhost:8080/api`
+API:
+
+```text
+http://localhost:8080/api
+```
 
 Credenciales iniciales:
 
-- Administrador: `admin` / `Admin123*`
-- Lector: `lector` / `Lector123*`
-
-Si tu PostgreSQL usa otra contraseña:
-
-```bash
-DB_PASSWORD='TU_PASSWORD' mvn spring-boot:run
-```
-
-Variables disponibles:
-
 ```text
-DB_URL
-DB_USER
-DB_PASSWORD
-JWT_SECRET
-JWT_EXPIRATION_MS
-FRONTEND_URL
-SERVER_PORT
+ADMIN
+usuario: admin
+contraseña: Admin123*
+
+LECTOR
+usuario: lector
+contraseña: Lector123*
 ```
 
 ## 3. Frontend
 
-Requisitos: Node.js y npm.
+En otra terminal:
 
 ```bash
 cd frontend
+rm -rf node_modules package-lock.json
 npm install
 npm start
 ```
 
 Abrir:
 
-`http://localhost:4200`
+```text
+http://localhost:4200
+```
 
-## 4. Orden correcto para demostrar
+> Si el navegador tenía abierta la versión anterior, recarga con `Ctrl+Shift+R`. La clave de sesión del borrador anterior se elimina automáticamente.
 
-1. Levantar PostgreSQL.
-2. Ejecutar backend y mostrar que inicia en 8080.
-3. Ejecutar Angular en 4200.
-4. Entrar como `admin`.
-5. Crear un autor y una categoría.
-6. Crear un libro.
-7. Registrar un préstamo a `lector` y observar que baja la disponibilidad.
-8. Registrar la devolución y observar que aumenta.
-9. Entrar como `lector` para mostrar restricciones.
-10. Mostrar las tablas desde PostgreSQL.
+## 4. Primera prueba recomendada
 
-## 5. Consultas PostgreSQL para la defensa
+Entra como `admin` y realiza exactamente este flujo:
+
+1. **Autores → Nuevo autor**. Crea `Miguel de Cervantes`, nacionalidad `Española`.
+2. **Categorías → Nueva categoría**. Crea `Novela`.
+3. **Libros → Nuevo libro**. Crea `Don Quijote de la Mancha`, ISBN `9788420412146`, año `1605`, 3 ejemplares.
+4. Comprueba que aparece inmediatamente `3 / 3`.
+5. **Préstamos → Nuevo préstamo**. Selecciona el libro y el usuario `lector`.
+6. Comprueba que la disponibilidad queda `2 / 3`.
+7. Pulsa **Devolver**.
+8. Comprueba que vuelve a `3 / 3`.
+9. Edita el libro y comprueba el cambio inmediatamente.
+10. Cierra sesión e ingresa como `lector` para demostrar restricciones por rol.
+
+## 5. Comprobar PostgreSQL directamente
 
 ```bash
-psql -U postgres -d biblioteca_examen
+psql -U postgres -h localhost -d biblioteca_examen
 ```
+
+Dentro:
 
 ```sql
 \dt
-SELECT id, username, role, enabled FROM usuarios;
-SELECT id, title, total_copies, available_copies FROM libros;
-SELECT id, user_id, book_id, loan_date, due_date, return_date, status FROM prestamos;
+SELECT id, username, nombre_completo, email, role, enabled FROM usuarios ORDER BY id;
+SELECT id, title, isbn, total_copies, available_copies FROM libros ORDER BY id;
+SELECT id, user_id, book_id, loan_date, due_date, return_date, status FROM prestamos ORDER BY id;
 ```
 
-## 6. Documentación incluida
+Salir:
+
+```sql
+\q
+```
+
+## 6. Arquitectura
+
+```text
+Navegador
+   │
+   │ Angular 22 :4200
+   │ HttpClient + JWT
+   ▼
+Spring Boot :8080
+   │ Controller
+   │ Service
+   │ Repository/JPA
+   │ Spring Security + JWT
+   ▼
+PostgreSQL :5432
+   ├── usuarios
+   ├── autores
+   ├── categorias
+   ├── libros
+   └── prestamos
+```
+
+## 7. Documentación para la defensa
 
 - `docs/ANALISIS_Y_DISENO.md`: requerimientos, entidades, justificación y diagramas.
 - `docs/API_REST.md`: endpoints y ejemplos JSON.
 - `docs/PRUEBAS.md`: plan de pruebas y evidencias.
 - `docs/DEFENSA.md`: preguntas técnicas y respuestas preparadas.
 - `database/schema.sql`: diseño físico SQL.
-- `postman/Biblioteca.postman_collection.json`: colección para probar la API.
+- `database/RESET_IMPORTANTE.md`: cómo limpiar el borrador anterior.
+- `postman/Biblioteca.postman_collection.json`: pruebas de API.
 
-## 7. Guardar el trabajo en tu rama
-
-Una vez copies este proyecto dentro de tu repositorio:
+## 8. Guardar en tu rama
 
 ```bash
 git status
 git add .
-git commit -m "Implementa sistema completo de gestión de biblioteca"
+git commit -m "Implementa examen completo de gestión de biblioteca"
 git log --oneline --decorate -5
 ```
 
-Tu commit anterior no incluyó archivos porque el repositorio estaba vacío: `git add .` no tiene nada que agregar hasta que existan archivos.
+## Corrección Angular 22
+
+Angular 22 utiliza `OnPush` como estrategia de detección de cambios por defecto. Las pantallas CRUD de este proyecto usan explícitamente `ChangeDetectionStrategy.Eager` junto con `provideZoneChangeDetection(...)`, porque manejan estado mutable tradicional (`arrays`, `boolean`, formularios template-driven) actualizado desde `HttpClient.subscribe()`. De esta manera los resultados de crear, editar, eliminar, iniciar sesión y cargar tablas se reflejan inmediatamente sin recargar manualmente la página.

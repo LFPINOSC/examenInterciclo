@@ -30,14 +30,17 @@ public class LoanService {
     public List<Loan> findAll(Authentication auth) {
         updateExpired();
         User current = currentUser(auth);
-        if (current.getRole() == Role.ADMIN) return loanRepository.findAll();
-        return loanRepository.findByUserIdOrderByLoanDateDesc(current.getId());
+        if (current.getRole() == Role.ADMIN) {
+            return loanRepository.findAllByOrderByLoanDateDescIdDesc();
+        }
+        return loanRepository.findByUserIdOrderByLoanDateDescIdDesc(current.getId());
     }
 
     @Transactional
     public Loan create(LoanRequest request, Authentication auth) {
         User current = currentUser(auth);
         User borrower;
+
         if (current.getRole() == Role.ADMIN && request.userId() != null) {
             borrower = userRepository.findById(request.userId())
                     .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
@@ -45,14 +48,26 @@ public class LoanService {
             borrower = current;
         }
 
+        if (!borrower.isEnabled()) {
+            throw new BusinessException("El usuario seleccionado está deshabilitado");
+        }
+
         Book book = bookRepository.findById(request.bookId())
                 .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado"));
+
         if (!book.isActive()) throw new BusinessException("El libro está inactivo");
         if (book.getAvailableCopies() <= 0) throw new BusinessException("No existen ejemplares disponibles");
-        if (loanRepository.existsByBookIdAndUserIdAndStatus(book.getId(), borrower.getId(), LoanStatus.ACTIVO)) {
-            throw new BusinessException("El usuario ya tiene un préstamo activo de este libro");
+
+        if (loanRepository.existsByBookIdAndUserIdAndStatusIn(
+                book.getId(),
+                borrower.getId(),
+                List.of(LoanStatus.ACTIVO, LoanStatus.VENCIDO))) {
+            throw new BusinessException("El usuario ya tiene este libro pendiente de devolución");
         }
-        if (!request.dueDate().isAfter(LocalDate.now())) throw new BusinessException("La fecha límite debe ser futura");
+
+        if (!request.dueDate().isAfter(LocalDate.now())) {
+            throw new BusinessException("La fecha límite debe ser posterior a hoy");
+        }
 
         Loan loan = new Loan();
         loan.setUser(borrower);
@@ -70,10 +85,14 @@ public class LoanService {
     public Loan returnBook(Long id, Authentication auth) {
         Loan loan = findById(id);
         assertCanManage(loan, auth);
-        if (loan.getStatus() == LoanStatus.DEVUELTO) throw new BusinessException("El préstamo ya fue devuelto");
+
+        if (loan.getStatus() == LoanStatus.DEVUELTO) {
+            throw new BusinessException("El préstamo ya fue devuelto");
+        }
 
         loan.setStatus(LoanStatus.DEVUELTO);
         loan.setReturnDate(LocalDate.now());
+
         Book book = loan.getBook();
         book.setAvailableCopies(Math.min(book.getAvailableCopies() + 1, book.getTotalCopies()));
         bookRepository.save(book);
@@ -84,13 +103,19 @@ public class LoanService {
     public void delete(Long id, Authentication auth) {
         Loan loan = findById(id);
         User current = currentUser(auth);
-        if (current.getRole() != Role.ADMIN) throw new BusinessException("Solo el administrador puede eliminar préstamos");
-        if (loan.getStatus() != LoanStatus.DEVUELTO) throw new BusinessException("Solo se pueden eliminar préstamos ya devueltos");
+
+        if (current.getRole() != Role.ADMIN) {
+            throw new BusinessException("Solo el administrador puede eliminar préstamos");
+        }
+        if (loan.getStatus() != LoanStatus.DEVUELTO) {
+            throw new BusinessException("Solo se pueden eliminar préstamos ya devueltos");
+        }
         loanRepository.delete(loan);
     }
 
     public Loan findById(Long id) {
-        return loanRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Préstamo no encontrado"));
+        return loanRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Préstamo no encontrado"));
     }
 
     private void assertCanManage(Loan loan, Authentication auth) {
@@ -106,10 +131,10 @@ public class LoanService {
     }
 
     private void updateExpired() {
+        LocalDate today = LocalDate.now();
         for (Loan loan : loanRepository.findAll()) {
-            if (loan.getStatus() == LoanStatus.ACTIVO && loan.getDueDate().isBefore(LocalDate.now())) {
+            if (loan.getStatus() == LoanStatus.ACTIVO && loan.getDueDate().isBefore(today)) {
                 loan.setStatus(LoanStatus.VENCIDO);
-                loanRepository.save(loan);
             }
         }
     }
