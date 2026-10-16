@@ -1,48 +1,99 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Control de Órdenes de Trabajo</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090f19">
+  <meta name="description" content="RutaControl. Plataforma para administrar vehículos, conductores, rutas y viajes con datos seguros y en tiempo real.">
+  <title>RutaControl | Plataforma de gestión de transporte</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/premium.css">
 </head>
 <body>
-  <!-- LOGIN -->
-  <section id="login-view" class="login">
-    <form id="login-form" class="card" novalidate>
-      <h1>Órdenes de Trabajo</h1>
-      <label>Email <input type="email" name="email" required autocomplete="username"></label>
-      <label>Contraseña <input type="password" name="password" required autocomplete="current-password"></label>
-      <p class="error" id="login-error"></p>
-      <button type="submit">Ingresar</button>
-    </form>
-  </section>
-
-  <!-- APP -->
-  <div id="app-view" hidden>
-    <header>
-      <strong>Órdenes de Trabajo</strong>
-      <nav id="nav"></nav>
-      <span id="user-info"></span>
-      <button id="logout" class="secondary">Salir</button>
+  <!-- Web pública: presenta el producto. Los datos privados solo se consultan tras autenticación. -->
+  <div id="landing-screen" class="landing-screen">
+    <header class="public-nav">
+      <a class="brand" href="#inicio" aria-label="RutaControl, ir al inicio"><span class="brand-icon">R<span class="brand-arrow">↗</span></span><span>Ruta<span class="brand-accent">Control</span><small>GESTIÓN DE TRANSPORTE</small></span></a>
+      <nav class="public-links" aria-label="Navegación del sitio"><a href="#inicio">Inicio</a><a href="#ventajas">Ventajas</a><a href="#modulos">Módulos</a><a href="#proceso">Cómo funciona</a></nav>
+      <button type="button" data-open-login class="btn btn-primary btn-nav">Ingresar al sistema <span aria-hidden="true">↗</span></button>
     </header>
-    <main id="main"></main>
+    <main>
+      <section id="inicio" class="hero-public">
+        <div class="hero-photo" role="img" aria-label="Autobús de transporte en una carretera de montaña"></div>
+        <div class="hero-grid" aria-hidden="true"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="micro-label"><span class="micro-dot"></span> PLATAFORMA INTELIGENTE DE MOVILIDAD</div>
+          <h1>El futuro de tu flota comienza <em>aquí.</em></h1>
+          <p>Transforma la forma en que administras vehículos, conductores, rutas y viajes. Una operación conectada, eficiente y bajo control.</p>
+          <div class="hero-actions"><button data-open-login class="btn btn-primary btn-xl">Comenzar ahora <span>↗</span></button><a class="btn btn-ghost btn-xl" href="#modulos">Explorar funciones <span>↓</span></a></div>
+          <div class="hero-proof"><span class="proof-mark">✓</span><span>Datos reales, sin simulaciones</span><span class="proof-divider"></span><span class="proof-mark">✓</span><span>Acceso protegido por roles</span></div>
+        </div>
+        <div class="hero-side-label">OPERACIÓN • CONTROL • SEGURIDAD <span>2026</span></div>
+        <div class="hero-foot" aria-hidden="true"><span>01 / 03</span><div class="hero-progress"><i></i></div><span>TRANSPORTE REINVENTADO</span></div>
+      </section>
+      <section id="ventajas" class="value-band" aria-label="Ventajas"><div><span class="value-num">01</span><strong>Flota conectada</strong><small>Vehículos y disponibilidad</small></div><div><span class="value-num">02</span><strong>Rutas organizadas</strong><small>Origen, destino y distancia</small></div><div><span class="value-num">03</span><strong>Operación segura</strong><small>Roles y control de acceso</small></div><div><span class="value-num">04</span><strong>Datos confiables</strong><small>Persistencia en PostgreSQL</small></div></section>
+      <section id="modulos" class="section-modules"><div class="section-label">LO QUE HACE RUTACONTROL</div><div class="section-heading"><h2>Todo lo que tu operación <em>necesita.</em></h2><p>Cada módulo está integrado al backend mediante API REST. Control completo desde una única plataforma.</p></div><div class="module-grid">
+        <article class="module-card module-highlight"><div class="module-card-top"><span class="module-icon">▣</span><span class="module-count">01 / GESTIÓN</span></div><h3>Vehículos</h3><p>Controla la flota, su capacidad y disponibilidad con registros siempre actualizados.</p><span class="module-link">Gestión centralizada ↗</span></article>
+        <article class="module-card"><div class="module-card-top"><span class="module-icon">♙</span><span class="module-count">02 / PERSONAL</span></div><h3>Conductores</h3><p>Organiza los datos de cada conductor, su licencia y estado de actividad.</p><span class="module-link">Datos ordenados ↗</span></article>
+        <article class="module-card"><div class="module-card-top"><span class="module-icon">⌁</span><span class="module-count">03 / RECORRIDOS</span></div><h3>Rutas</h3><p>Define trayectos, ciudades de origen y destino y distancias con precisión.</p><span class="module-link">Rutas disponibles ↗</span></article>
+        <article class="module-card"><div class="module-card-top"><span class="module-icon">◷</span><span class="module-count">04 / OPERACIONES</span></div><h3>Viajes</h3><p>Planifica servicios y detecta conflictos de horario entre vehículos y conductores.</p><span class="module-link">Viajes programados ↗</span></article>
+      </div></section>
+      <section id="proceso" class="process-section"><div><div class="section-label">FLUJO DE TRABAJO</div><h2>Información clara.<br><em>Decisiones mejores.</em></h2><p>Desde registrar un vehículo hasta coordinar un viaje, cada acción utiliza tu base de datos en PostgreSQL.</p><button data-open-login class="btn btn-primary">Acceder a la plataforma ↗</button></div><div class="process-steps"><div><span>01</span><strong>Administra</strong><small>Vehículos, conductores y rutas.</small></div><div><span>02</span><strong>Programa</strong><small>Crea viajes con validación de disponibilidad.</small></div><div><span>03</span><strong>Supervisa</strong><small>Visualiza el estado de la operación.</small></div></div></section>
+    </main>
+    <footer class="public-footer"><span>© 2026 RutaControl · Gestión de Transporte</span><span>Una plataforma, toda la operación.</span></footer>
   </div>
-
-  <!-- MODAL genérico -->
-  <dialog id="modal">
-    <form method="dialog" id="modal-form" novalidate>
-      <h2 id="modal-title"></h2>
-      <div id="modal-fields"></div>
-      <p class="error" id="modal-error"></p>
-      <div class="actions">
-        <button type="button" class="secondary" id="modal-cancel">Cancelar</button>
-        <button type="submit">Guardar</button>
-      </div>
-    </form>
-  </dialog>
-
-  <div id="toast"></div>
-  <script src="app.js"></script>
+  <!-- Autenticación -->
+  <section id="login-screen" class="login-screen" hidden>
+    <div class="login-info">
+      <div class="login-backdrop" aria-hidden="true"></div>
+      <button type="button" id="back-to-landing" class="return-link">← Volver al inicio</button>
+      <div class="brand brand-large"><span class="brand-icon">R<span class="brand-arrow">↗</span></span><span>Ruta<span class="brand-accent">Control</span><small>GESTIÓN DE TRANSPORTE</small></span></div>
+      <div class="login-copy"><span class="eyebrow">PLATAFORMA DE OPERACIONES</span><h1>Tu operación.<br><em>Tu control.</em></h1><p>Gestiona cada recorrido con claridad. Conoce tu flota, administra a tu equipo y mantén toda la información conectada.</p><div class="login-feature"><span class="feature-icon">✓</span> Información segura en PostgreSQL</div><div class="login-feature"><span class="feature-icon">✓</span> Operaciones CRUD con API REST</div><div class="login-feature"><span class="feature-icon">✓</span> Permisos de administrador y operador</div></div>
+      <span class="login-foot">RUTACONTROL / TRANSPORT MANAGEMENT</span>
+    </div>
+    <div class="login-form-area"><form id="login-form" class="login-card" autocomplete="on">
+      <div class="login-mark">R<span>↗</span></div><span class="eyebrow eyebrow-red">ACCESO SEGURO</span><h2>Bienvenido de nuevo.</h2><p>Ingresa con las credenciales de tu organización.</p>
+      <label for="login-email">Correo electrónico</label><input required id="login-email" type="email" autocomplete="username" placeholder="nombre@empresa.com" maxlength="160">
+      <div class="password-label"><label for="login-password">Contraseña</label></div><input required id="login-password" type="password" autocomplete="current-password" placeholder="Introduce tu contraseña" minlength="8">
+      <div id="login-error" class="inline-error" role="alert" hidden></div>
+      <button id="login-submit" class="btn btn-primary btn-block" type="submit">Acceder al panel <span>↗</span></button><small>Acceso exclusivo para personal autorizado.</small>
+    </form></div>
+  </section>
+  <!-- Panel privado -->
+  <div id="app-shell" class="app-shell" hidden>
+    <aside class="sidebar" id="sidebar"><div class="sidebar-brand"><div class="brand"><span class="brand-icon">R<span class="brand-arrow">↗</span></span><span>Ruta<span class="brand-accent">Control</span><small>GESTIÓN DE TRANSPORTE</small></span></div></div>
+      <div class="sidebar-label">PRINCIPAL</div><nav id="navigation" class="navigation" aria-label="Navegación principal">
+        <button data-page="dashboard" class="nav-link active"><span class="nav-icon">▦</span> Dashboard</button>
+        <div class="sidebar-label nav-group-label">ADMINISTRACIÓN</div>
+        <button data-page="vehiculos" class="nav-link"><span class="nav-icon">▣</span> Vehículos</button>
+        <button data-page="conductores" class="nav-link"><span class="nav-icon">♙</span> Conductores</button>
+        <button data-page="rutas" class="nav-link"><span class="nav-icon">⌁</span> Rutas</button>
+        <button data-page="viajes" class="nav-link"><span class="nav-icon">◷</span> Viajes</button>
+        <button data-page="usuarios" class="nav-link" id="nav-usuarios"><span class="nav-icon">♧</span> Usuarios</button>
+      </nav>
+      <div class="sidebar-bottom"><span class="environment-dot"></span><span>CONEXIÓN PROTEGIDA</span><small>RutaControl v2.0</small></div>
+      <button type="button" class="sidebar-logout" id="sidebar-logout">↪ <span>Cerrar sesión</span></button>
+    </aside>
+    <div class="workspace"><header class="topbar"><div class="topbar-start"><button id="menu-toggle" class="icon-button menu-toggle" title="Mostrar menú" aria-label="Mostrar menú">☰</button><div class="breadcrumb"><span>RUTACONTROL</span><span class="crumb-divider">/</span><strong id="breadcrumb-page">Dashboard</strong></div></div><div class="topbar-user"><span class="topbar-live"><i></i> EN LÍNEA</span><span class="user-avatar" id="user-avatar">A</span><div class="user-meta"><strong id="user-name"></strong><span id="user-role"></span></div><button id="logout-btn" class="logout-button" title="Cerrar sesión">Salir ↗</button></div></header>
+      <main id="main-content" class="content" tabindex="-1"><div id="content-loading" class="loading" hidden>Cargando información…</div>
+        <section id="dashboard-page" class="dashboard-page">
+          <div class="page-heading dashboard-heading"><div><div class="eyebrow eyebrow-red">CENTRO DE CONTROL / RESUMEN GENERAL</div><h1>Dashboard<span class="heading-dot">.</span></h1><p>Toda tu operación, en una sola vista.</p></div><button id="refresh-summary" class="btn btn-secondary">↻ Actualizar datos</button></div>
+          <div class="dashboard-welcome"><div><span class="dashboard-overline">GESTIÓN INTELIGENTE DE TRANSPORTE</span><h2>El control de tu flota,<br><em>en buenas manos.</em></h2><p>Supervisa vehículos, conductores, rutas y viajes desde tu espacio de trabajo.</p></div><div class="welcome-shape" aria-hidden="true">RC<span>↗</span></div></div>
+          <div id="stats-grid" class="stats-grid"></div>
+          <div class="dashboard-columns"><section class="panel"><div class="panel-heading"><div><span class="small-overline">ACTIVIDAD RECIENTE</span><h2>Próximos viajes</h2><p>Servicios programados y en curso</p></div><button id="go-viajes" class="text-link">Ver todos →</button></div><div id="upcoming-trips" class="table-wrapper"></div></section>
+            <section class="panel"><div class="panel-heading"><div><span class="small-overline">INDICADORES</span><h2>Estado de los viajes</h2><p>Distribución por categoría</p></div></div><div id="status-bars" class="status-bars"></div></section></div>
+          <div class="info-strip"><span class="info-strip-icon">◈</span><span>Los indicadores y registros se obtienen directamente de tu base PostgreSQL mediante la API REST.</span></div>
+        </section>
+        <section id="resource-page" hidden><div class="page-heading"><div><div class="eyebrow eyebrow-red">OPERACIONES / GESTIÓN</div><h1 id="resource-title"></h1><p id="resource-description"></p></div><button id="new-record" class="btn btn-primary">＋ Nuevo registro</button></div>
+          <section class="panel record-panel"><div class="record-toolbar"><div><strong id="record-total">0 registros</strong><span class="muted">Información almacenada en PostgreSQL</span></div><div class="toolbar-right"><label class="searchbox"><span>⌕</span><input id="search-input" type="search" placeholder="Buscar en registros…" aria-label="Buscar registros"></label><button id="reload-records" class="btn btn-secondary" aria-label="Actualizar registros">↻</button></div></div><div class="table-wrapper" id="resource-table"></div></section>
+        </section>
+      </main><footer class="workspace-footer">© 2026 RutaControl <span>GESTIÓN DE TRANSPORTE · API REST + POSTGRESQL</span></footer>
+    </div>
+  </div>
+  <div id="modal-backdrop" class="modal-backdrop" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-top"><div><span class="eyebrow eyebrow-red">GESTIÓN DE REGISTROS</span><h2 id="modal-title">Nuevo registro</h2></div><button id="close-modal" class="icon-button" aria-label="Cerrar">×</button></div><form id="record-form"><div id="form-fields" class="form-grid"></div><div id="form-error" class="inline-error" role="alert" hidden></div><div class="modal-actions"><button type="button" id="cancel-modal" class="btn btn-secondary">Cancelar</button><button type="submit" class="btn btn-primary" id="save-record">Guardar registro ↗</button></div></form></div></div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div><div id="sidebar-scrim" class="sidebar-scrim" hidden></div>
+  <script type="module" src="/js/app.js"></script>
 </body>
 </html>

@@ -1,24 +1,22 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const bcrypt = require('bcryptjs');
-const db = require('./db');
-const routes = require('./routes');
-
-// Crea el admin inicial si no existe ningún usuario
-if (db.prepare('SELECT COUNT(*) AS n FROM usuarios').get().n === 0) {
-  db.prepare('INSERT INTO usuarios (nombre,email,password_hash,rol) VALUES (?,?,?,?)')
-    .run('Administrador', 'admin@ordenes.com', bcrypt.hashSync('admin123', 10), 'admin');
-  console.log('Usuario inicial creado: admin@ordenes.com / admin123');
+const path=require('path');
+require('dotenv').config({path:path.resolve(__dirname,'../.env')});
+const pool=require('./db');
+const app=require('./app');
+async function iniciar(){
+  if(!process.env.JWT_SECRET || process.env.JWT_SECRET.length<32 || process.env.JWT_SECRET.startsWith('REEMPLAZA')) {
+    throw new Error('Configura JWT_SECRET seguro (mínimo 32 caracteres) en backend/.env');
+  }
+  const conexion=await pool.query('SELECT current_database() AS db');
+  const port=Number(process.env.PORT || 3000);
+  app.listen(port,()=>{
+    console.log(`✅ API y web: http://localhost:${port} | PostgreSQL: ${conexion.rows[0].db}`);
+    if(process.env.RUTACONTROL_OPEN_BROWSER === '1' && process.platform === 'win32') {
+      try {
+        const {spawn} = require('child_process');
+        const child=spawn('powershell.exe',['-NoProfile','-Command',`Start-Process 'http://localhost:${port}'`],{detached:true,stdio:'ignore'});
+        child.unref();
+      } catch (error) { console.warn('Abre manualmente la dirección del servidor.'); }
+    }
+  });
 }
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-app.use('/api', routes);
-app.use('/api', (req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
-app.use(express.static(path.join(__dirname, '..', '..', 'frontend')));
-
-const PORT = process.env.PORT || 3000;
-if (require.main === module) app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
-module.exports = app;
+iniciar().catch(e=>{console.error('❌ No se pudo iniciar:',e.message);process.exit(1);});

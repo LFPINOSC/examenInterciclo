@@ -1,0 +1,28 @@
+graph Conceptual {
+  graph [label="MODELO ENTIDAD–RELACIÓN · NOTACIÓN CHEN", labelloc=t, labeljust=c, fontsize=18, fontname="Arial Bold", fontcolor="#15314b", bgcolor="#ffffff", pad="0.4", splines=true, nodesep="0.3", ranksep="1.05"];
+  node [fontname="Arial", fontsize=11, color="#3e6c9c", penwidth=1.3];
+  edge [fontname="Arial", fontsize=10, color="#627991", fontcolor="#30465f", penwidth=1.2];
+  usuarios [shape=box, style="filled", fillcolor="#e8f1fe",label="USUARIOS"];
+  vehiculos [shape=box, style="filled", fillcolor="#e8f1fe",label="VEHÍCULOS"];
+  conductores [shape=box, style="filled", fillcolor="#e8f1fe",label="CONDUCTORES"];
+  rutas [shape=box, style="filled", fillcolor="#e8f1fe",label="RUTAS"];
+  viajes [shape=box,style="filled",fillcolor="#d6f5e9",color="#16a17e",label="VIAJES"];
+  reg [shape=diamond, label="REGISTRA",style=filled,fillcolor="#fff1cc",color="#cc9d38"];
+  asigna [shape=diamond,label="UTILIZA",style=filled,fillcolor="#fff1cc",color="#cc9d38"];
+  conduce [shape=diamond,label="CONDUCE",style=filled,fillcolor="#fff1cc",color="#cc9d38"];
+  recorre [shape=diamond,label="RECORRE",style=filled,fillcolor="#fff1cc",color="#cc9d38"];
+  usuarios -- reg [label="1"]; reg -- viajes [label="N"];
+  vehiculos -- asigna [label="1"]; asigna -- viajes [label="N"];
+  conductores -- conduce [label="1"]; conduce -- viajes [label="N"];
+  rutas -- recorre [label="1"]; recorre -- viajes [label="N"];
+  u_id [shape=ellipse,label=<<U>id_usuario</U>>,fillcolor="#fafcff",style=filled]; u_nom [shape=ellipse,label="nombre"]; u_cor [shape=ellipse,label="correo"]; u_hash [shape=ellipse,label="password_hash"]; u_rol [shape=ellipse,label="rol"];u_activo [shape=ellipse,label="activo"];u_creado [shape=ellipse,label="creado_en"];
+  usuarios -- {u_id u_nom u_cor u_hash u_rol u_activo u_creado} [color="#b8c8dd"];
+  v_id [shape=ellipse,label=<<U>id_vehiculo</U>>,fillcolor="#fafcff",style=filled];v_placa [shape=ellipse,label="placa"];v_marca [shape=ellipse,label="marca"];v_modelo [shape=ellipse,label="modelo"];v_cap [shape=ellipse,label="capacidad"];v_estado [shape=ellipse,label="estado"];v_creado [shape=ellipse,label="creado_en"];
+  vehiculos -- {v_id v_placa v_marca v_modelo v_cap v_estado v_creado} [color="#b8c8dd"];
+  c_id [shape=ellipse,label=<<U>id_conductor</U>>,style=filled,fillcolor="#fafcff"]; c_nom [shape=ellipse,label="nombres"]; c_lic [shape=ellipse,label="licencia"]; c_tel [shape=ellipse,label="telefono"];c_estado [shape=ellipse,label="estado"];c_creado [shape=ellipse,label="creado_en"];
+  conductores -- {c_id c_nom c_lic c_tel c_estado c_creado} [color="#b8c8dd"];
+  r_id [shape=ellipse,label=<<U>id_ruta</U>>,style=filled,fillcolor="#fafcff"];r_org [shape=ellipse,label="origen"];r_dst [shape=ellipse,label="destino"];r_dist [shape=ellipse,label="distancia_km"];r_estado [shape=ellipse,label="estado"];r_creado [shape=ellipse,label="creado_en"];
+  rutas -- {r_id r_org r_dst r_dist r_estado r_creado} [color="#b8c8dd"];
+  t_id [shape=ellipse,label=<<U>id_viaje</U>>,style=filled,fillcolor="#fafcff"];t_inicio [shape=ellipse,label="fecha_salida"];t_fin [shape=ellipse,label="fecha_llegada_prevista"];t_est [shape=ellipse,label="estado"];t_obs [shape=ellipse,label="observaciones"];t_creado [shape=ellipse,label="creado_en"];
+  viajes -- {t_id t_inicio t_fin t_est t_obs t_creado} [color="#b8c8dd"];
+}
