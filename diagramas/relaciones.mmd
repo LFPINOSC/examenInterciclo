@@ -1,0 +1,12 @@
+erDiagram
+ USUARIOS ||--o{ EQUIPOS : posee
+ EQUIPOS ||--o{ TICKETS : registra
+ TECNICOS ||--o{ TICKETS : asignado
+ TICKETS ||--o{ DETALLES_SERVICIO : incluye
+ SERVICIOS ||--o{ DETALLES_SERVICIO : participa
+ USUARIOS { bigint id PK string correo UK string rol string contrasena_hash }
+ TECNICOS { bigint id PK string nombre string especialidad boolean activo }
+ EQUIPOS { bigint id PK bigint cliente_id FK string numero_serie UK }
+ TICKETS { bigint id PK bigint equipo_id FK bigint tecnico_id FK string estado string prioridad }
+ SERVICIOS { bigint id PK string nombre UK decimal precio }
+ DETALLES_SERVICIO { bigint id PK bigint ticket_id FK bigint servicio_id FK decimal precio_aplicado }

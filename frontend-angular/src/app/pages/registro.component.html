@@ -1,0 +1,14 @@
+<div class="auth-layout register-layout">
+ <section class="auth-showcase"><div class="auth-logo"><span class="mini-symbol">✳</span> TECNO<span class="lime">·</span>SOPORTE</div><div class="auth-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="crosshair">+</div></div><div class="showcase-bottom"><span class="kicker light">UN SERVICIO CON HISTORIAL</span><h1>Tu equipo,<br>en <em>buenas manos.</em></h1><p>Registra tus dispositivos y consulta el avance de cada reparación desde donde estés.</p></div></section>
+ <section class="auth-panel"><div class="auth-panel-inner"><div class="auth-top">NUEVO CLIENTE <span>EST. 2026</span></div><span class="kicker">REGISTRO / 02</span><h2>Abre tu<br>cuenta<span class="orange">.</span></h2><p class="subhead">Tus datos estarán vinculados a tus equipos y solicitudes.</p>
+  @if(error()){<div class="alert error-alert" role="alert">{{error()}}</div>}
+  <form [formGroup]="formulario" (ngSubmit)="registrar()" novalidate>
+   <div class="form-grid two"><div><label for="r-name">Nombre</label><input id="r-name" formControlName="nombre" placeholder="Alex" /><small class="field-error">{{campos()['nombre']}}</small></div><div><label for="r-surname">Apellido</label><input id="r-surname" formControlName="apellido" placeholder="Tenelema" /><small class="field-error">{{campos()['apellido']}}</small></div></div>
+   <label for="r-mail">Correo electrónico</label><input id="r-mail" type="email" formControlName="correo" placeholder="alex@ejemplo.com" autocomplete="email"/><small class="field-error">{{campos()['correo']}}</small>
+   <label for="r-phone">Teléfono (opcional)</label><input id="r-phone" formControlName="telefono" placeholder="09XXXXXXXX" inputmode="tel"/><small class="field-error">{{campos()['telefono']}}</small>
+   <label for="r-password">Contraseña</label><input id="r-password" formControlName="contrasena" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password"/><small class="field-error">{{campos()['contrasena']}}</small>
+   @if(formulario.touched && formulario.invalid){<small class="field-error">Revisa los campos obligatorios, el correo, teléfono (09 + 8 dígitos) y contraseña de 8 caracteres.</small>}
+   <button type="submit" class="btn-primary auth-submit" [disabled]="esperando()">{{esperando()?'Creando cuenta...':'Registrar cliente'}} <span>↗</span></button>
+  </form><div class="auth-register">¿Ya tienes una cuenta? <a routerLink="/acceso">Inicia sesión →</a></div><div class="auth-foot">Rol asignado automáticamente: CLIENTE <span>TEC / 21</span></div>
+ </div></section>
+</div>

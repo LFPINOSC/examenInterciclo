@@ -1,0 +1,261 @@
+
+<div class="page-enter">
+  <a class="back-link" routerLink="/tickets">← Volver a solicitudes</a>
+
+  @if(cargando()){
+    <div class="loading-line">Consultando el detalle del ticket...</div>
+  }
+
+  @if(error()){
+    <div class="alert error-alert" role="alert">
+      {{error()}}
+      <button type="button" (click)="cargar()">Actualizar</button>
+    </div>
+  }
+
+  @if(ticket(); as t){
+    <div class="page-title detail-heading">
+      <div>
+        <span class="kicker">CASO / {{codigo(t.id)}}</span>
+        <h1>{{t.equipo.marca}} {{t.equipo.modelo}}<span class="orange">.</span></h1>
+        <p>{{t.descripcionProblema}}</p>
+      </div>
+      <span class="status-chip large"
+            [class]="'estado-'+t.estado.toLowerCase()">
+        {{nombreEstado[t.estado]}}
+      </span>
+    </div>
+
+    <div class="ticket-meta-strip">
+      <span>FOLIO <strong>{{codigo(t.id)}}</strong></span>
+      <span>PRIORIDAD <strong>{{t.prioridad}}</strong></span>
+      <span>APERTURA <strong>{{t.fechaCreacion | date:'dd/MM/yyyy HH:mm'}}</strong></span>
+      <span>CLIENTE <strong>{{t.equipo.cliente.nombre}} {{t.equipo.cliente.apellido}}</strong></span>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-main">
+
+        <section class="card-block">
+          <div class="card-header">
+            <div>
+              <span class="kicker">01 / AVANCE</span>
+              <h3>Seguimiento de reparación</h3>
+            </div>
+          </div>
+
+          <div class="stage-track">
+            @for(e of ['PENDIENTE','ASIGNADO','EN_PROCESO','RESUELTO','CERRADO']; track e; let i=$index){
+              <div class="stage"
+                   [class.done]="['PENDIENTE','ASIGNADO','EN_PROCESO','RESUELTO','CERRADO'].indexOf(t.estado)>=i">
+                <i>{{i+1}}</i>
+                <span>{{e==='EN_PROCESO'?'En proceso':e.charAt(0)+e.slice(1).toLowerCase()}}</span>
+              </div>
+            }
+          </div>
+
+          <div class="ticket-description">
+            <span class="kicker">PROBLEMA REPORTADO</span>
+            <p>{{t.descripcionProblema}}</p>
+          </div>
+        </section>
+
+        <section class="card-block">
+          <div class="card-header">
+            <div>
+              <span class="kicker">02 / INTERVENCIONES</span>
+              <h3>Servicios aplicados</h3>
+            </div>
+            <span class="count-label">{{t.servicios.length}} SERVICIOS</span>
+          </div>
+
+          @for(d of t.servicios; track d.id){
+            <div class="detail-service">
+              <span class="row-icon">✳</span>
+              <div>
+                <strong>{{d.servicio}}</strong>
+                <small>{{d.observacion||'Sin observaciones'}}</small>
+              </div>
+              <b>{{d.precioAplicado | currency:'USD':'symbol':'1.2-2'}}</b>
+            </div>
+          }
+
+          @if(!t.servicios.length){
+            <p class="empty-compact">No hay servicios registrados para este ticket.</p>
+          }
+
+          <div class="ticket-total">
+            <span>TOTAL DE INTERVENCIONES</span>
+            <strong>{{t.total | currency:'USD':'symbol':'1.2-2'}}</strong>
+          </div>
+        </section>
+
+        <section class="card-block">
+          <div class="card-header">
+            <div>
+              <span class="kicker">03 / INFORME</span>
+              <h3>Diagnóstico y solución</h3>
+            </div>
+          </div>
+
+          <div class="report-field">
+            <span>DIAGNÓSTICO TÉCNICO</span>
+            <p>{{t.diagnostico||'Pendiente de evaluación técnica.'}}</p>
+          </div>
+
+          <div class="report-field">
+            <span>SOLUCIÓN APLICADA</span>
+            <p>{{t.solucion||'Todavía no se registra una solución.'}}</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="detail-aside">
+        <section class="card-block">
+          <span class="kicker">FICHA DEL EQUIPO</span>
+
+          <div class="aside-equipment">
+            <span class="aside-icon">▣</span>
+            <strong>{{t.equipo.marca}} {{t.equipo.modelo}}</strong>
+            <small>{{t.equipo.tipo}} · {{t.equipo.numeroSerie||'Sin serie'}}</small>
+          </div>
+
+          <div class="mini-summary">
+            <span>Propietario</span>
+            <b>{{t.equipo.cliente.nombre}} {{t.equipo.cliente.apellido}}</b>
+          </div>
+
+          <div class="mini-summary">
+            <span>Técnico asignado</span>
+            <b>{{t.tecnico?t.tecnico.nombre+' '+t.tecnico.apellido:'Por asignar'}}</b>
+          </div>
+        </section>
+
+        @if(auth.esAdmin()){
+          <section class="card-block admin-action-card">
+            <span class="kicker">GESTIÓN / ADMIN</span>
+            <h3>Panel de intervención</h3>
+
+            @if(t.estado==='PENDIENTE'||t.estado==='ASIGNADO'){
+              <label for="tecnico">Asignar especialista</label>
+
+              <select id="tecnico"
+                      [ngModel]="tecnicoId()"
+                      (ngModelChange)="tecnicoId.set($event)">
+                <option [ngValue]="null">Selecciona un técnico</option>
+
+                @for(tec of tecnicos(); track tec.id){
+                  @if(tec.activo){
+                    <option [ngValue]="tec.id">
+                      {{tec.nombre}} {{tec.apellido}} · {{tec.especialidad}}
+                    </option>
+                  }
+                }
+              </select>
+
+              <button type="button"
+                      class="btn-primary full"
+                      (click)="asignar()"
+                      [disabled]="guardando()">
+                Asignar técnico ↗
+              </button>
+            }
+
+            @if(t.estado==='ASIGNADO'||t.estado==='EN_PROCESO'){
+              <label for="diag">Diagnóstico</label>
+              <textarea id="diag"
+                        rows="4"
+                        [ngModel]="diagnostico()"
+                        (ngModelChange)="diagnostico.set($event)"
+                        placeholder="Describe el diagnóstico..."></textarea>
+
+              <label for="sol">Solución</label>
+              <textarea id="sol"
+                        rows="4"
+                        [ngModel]="solucion()"
+                        (ngModelChange)="solucion.set($event)"
+                        placeholder="Describe el trabajo realizado..."></textarea>
+
+              <button type="button"
+                      class="btn-primary full"
+                      (click)="cambiar(t.estado==='ASIGNADO'?'EN_PROCESO':'RESUELTO')"
+                      [disabled]="guardando()">
+                {{t.estado==='ASIGNADO'?'Iniciar reparación':'Marcar como resuelto'}} ↗
+              </button>
+            }
+
+            @if(t.estado==='RESUELTO'){
+              <p class="hint">El trabajo está resuelto y listo para cerrar.</p>
+              <button type="button"
+                      class="btn-primary full"
+                      (click)="cambiar('CERRADO')"
+                      [disabled]="guardando()">
+                Cerrar ticket ↗
+              </button>
+            }
+
+            @if(t.estado==='CERRADO'){
+              <p class="hint">Ticket cerrado. Conserva su historial como evidencia.</p>
+            }
+          </section>
+
+          @if(puedeEditarServicios()){
+            <section class="card-block services-editor">
+              <span class="kicker">DETALLES / ARRAY JSON</span>
+              <h3>Registrar servicios</h3>
+              <p class="small-copy">
+                Agrega varias intervenciones. Guardar reemplaza el detalle anterior del ticket.
+              </p>
+
+              @for(linea of lineas(); track $index; let i=$index){
+                <div class="service-line">
+                  <div class="line-top">
+                    <small>SERVICIO {{i+1}}</small>
+                    <button type="button"
+                            class="danger-link"
+                            (click)="quitarLinea(i)">
+                      Quitar ×
+                    </button>
+                  </div>
+
+                  <select aria-label="Servicio"
+                          [value]="linea.servicioId??''"
+                          (change)="cambiarLinea(i,'servicioId',$any($event.target).value)">
+                    <option value="">Selecciona servicio</option>
+
+                    @for(s of catalogo(); track s.id){
+                      @if(s.activo||s.id===linea.servicioId){
+                        <option [value]="s.id">
+                          {{s.nombre}} · ${{s.precio}}
+                        </option>
+                      }
+                    }
+                  </select>
+
+                  <textarea aria-label="Observación del servicio"
+                            rows="2"
+                            placeholder="Observación..."
+                            [value]="linea.observacion"
+                            (input)="cambiarLinea(i,'observacion',$any($event.target).value)"></textarea>
+                </div>
+              }
+
+              <button type="button"
+                      class="btn-outline full"
+                      (click)="agregarLinea()">
+                + Añadir servicio
+              </button>
+
+              <button type="button"
+                      class="btn-primary full"
+                      [disabled]="guardando()||!lineas().length"
+                      (click)="guardarServicios()">
+                Guardar servicios ↗
+              </button>
+            </section>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

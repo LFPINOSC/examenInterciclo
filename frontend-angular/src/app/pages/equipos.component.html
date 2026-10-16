@@ -1,0 +1,24 @@
+<div class="page-enter">
+ <div class="page-title"><div><span class="kicker">INVENTARIO / EQUIPOS</span><h1>Dispositivos<span class="orange">.</span></h1><p>{{auth.esAdmin()?'Consulta los equipos de todos los clientes.':'Registra y administra tus dispositivos.'}}</p></div><button class="btn-primary" (click)="nuevo()" type="button">+ Registrar equipo</button></div>
+ <div class="surface-panel"><div class="panel-toolbar"><div class="search-box"><span>⌕</span><input aria-label="Buscar equipo" placeholder="Buscar marca, modelo, serie o cliente..." [value]="filtro()" (input)="filtro.set($any($event.target).value)"/></div><span class="count-label">{{filtrados().length}} EQUIPOS</span></div>
+  @if(error()&&!editor()){<div class="alert error-alert">{{error()}} <button (click)="cargar()">Reintentar</button></div>}
+  @if(cargando()){<div class="loading-line">Cargando equipos...</div>}
+  <div class="table-scroll"><table class="data-table"><thead><tr><th>EQUIPO</th><th>TIPO</th>@if(auth.esAdmin()){<th>CLIENTE</th>}<th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody>
+   @for(e of filtrados();track e.id){<tr><td><div class="name-cell"><span class="row-icon">▣</span><div><strong>{{e.marca}} {{e.modelo}}</strong><small>{{e.numeroSerie||'Sin número de serie'}}</small></div></div></td><td>{{tiposTexto[e.tipo]}}</td>@if(auth.esAdmin()){<td>{{e.cliente.nombre}} {{e.cliente.apellido}}</td>}<td><span class="mini-state" [class.off]="!e.activo">{{e.activo?'Activo':'Inactivo'}}</span></td><td><div class="row-actions"><button type="button" (click)="editar(e)" [disabled]="!e.activo">Editar</button><button type="button" class="danger-link" (click)="desactivar(e)" [disabled]="!e.activo">Desactivar</button></div></td></tr>}
+  </tbody></table></div>
+  @if(!filtrados().length&&!cargando()){<div class="empty-panel">No hay equipos para mostrar. <button type="button" (click)="nuevo()">Registrar el primero →</button></div>}
+ </div>
+ @if(editor()){
+ <div class="modal-backdrop" (click)="cerrar()"><section class="modal-card" role="dialog" aria-modal="true" aria-label="Formulario de equipo" (click)="$event.stopPropagation()"><div class="modal-head"><div><span class="kicker">INVENTARIO / FORMULARIO</span><h2>{{editId()===null?'Nuevo equipo':'Editar equipo'}}</h2></div><button type="button" class="modal-close" (click)="cerrar()" aria-label="Cerrar">×</button></div>
+  @if(error()){<div class="alert error-alert">{{error()}}</div>}
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="form-body" novalidate>
+   @if(auth.esAdmin()){<label for="eq-user">Cliente propietario *</label><select id="eq-user" formControlName="clienteId"><option value="">Seleccionar cliente</option>@for(u of clientes();track u.id){<option [value]="u.id">{{u.nombre}} {{u.apellido}} · {{u.correo}}</option>}</select><small class="field-error">{{campos()['clienteId']}}</small>}
+   <label for="eq-type">Tipo de equipo *</label><select id="eq-type" formControlName="tipo">@for(t of tipos;track t){<option [value]="t">{{tiposTexto[t]}}</option>}</select><small class="field-error">{{campos()['tipo']}}</small>
+   <div class="form-grid two"><div><label for="eq-brand">Marca *</label><input id="eq-brand" formControlName="marca" placeholder="HP"/><small class="field-error">{{campos()['marca']}}</small></div><div><label for="eq-model">Modelo *</label><input id="eq-model" formControlName="modelo" placeholder="Pavilion 15"/><small class="field-error">{{campos()['modelo']}}</small></div></div>
+   <label for="eq-serial">Número de serie (único, opcional)</label><input id="eq-serial" formControlName="numeroSerie" placeholder="SN-2026-001"/><small class="field-error">{{campos()['numeroSerie']}}</small>
+   <label for="eq-notes">Descripción</label><textarea id="eq-notes" formControlName="descripcion" rows="3" placeholder="Características del equipo..."></textarea><small class="field-error">{{campos()['descripcion']}}</small>
+   @if(form.invalid&&form.touched){<small class="field-error">Completa los campos obligatorios.</small>}
+   <div class="modal-actions"><button type="button" class="btn-outline" (click)="cerrar()">Cancelar</button><button type="submit" class="btn-primary" [disabled]="guardando()">{{guardando()?'Guardando...':'Guardar equipo ↗'}}</button></div>
+  </form>
+ </section></div>}
+</div>

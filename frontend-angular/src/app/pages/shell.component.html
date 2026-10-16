@@ -1,0 +1,31 @@
+<div class="shell">
+  <aside class="sidebar" [class.open]="menuAbierto()">
+    <a routerLink="/panel" class="brand" (click)="cerrarMenu()" aria-label="TecnoSoporte, inicio">
+      <div class="brand-mark"><span>+</span><i></i></div>
+      <div><b>TECNO<span>·</span>SOPORTE</b><small>SERVICE DESK / 2026</small></div>
+    </a>
+    <div class="side-label">ESPACIO DE TRABAJO</div>
+    <nav class="side-nav" aria-label="Navegación principal">
+      @for(item of secciones; track item.ruta) {
+        <a [routerLink]="item.ruta" routerLinkActive="selected" (click)="cerrarMenu()"><span class="nav-symbol">{{item.icono}}</span>{{item.nombre}}<span class="nav-arrow">↗</span></a>
+      }
+      @if(auth.esAdmin()) {
+        <div class="side-label side-sub">ADMINISTRACIÓN</div>
+        @for(item of adminSecciones; track item.ruta) {
+          <a [routerLink]="item.ruta" routerLinkActive="selected" (click)="cerrarMenu()"><span class="nav-symbol">{{item.icono}}</span>{{item.nombre}}<span class="nav-arrow">↗</span></a>
+        }
+      }
+    </nav>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-note"><span class="pulse-dot"></span> SISTEMA OPERATIVO <strong>Conectado a API REST</strong><small>Spring Boot + PostgreSQL</small></div>
+    <div class="side-user"><div class="avatar">{{iniciales()}}</div><div class="side-user-copy"><strong>{{nombre()}}</strong><small>{{auth.esAdmin()?'Administrador':'Cliente'}}</small></div><button class="signout" type="button" (click)="salir()" title="Cerrar sesión" aria-label="Cerrar sesión">⏻</button></div>
+  </aside>
+  @if(menuAbierto()) {<button class="menu-overlay" type="button" aria-label="Cerrar menú" (click)="cerrarMenu()"></button>}
+  <main class="main-content">
+    <header class="topbar">
+      <div class="crumbs"><button class="menu-trigger" type="button" (click)="menuAbierto.set(!menuAbierto())" aria-label="Abrir menú">☰</button><span class="muted">Plataforma</span><span class="crumbslash">/</span><strong>{{titulo()}}</strong></div>
+      <div class="top-right"><span class="top-portal"><i></i>PORTAL ACTIVO</span><a routerLink="/cuenta" class="top-avatar" title="Mi cuenta">{{iniciales()}}</a></div>
+    </header>
+    <div class="content-body"><router-outlet /></div>
+  </main>
+</div>

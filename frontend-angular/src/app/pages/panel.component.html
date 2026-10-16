@@ -1,0 +1,20 @@
+<div class="page-enter">
+ <div class="eyebrow-row"><span class="kicker">CENTRO DE OPERACIONES</span><span class="panel-date">TEC / SYSTEM — 21</span></div>
+ <section class="dashboard-hero"><div class="hero-copy"><span class="hero-tag"><span class="pulse-dot"></span> SOPORTE EN LÍNEA</span><h1>{{auth.esAdmin()?'La operación,':'Tus equipos,'}}<br><em>{{auth.esAdmin()?'bajo control.':'bien atendidos.'}}</em></h1><p>{{auth.esAdmin()?'Supervisa solicitudes, asigna técnicos y mantén cada reparación en marcha.':'Consulta el estado de tus solicitudes y da seguimiento a tus dispositivos.'}}</p><a routerLink="/tickets" class="hero-link">Ver solicitudes <span>↗</span></a></div><div class="hero-visual" aria-hidden="true"><div class="hero-ring outer"></div><div class="hero-ring inner"></div><div class="hero-cross">+</div><div class="hero-led led1"></div><div class="hero-led led2"></div><div class="hero-mini">MONITOREO<br><b>24 / 07</b></div></div></section>
+ @if(error()){<div class="alert error-alert">{{error()}} <button type="button" (click)="cargar()">Reintentar</button></div>}
+ @if(cargando()){<div class="loading-line">Consultando información real del servidor...</div>}
+ <div class="section-heading"><div><span class="kicker">01 / MÉTRICAS</span><h2>Panorama general</h2></div><span class="hint">Datos registrados en PostgreSQL</span></div>
+ <div class="metrics-grid">
+  <div class="metric-card"><span class="metric-label">Por atender <span>↗</span></span><strong>{{abiertos()}}</strong><span class="metric-caption">Tickets pendientes o asignados</span><div class="metric-stripe"></div></div>
+  <div class="metric-card"><span class="metric-label">En reparación <span>↗</span></span><strong>{{proceso()}}</strong><span class="metric-caption">Intervenciones en curso</span><div class="metric-stripe stripe-orange"></div></div>
+  <div class="metric-card"><span class="metric-label">Resueltos <span>↗</span></span><strong>{{resueltos()}}</strong><span class="metric-caption">Terminados o cerrados</span><div class="metric-stripe stripe-blue"></div></div>
+  <div class="metric-card"><span class="metric-label">Dispositivos <span>↗</span></span><strong>{{equipos().length}}</strong><span class="metric-caption">Equipos registrados</span><div class="metric-stripe stripe-dark"></div></div>
+ </div>
+ <div class="dashboard-columns">
+  <section class="card-block"><div class="card-header"><div><span class="kicker">02 / ACTIVIDAD</span><h3>Últimas solicitudes</h3></div><a routerLink="/tickets" class="text-link">Ver todas ↗</a></div>
+  @if(!recientes().length){<div class="empty-compact">Aún no hay tickets registrados. <a routerLink="/tickets">Crear solicitud →</a></div>}
+  @for(t of recientes();track t.id){<a [routerLink]="['/tickets',t.id]" class="activity-line"><div class="activity-icon">{{t.equipo.tipo==='LAPTOP'?'▣':'▤'}}</div><div class="activity-main"><strong>{{t.equipo.marca}} {{t.equipo.modelo}}</strong><small>{{codigo(t.id)}} · {{t.descripcionProblema}}</small></div><span class="status-chip" [class]="'estado-'+t.estado.toLowerCase()">{{estadoNombre[t.estado]}}</span><span class="activity-arrow">↗</span></a>}
+  </section>
+  <section class="card-block insight-card"><div class="card-header"><div><span class="kicker">03 / INDICADORES</span><h3>Eficiencia de atención</h3></div></div><div class="progress-visual"><div class="progress-number">{{porcentaje()}}<small>%</small></div><div class="progress-rail"><span [style.width.%]="porcentaje()"></span></div><p>Solicitudes resueltas sobre el total registrado.</p></div><div class="mini-summary"><span>Servicios disponibles</span><b>{{servicios().length}}</b></div><div class="mini-summary"><span>Solicitudes totales</span><b>{{tickets().length}}</b></div><a class="btn-outline full" routerLink="/equipos">Explorar equipos <span>↗</span></a></section>
+ </div>
+</div>

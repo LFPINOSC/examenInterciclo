@@ -1,0 +1,21 @@
+<div class="auth-layout">
+ <section class="auth-showcase">
+  <div class="auth-logo"><span class="mini-symbol">✳</span> TECNO<span class="lime">·</span>SOPORTE</div>
+  <div class="auth-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="crosshair">+</div><div class="orbit-bubble bubble-one">01 / DIAGNÓSTICO</div><div class="orbit-bubble bubble-two">OPERACIÓN NORMAL ●</div></div>
+  <div class="showcase-bottom"><span class="kicker light">TU CENTRO DE SERVICIO DIGITAL</span><h1>Una solución<br>para cada <em>problema.</em></h1><p>Equipos, solicitudes y reparaciones. Todo en un mismo lugar, con seguimiento en tiempo real.</p><div class="showcase-stamp">SOPORTE CON PRECISIÓN <span>↗</span></div></div>
+ </section>
+ <section class="auth-panel">
+  <div class="auth-panel-inner"><div class="auth-top">PORTAL SEGURO <span>EST. 2026</span></div><span class="kicker">ACCESO / 01</span><h2>Bienvenido<br>de nuevo<span class="orange">.</span></h2><p class="subhead">Ingresa a tu espacio de soporte técnico.</p>
+   @if(error()){<div class="alert error-alert" role="alert">{{error()}}</div>}
+   <form [formGroup]="formulario" (ngSubmit)="ingresar()" novalidate>
+    <label for="login-mail">Correo electrónico</label><input id="login-mail" type="email" placeholder="tu@correo.com" formControlName="correo" autocomplete="username" [class.invalid]="formulario.controls.correo.touched && formulario.controls.correo.invalid" />
+    @if(formulario.controls.correo.touched && formulario.controls.correo.invalid){<small class="field-error">Introduce un correo electrónico válido.</small>}
+    <label for="login-pass">Contraseña</label><div class="password-input"><input id="login-pass" [type]="mostrarClave()?'text':'password'" placeholder="Tu contraseña" formControlName="contrasena" autocomplete="current-password" [class.invalid]="formulario.controls.contrasena.touched && formulario.controls.contrasena.invalid"/><button type="button" (click)="mostrarClave.set(!mostrarClave())">{{mostrarClave()?'Ocultar':'Mostrar'}}</button></div>
+    @if(formulario.controls.contrasena.touched && formulario.controls.contrasena.invalid){<small class="field-error">Escribe tu contraseña.</small>}
+    <button class="btn-primary auth-submit" type="submit" [disabled]="esperando()">{{esperando()?'Validando acceso...':'Entrar al sistema'}} <span>↗</span></button>
+   </form>
+   <div class="auth-register">¿Todavía no tienes cuenta? <a routerLink="/registro">Crear cuenta de cliente →</a></div>
+   <div class="auth-foot">Conexión cifrada mediante JWT <span>TEC / 21</span></div>
+  </div>
+ </section>
+</div>
