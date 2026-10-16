@@ -1,0 +1,247 @@
+
+<div class="pagina">
+
+  <header class="encabezado">
+    <div>
+      <h1>Gestión de Enfermeros</h1>
+      <p>Administración del personal de enfermería</p>
+    </div>
+
+    <a routerLink="/admin" class="volver">
+      ← Volver al panel
+    </a>
+  </header>
+
+  @if (mensaje) {
+    <div class="alerta exito">
+      {{ mensaje }}
+    </div>
+  }
+
+  @if (error) {
+    <div class="alerta error">
+      {{ error }}
+    </div>
+  }
+
+  <section class="panel">
+
+    <h2>
+      {{ editandoId === null
+        ? 'Registrar enfermero'
+        : 'Editar enfermero' }}
+    </h2>
+
+    <p class="ayuda">
+      Primero debes crear una cuenta con rol ENFERMERO
+      desde el módulo Usuarios.
+    </p>
+
+    <form (ngSubmit)="guardar()" #formEnfermero="ngForm">
+
+      <div class="campos">
+
+        <label>
+          Cuenta de usuario
+
+          <select
+            name="usuarioId"
+            [(ngModel)]="formulario.usuarioId"
+            required
+          >
+            <option [ngValue]="0">
+              Selecciona un usuario
+            </option>
+
+            @for (usuario of usuariosParaSeleccionar(); track usuario.id) {
+              <option [ngValue]="usuario.id">
+                {{ usuario.nombre }} — {{ usuario.correo }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Cédula
+
+          <input
+            type="text"
+            name="cedula"
+            [(ngModel)]="formulario.cedula"
+            maxlength="10"
+            minlength="10"
+            placeholder="Ej. 0102030405"
+            required
+          />
+        </label>
+
+        <label>
+          Número de licencia
+
+          <input
+            type="text"
+            name="numeroLicencia"
+            [(ngModel)]="formulario.numeroLicencia"
+            placeholder="Número de licencia profesional"
+            required
+          />
+        </label>
+
+        <label>
+          Teléfono
+
+          <input
+            type="tel"
+            name="telefono"
+            [(ngModel)]="formulario.telefono"
+            placeholder="Número de contacto"
+          />
+        </label>
+
+        <label>
+          Especialidad
+
+          <input
+            type="text"
+            name="especialidad"
+            [(ngModel)]="formulario.especialidad"
+            placeholder="Ej. Enfermería General"
+          />
+        </label>
+
+      </div>
+
+      <div class="acciones">
+
+        <button
+          type="submit"
+          class="btn-guardar"
+          [disabled]="formEnfermero.invalid || guardando"
+        >
+          {{ guardando
+            ? 'Guardando...'
+            : (editandoId === null
+              ? 'Registrar enfermero'
+              : 'Guardar cambios') }}
+        </button>
+
+        @if (editandoId !== null) {
+          <button
+            type="button"
+            class="btn-cancelar"
+            (click)="cancelar()"
+          >
+            Cancelar
+          </button>
+        }
+
+      </div>
+
+    </form>
+  </section>
+
+  <section class="panel">
+
+    <div class="tabla-titulo">
+      <h2>Enfermeros registrados</h2>
+
+      <button
+        type="button"
+        class="btn-actualizar"
+        (click)="cargar()"
+      >
+        Actualizar
+      </button>
+    </div>
+
+    @if (cargando) {
+      <p class="ayuda">Cargando enfermeros...</p>
+    } @else {
+
+      <div class="tabla-scroll">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Cédula</th>
+              <th>Licencia</th>
+              <th>Teléfono</th>
+              <th>Especialidad</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (enfermero of enfermeros; track enfermero.id) {
+
+              <tr>
+                <td>{{ enfermero.id }}</td>
+
+                <td>
+                  <strong>{{ enfermero.nombre }}</strong>
+                  <small>{{ enfermero.correo }}</small>
+                </td>
+
+                <td>{{ enfermero.cedula }}</td>
+                <td>{{ enfermero.numeroLicencia }}</td>
+                <td>{{ enfermero.telefono || '—' }}</td>
+                <td>{{ enfermero.especialidad || '—' }}</td>
+
+                <td>
+                  <span
+                    class="estado"
+                    [class.inactivo]="!enfermero.activo"
+                  >
+                    {{ enfermero.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+
+                <td class="acciones-tabla">
+
+                  <button
+                    type="button"
+                    class="btn-editar"
+                    (click)="editar(enfermero)"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn-desactivar"
+                    [disabled]="!enfermero.activo"
+                    (click)="desactivar(enfermero)"
+                  >
+                    Desactivar
+                  </button>
+
+                </td>
+
+              </tr>
+
+            } @empty {
+
+              <tr>
+                <td colspan="8" class="vacio">
+                  No hay enfermeros registrados.
+                </td>
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

@@ -1,0 +1,220 @@
+
+<div class="pagina-usuarios">
+
+  <header class="encabezado">
+    <div>
+      <h1>Gestión de Usuarios</h1>
+      <p>Administración de cuentas y permisos del sistema</p>
+    </div>
+
+    <a routerLink="/admin" class="volver">
+      ← Volver al panel
+    </a>
+  </header>
+
+  @if (mensaje) {
+    <div class="alerta exito">
+      {{ mensaje }}
+    </div>
+  }
+
+  @if (error) {
+    <div class="alerta error">
+      {{ error }}
+    </div>
+  }
+
+  <section class="tarjeta">
+
+    <h2>
+      {{ editandoId === null
+        ? 'Registrar usuario'
+        : 'Editar usuario' }}
+    </h2>
+
+    <form (ngSubmit)="guardar()" #usuarioForm="ngForm">
+
+      <div class="formulario-grid">
+
+        <div class="campo">
+          <label>Nombre completo</label>
+
+          <input
+            type="text"
+            name="nombre"
+            [(ngModel)]="formulario.nombre"
+            placeholder="Ej. María López"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label>Correo electrónico</label>
+
+          <input
+            type="email"
+            name="correo"
+            [(ngModel)]="formulario.correo"
+            placeholder="usuario@enfermeria.local"
+            required
+            email
+          />
+        </div>
+
+        <div class="campo">
+          <label>Contraseña</label>
+
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="formulario.password"
+            [required]="editandoId === null"
+            placeholder="Contraseña del usuario"
+            autocomplete="new-password"
+          />
+
+          @if (editandoId !== null) {
+            <small>
+              Déjala vacía si no deseas cambiarla.
+            </small>
+          }
+        </div>
+
+        <div class="campo">
+          <label>Rol del usuario</label>
+
+          <select
+            name="rol"
+            [(ngModel)]="formulario.rol"
+            required
+          >
+            <option value="ENFERMERO">Enfermero</option>
+            <option value="ADMIN">Administrador</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="acciones">
+
+        <button
+          type="submit"
+          class="btn-guardar"
+          [disabled]="usuarioForm.invalid || guardando"
+        >
+          {{ guardando
+            ? 'Guardando...'
+            : (editandoId === null
+              ? 'Registrar usuario'
+              : 'Guardar cambios') }}
+        </button>
+
+        @if (editandoId !== null) {
+          <button
+            type="button"
+            class="btn-cancelar"
+            (click)="cancelar()"
+          >
+            Cancelar
+          </button>
+        }
+
+      </div>
+
+    </form>
+  </section>
+
+  <section class="tarjeta">
+
+    <div class="tabla-titulo">
+      <h2>Usuarios registrados</h2>
+
+      <button
+        class="btn-actualizar"
+        (click)="cargarUsuarios()"
+      >
+        Actualizar
+      </button>
+    </div>
+
+    @if (cargando) {
+      <p>Cargando usuarios...</p>
+    } @else {
+
+      <div class="tabla-scroll">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (usuario of usuarios; track usuario.id) {
+
+              <tr>
+                <td>{{ usuario.id }}</td>
+                <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.correo }}</td>
+
+                <td>
+                  <span class="rol">
+                    {{ usuario.rol }}
+                  </span>
+                </td>
+
+                <td>
+                  <span
+                    class="estado"
+                    [class.inactivo]="!usuario.activo"
+                  >
+                    {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+
+                <td class="acciones-tabla">
+
+                  <button
+                    class="btn-editar"
+                    (click)="editar(usuario)"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    class="btn-desactivar"
+                    [disabled]="!usuario.activo"
+                    (click)="desactivar(usuario)"
+                  >
+                    Desactivar
+                  </button>
+
+                </td>
+              </tr>
+
+            } @empty {
+
+              <tr>
+                <td colspan="6" class="vacio">
+                  No hay usuarios registrados.
+                </td>
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+    }
+  </section>
+</div>

@@ -1,0 +1,121 @@
+
+.pagina {
+  padding: 30px;
+  background: #f1f5f9;
+  min-height: 100vh;
+}
+
+header {
+  margin-bottom: 25px;
+}
+
+header h1 {
+  color: #153b50;
+}
+
+header p {
+  color: #64748b;
+}
+
+header a {
+  color: #087f8c;
+}
+
+.panel {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+}
+
+.panel h2 {
+  margin-top: 0;
+  color: #153b50;
+}
+
+.campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+}
+
+input {
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.acciones {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  border: none;
+  padding: 10px 15px;
+  border-radius: 7px;
+  cursor: pointer;
+  background: #087f8c;
+  color: white;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secundario {
+  background: #64748b;
+}
+
+.editar {
+  background: #2563eb;
+  margin-right: 6px;
+}
+
+.eliminar {
+  background: #dc2626;
+}
+
+.tabla-contenedor {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+  background: #f8fafc;
+}
+
+.mensaje {
+  background: #dcfce7;
+  color: #166534;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.error {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}

@@ -1,0 +1,135 @@
+
+<div class="pagina">
+  <header>
+    <h1>Gestión de pacientes</h1>
+    <p>Registrar, consultar, editar y eliminar pacientes</p>
+    <a routerLink="/admin">Volver al panel</a>
+  </header>
+
+  @if (mensaje) {
+    <div class="mensaje">{{ mensaje }}</div>
+  }
+
+  @if (error) {
+    <div class="error">{{ error }}</div>
+  }
+
+  <section class="panel">
+    <h2>{{ editandoId === null ? 'Nuevo paciente' : 'Editar paciente' }}</h2>
+
+    <form (ngSubmit)="guardar()" #formPaciente="ngForm">
+      <div class="campos">
+        <label>
+          Cédula
+          <input
+            name="cedula"
+            [(ngModel)]="formulario.cedula"
+            required
+            maxlength="10"
+          />
+        </label>
+
+        <label>
+          Nombres
+          <input
+            name="nombres"
+            [(ngModel)]="formulario.nombres"
+            required
+          />
+        </label>
+
+        <label>
+          Apellidos
+          <input
+            name="apellidos"
+            [(ngModel)]="formulario.apellidos"
+            required
+          />
+        </label>
+
+        <label>
+          Fecha de nacimiento
+          <input
+            type="date"
+            name="fechaNacimiento"
+            [(ngModel)]="formulario.fechaNacimiento"
+            required
+          />
+        </label>
+
+        <label>
+          Teléfono
+          <input
+            name="telefono"
+            [(ngModel)]="formulario.telefono"
+          />
+        </label>
+
+        <label>
+          Dirección
+          <input
+            name="direccion"
+            [(ngModel)]="formulario.direccion"
+          />
+        </label>
+      </div>
+
+      <div class="acciones">
+        <button
+          type="submit"
+          [disabled]="formPaciente.invalid || guardando"
+        >
+          {{ guardando ? 'Guardando...' :
+             (editandoId === null ? 'Registrar paciente' : 'Guardar cambios') }}
+        </button>
+
+        @if (editandoId !== null) {
+          <button type="button" class="secundario" (click)="cancelar()">
+            Cancelar
+          </button>
+        }
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Pacientes registrados</h2>
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th>Cédula</th>
+            <th>Nombre completo</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (paciente of pacientes; track paciente.id) {
+            <tr>
+              <td>{{ paciente.cedula }}</td>
+              <td>{{ paciente.nombres }} {{ paciente.apellidos }}</td>
+              <td>{{ paciente.telefono }}</td>
+              <td>{{ paciente.activo ? 'Activo' : 'Inactivo' }}</td>
+              <td>
+                <button class="editar" (click)="editar(paciente)">
+                  Editar
+                </button>
+                <button class="eliminar" (click)="eliminar(paciente)">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5">Todavía no hay pacientes registrados.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

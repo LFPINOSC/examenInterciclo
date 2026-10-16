@@ -1,0 +1,124 @@
+
+<div class="contenedor">
+
+  <aside class="sidebar">
+
+    <div class="logo">
+      <h2>Control de Enfermería</h2>
+      <p>Panel de Administración</p>
+    </div>
+
+    <nav>
+      <a routerLink="/admin">
+        🏠 Inicio
+      </a>
+
+      <a routerLink="/admin/usuarios">
+        👥 Usuarios
+      </a>
+
+      <a routerLink="/admin/enfermeros">
+        🩺 Enfermeros
+      </a>
+
+      <a routerLink="/admin/pacientes">
+        🧑 Pacientes
+      </a>
+
+      <a routerLink="/admin/turnos">
+        📅 Turnos
+      </a>
+
+      <a routerLink="/admin/actividades">
+        📋 Actividades
+      </a>
+    </nav>
+
+    <button
+      type="button"
+      class="cerrar"
+      (click)="cerrarSesion()"
+    >
+      Cerrar sesión
+    </button>
+
+  </aside>
+
+  <main class="contenido">
+
+    <header class="encabezado">
+      <h1>Panel de Administración</h1>
+      <p>
+        Bienvenido al sistema de control de actividades
+        de enfermería.
+      </p>
+    </header>
+
+    <section class="tarjetas">
+
+      <a routerLink="/admin/usuarios" class="tarjeta">
+        <div class="icono">👥</div>
+        <h2>Usuarios</h2>
+        <p>
+          Registra cuentas, administra los roles
+          y desactiva usuarios.
+        </p>
+        <span>Gestionar usuarios →</span>
+      </a>
+
+      <a routerLink="/admin/enfermeros" class="tarjeta">
+        <div class="icono">🩺</div>
+        <h2>Enfermeros</h2>
+        <p>
+          Registra al personal de enfermería
+          y actualiza sus datos.
+        </p>
+        <span>Gestionar enfermeros →</span>
+      </a>
+
+      <a routerLink="/admin/pacientes" class="tarjeta">
+        <div class="icono">🧑</div>
+        <h2>Pacientes</h2>
+        <p>
+          Registra pacientes y administra
+          su información.
+        </p>
+        <span>Gestionar pacientes →</span>
+      </a>
+
+      <a routerLink="/admin/turnos" class="tarjeta">
+        <div class="icono">📅</div>
+        <h2>Turnos</h2>
+        <p>
+          Asigna turnos al personal de enfermería
+          y consulta sus horarios.
+        </p>
+        <span>Gestionar turnos →</span>
+      </a>
+
+      <a routerLink="/admin/actividades" class="tarjeta">
+        <div class="icono">📋</div>
+        <h2>Actividades</h2>
+        <p>
+          Programa actividades de enfermería
+          para los pacientes.
+        </p>
+        <span>Gestionar actividades →</span>
+      </a>
+
+    </section>
+
+    <section class="informacion">
+      <h2>Flujo de trabajo</h2>
+
+      <p>
+        Primero registra los usuarios y enfermeros.
+        Después registra pacientes, asigna turnos
+        y programa las actividades que deberán
+        realizar los enfermeros.
+      </p>
+    </section>
+
+  </main>
+
+</div>

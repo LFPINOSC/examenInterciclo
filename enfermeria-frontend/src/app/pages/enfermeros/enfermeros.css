@@ -1,0 +1,254 @@
+
+.pagina {
+  min-height: 100vh;
+  padding: 30px;
+  background: #f1f5f9;
+  font-family: Arial, sans-serif;
+}
+
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.encabezado h1 {
+  color: #153b50;
+  margin: 0 0 8px;
+}
+
+.encabezado p {
+  color: #64748b;
+  margin: 0;
+}
+
+.volver {
+  background: #153b50;
+  color: white;
+  text-decoration: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.volver:hover {
+  background: #245775;
+}
+
+.panel {
+  background: white;
+  padding: 25px;
+  border-radius: 14px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.panel h2 {
+  color: #153b50;
+  margin-top: 0;
+}
+
+.ayuda {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 22px;
+}
+
+.campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #334155;
+  font-weight: 600;
+}
+
+input,
+select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #087f8c;
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.12);
+}
+
+.acciones {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 11px 15px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-guardar {
+  background: #087f8c;
+  color: white;
+}
+
+.btn-guardar:hover:not(:disabled) {
+  background: #066773;
+}
+
+.btn-cancelar {
+  background: #64748b;
+  color: white;
+}
+
+.tabla-titulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.tabla-titulo h2 {
+  margin: 0;
+}
+
+.btn-actualizar {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.tabla-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+
+th,
+td {
+  padding: 14px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+}
+
+td {
+  color: #334155;
+  font-size: 14px;
+}
+
+td small {
+  display: block;
+  color: #64748b;
+  margin-top: 5px;
+}
+
+.estado {
+  display: inline-block;
+  background: #dcfce7;
+  color: #166534;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.estado.inactivo {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.acciones-tabla {
+  white-space: nowrap;
+}
+
+.btn-editar {
+  background: #2563eb;
+  color: white;
+  margin-right: 7px;
+}
+
+.btn-editar:hover {
+  background: #1d4ed8;
+}
+
+.btn-desactivar {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-desactivar:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.alerta {
+  padding: 13px 16px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+}
+
+.exito {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.vacio {
+  text-align: center;
+  color: #64748b;
+  padding: 25px;
+}
+
+@media (max-width: 700px) {
+  .pagina {
+    padding: 16px;
+  }
+
+  .encabezado {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .campos {
+    grid-template-columns: 1fr;
+  }
+
+  .tabla-titulo {
+    flex-wrap: wrap;
+  }
+}

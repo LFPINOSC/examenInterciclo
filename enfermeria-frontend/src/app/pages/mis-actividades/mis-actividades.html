@@ -1,0 +1,251 @@
+
+<div class="pagina">
+
+  <header class="encabezado">
+    <div>
+      <h1>Mis Actividades</h1>
+      <p>
+        Consulta tus actividades y registra las
+        atenciones realizadas
+      </p>
+    </div>
+
+    <a routerLink="/enfermero" class="volver">
+      ← Mi panel
+    </a>
+  </header>
+
+  @if (mensaje()) {
+    <div class="alerta exito">
+      {{ mensaje() }}
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alerta error">
+      {{ error() }}
+    </div>
+  }
+
+  <section class="panel">
+
+    <div class="barra">
+      <h2>Actividades asignadas</h2>
+
+      <button
+        type="button"
+        (click)="cargar()"
+        [disabled]="cargando()"
+      >
+        {{ cargando() ? 'Cargando...' : 'Actualizar' }}
+      </button>
+    </div>
+
+    @if (cargando()) {
+
+      <p>Cargando actividades...</p>
+
+    } @else {
+
+      <div class="tabla-scroll">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>N.º</th>
+              <th>Paciente</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+              <th>Fecha programada</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (
+              actividad of actividades();
+              track actividad.id
+            ) {
+
+              <tr>
+
+                <td>
+                  {{ actividad.id }}
+                </td>
+
+                <td>
+                  {{ actividad.nombrePaciente }}
+                </td>
+
+                <td>
+                  {{ nombreTipo(actividad.tipo) }}
+                </td>
+
+                <td>
+                  {{ actividad.descripcion }}
+                </td>
+
+                <td>
+                  {{ fecha(actividad.fechaProgramada) }}
+                </td>
+
+                <td>
+                  <span
+                    class="estado"
+                    [class.completada]="actividad.estado === 'COMPLETADA'"
+                    [class.cancelada]="actividad.estado === 'CANCELADA'"
+                  >
+                    {{ actividad.estado }}
+                  </span>
+                </td>
+
+                <td>
+
+                  @if (actividad.estado === 'PENDIENTE') {
+
+                    <button
+                      type="button"
+                      class="registrar-btn"
+                      (click)="seleccionar(actividad)"
+                    >
+                      Registrar atención
+                    </button>
+
+                  } @else {
+
+                    <span class="sin-accion">
+                      Sin acciones
+                    </span>
+
+                  }
+
+                </td>
+
+              </tr>
+
+            } @empty {
+
+              <tr>
+                <td colspan="7" class="vacio">
+                  No tienes actividades asignadas.
+                </td>
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+  </section>
+
+  @if (actividadSeleccionada(); as actividad) {
+
+    <section class="panel formulario-atencion">
+
+      <div class="barra">
+        <h2>Registrar Atención</h2>
+
+        <button
+          type="button"
+          class="cerrar-btn"
+          (click)="cerrarFormulario()"
+        >
+          Cerrar
+        </button>
+      </div>
+
+      <div class="detalle-actividad">
+
+        <p>
+          <strong>Actividad:</strong>
+          {{ actividad.id }}
+        </p>
+
+        <p>
+          <strong>Paciente:</strong>
+          {{ actividad.nombrePaciente }}
+        </p>
+
+        <p>
+          <strong>Tipo:</strong>
+          {{ nombreTipo(actividad.tipo) }}
+        </p>
+
+        <p>
+          <strong>Descripción:</strong>
+          {{ actividad.descripcion }}
+        </p>
+
+      </div>
+
+      <form
+        (ngSubmit)="registrar()"
+        #formAtencion="ngForm"
+      >
+
+        <div class="campos">
+
+          <label>
+            Resultado de la atención *
+
+            <textarea
+              name="resultado"
+              [(ngModel)]="formulario.resultado"
+              rows="4"
+              required
+              placeholder="Describe el resultado de la atención realizada"
+            ></textarea>
+          </label>
+
+          <label>
+            Observaciones
+
+            <textarea
+              name="observaciones"
+              [(ngModel)]="formulario.observaciones"
+              rows="4"
+              placeholder="Escribe observaciones adicionales"
+            ></textarea>
+          </label>
+
+        </div>
+
+        <div class="acciones">
+
+          <button
+            type="submit"
+            [disabled]="formAtencion.invalid || guardando()"
+          >
+            {{
+              guardando()
+                ? 'Registrando...'
+                : 'Guardar atención'
+            }}
+          </button>
+
+          <button
+            type="button"
+            class="secundario"
+            (click)="cerrarFormulario()"
+            [disabled]="guardando()"
+          >
+            Cancelar
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+  }
+
+</div>

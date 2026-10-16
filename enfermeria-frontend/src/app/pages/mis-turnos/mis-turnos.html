@@ -1,0 +1,102 @@
+
+<div class="pagina">
+
+  <header class="encabezado">
+    <div>
+      <h1>Mis Turnos</h1>
+      <p>Consulta los horarios que te han asignado</p>
+    </div>
+
+    <a routerLink="/enfermero" class="volver">
+      ← Mi panel
+    </a>
+  </header>
+
+  @if (error()) {
+    <div class="alerta error">
+      {{ error() }}
+    </div>
+  }
+
+  <section class="panel">
+
+    <div class="barra">
+      <h2>Turnos asignados</h2>
+
+      <button
+        type="button"
+        (click)="cargar()"
+        [disabled]="cargando()"
+      >
+        {{ cargando() ? 'Cargando...' : 'Actualizar' }}
+      </button>
+    </div>
+
+    @if (cargando()) {
+
+      <p>Cargando turnos...</p>
+
+    } @else {
+
+      <div class="tabla-scroll">
+        <table>
+
+          <thead>
+            <tr>
+              <th>N.º</th>
+              <th>Inicio</th>
+              <th>Finalización</th>
+              <th>Observaciones</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (turno of turnos(); track turno.id) {
+
+              <tr>
+                <td>{{ turno.id }}</td>
+
+                <td>
+                  {{ fecha(turno.fechaInicio) }}
+                </td>
+
+                <td>
+                  {{ fecha(turno.fechaFin) }}
+                </td>
+
+                <td>
+                  {{ turno.observaciones || 'Sin observaciones' }}
+                </td>
+
+                <td>
+                  <span
+                    class="estado"
+                    [class.inactivo]="!turno.activo"
+                  >
+                    {{ turno.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+              </tr>
+
+            } @empty {
+
+              <tr>
+                <td colspan="5" class="vacio">
+                  Todavía no tienes turnos asignados.
+                </td>
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+      </div>
+
+    }
+
+  </section>
+
+</div>

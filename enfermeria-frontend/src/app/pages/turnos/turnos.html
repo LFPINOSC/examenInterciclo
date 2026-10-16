@@ -1,0 +1,152 @@
+
+<div class="pagina">
+
+  <header class="encabezado">
+    <div>
+      <h1>Gestión de Turnos</h1>
+      <p>Asignación de horarios al personal de enfermería</p>
+    </div>
+
+    <a routerLink="/admin" class="volver">
+      ← Volver al panel
+    </a>
+  </header>
+
+  @if (mensaje) {
+    <div class="alerta exito">{{ mensaje }}</div>
+  }
+
+  @if (error) {
+    <div class="alerta error">{{ error }}</div>
+  }
+
+  <section class="panel">
+
+    <h2>
+      {{ editandoId === null ? 'Asignar turno' : 'Editar turno' }}
+    </h2>
+
+    <form (ngSubmit)="guardar()" #formTurno="ngForm">
+
+      <div class="campos">
+
+        <label>
+          Enfermero
+          <select
+            name="enfermeroId"
+            [(ngModel)]="formulario.enfermeroId"
+            required
+          >
+            <option [ngValue]="0">Selecciona un enfermero</option>
+
+            @for (enfermero of enfermeros; track enfermero.id) {
+              <option [ngValue]="enfermero.id">
+                {{ enfermero.nombre }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Fecha y hora de inicio
+          <input
+            type="datetime-local"
+            name="fechaInicio"
+            [(ngModel)]="formulario.fechaInicio"
+            required
+          />
+        </label>
+
+        <label>
+          Fecha y hora de finalización
+          <input
+            type="datetime-local"
+            name="fechaFin"
+            [(ngModel)]="formulario.fechaFin"
+            required
+          />
+        </label>
+
+        <label>
+          Observaciones
+          <textarea
+            name="observaciones"
+            [(ngModel)]="formulario.observaciones"
+            rows="3"
+          ></textarea>
+        </label>
+
+      </div>
+
+      <div class="acciones">
+        <button
+          type="submit"
+          [disabled]="formTurno.invalid || guardando"
+        >
+          {{ guardando ? 'Guardando...' :
+            (editandoId === null ? 'Asignar turno' : 'Guardar cambios') }}
+        </button>
+
+        @if (editandoId !== null) {
+          <button
+            type="button"
+            class="secundario"
+            (click)="cancelar()"
+          >
+            Cancelar
+          </button>
+        }
+      </div>
+
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Turnos registrados</h2>
+
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Enfermero</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Observaciones</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (turno of turnos; track turno.id) {
+            <tr>
+              <td>{{ turno.nombreEnfermero }}</td>
+              <td>{{ turno.fechaInicio.replace('T', ' ') }}</td>
+              <td>{{ turno.fechaFin.replace('T', ' ') }}</td>
+              <td>{{ turno.observaciones }}</td>
+              <td>{{ turno.activo ? 'Activo' : 'Inactivo' }}</td>
+              <td>
+                <button class="editar" (click)="editar(turno)">
+                  Editar
+                </button>
+
+                <button
+                  class="desactivar"
+                  [disabled]="!turno.activo"
+                  (click)="desactivar(turno)"
+                >
+                  Desactivar
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6">No hay turnos registrados.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>

@@ -1,0 +1,172 @@
+
+<div class="pagina">
+
+  <header class="encabezado">
+    <div>
+      <h1>Gestión de Actividades</h1>
+      <p>Programación de actividades de enfermería</p>
+    </div>
+
+    <a routerLink="/admin" class="volver">
+      ← Volver al panel
+    </a>
+  </header>
+
+  @if (mensaje) {
+    <div class="alerta exito">{{ mensaje }}</div>
+  }
+
+  @if (error) {
+    <div class="alerta error">{{ error }}</div>
+  }
+
+  <section class="panel">
+    <h2>
+      {{ editandoId === null ? 'Programar actividad' : 'Editar actividad' }}
+    </h2>
+
+    <form (ngSubmit)="guardar()" #formActividad="ngForm">
+
+      <div class="campos">
+
+        <label>
+          Paciente
+          <select name="pacienteId" [(ngModel)]="formulario.pacienteId" required>
+            <option [ngValue]="0">Selecciona un paciente</option>
+            @for (paciente of pacientes; track paciente.id) {
+              <option [ngValue]="paciente.id">
+                {{ paciente.nombres }} {{ paciente.apellidos }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Enfermero responsable
+          <select
+            name="enfermeroId"
+            [(ngModel)]="formulario.enfermeroId"
+            (ngModelChange)="formulario.turnoId = 0"
+            required
+          >
+            <option [ngValue]="0">Selecciona un enfermero</option>
+            @for (enfermero of enfermeros; track enfermero.id) {
+              <option [ngValue]="enfermero.id">
+                {{ enfermero.nombre }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Turno
+          <select name="turnoId" [(ngModel)]="formulario.turnoId" required>
+            <option [ngValue]="0">Selecciona un turno</option>
+            @for (turno of turnosDisponibles(); track turno.id) {
+              <option [ngValue]="turno.id">
+                Turno #{{ turno.id }} —
+                {{ turno.fechaInicio.replace('T', ' ') }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Tipo de actividad
+          <select name="tipo" [(ngModel)]="formulario.tipo" required>
+            @for (tipo of tipos; track tipo.valor) {
+              <option [value]="tipo.valor">{{ tipo.nombre }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Fecha y hora programada
+          <input
+            type="datetime-local"
+            name="fechaProgramada"
+            [(ngModel)]="formulario.fechaProgramada"
+            required
+          />
+        </label>
+
+        <label class="ancho-completo">
+          Descripción
+          <textarea
+            name="descripcion"
+            [(ngModel)]="formulario.descripcion"
+            rows="3"
+            required
+          ></textarea>
+        </label>
+
+      </div>
+
+      <div class="acciones">
+        <button
+          type="submit"
+          [disabled]="formActividad.invalid || guardando"
+        >
+          {{ guardando ? 'Guardando...' :
+            (editandoId === null ? 'Programar actividad' : 'Guardar cambios') }}
+        </button>
+
+        @if (editandoId !== null) {
+          <button type="button" class="secundario" (click)="cancelarEdicion()">
+            Cancelar edición
+          </button>
+        }
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Actividades registradas</h2>
+
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Enfermero</th>
+            <th>Actividad</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (actividad of actividades; track actividad.id) {
+            <tr>
+              <td>{{ actividad.nombrePaciente || nombrePaciente(actividad.pacienteId) }}</td>
+              <td>{{ actividad.nombreEnfermero || nombreEnfermero(actividad.enfermeroId) }}</td>
+              <td>
+                <strong>{{ actividad.tipo.replaceAll('_', ' ') }}</strong>
+                <small>{{ actividad.descripcion }}</small>
+              </td>
+              <td>{{ actividad.fechaProgramada.replace('T', ' ') }}</td>
+              <td>{{ actividad.estado }}</td>
+              <td>
+                <button class="editar" (click)="editar(actividad)">
+                  Editar
+                </button>
+                <button
+                  class="desactivar"
+                  [disabled]="actividad.estado === 'CANCELADA' || actividad.estado === 'COMPLETADA'"
+                  (click)="cancelarActividad(actividad)"
+                >
+                  Cancelar
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6">No hay actividades registradas.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>

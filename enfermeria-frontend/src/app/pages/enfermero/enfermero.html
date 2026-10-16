@@ -1,0 +1,119 @@
+
+<div class="contenedor">
+
+  <aside class="sidebar">
+
+    <div class="logo">
+      <h2>Control de Enfermería</h2>
+      <p>Panel del Enfermero</p>
+    </div>
+
+    <nav>
+      <a routerLink="/enfermero">
+        🏠 Inicio
+      </a>
+
+      <a routerLink="/enfermero/mis-turnos">
+        📅 Mis turnos
+      </a>
+
+      <a routerLink="/enfermero/mis-actividades">
+        📋 Mis actividades
+      </a>
+
+      <a
+        routerLink="/enfermero/mis-actividades"
+        fragment="registrar"
+      >
+        📝 Registrar atención
+      </a>
+    </nav>
+
+    <button
+      type="button"
+      class="cerrar"
+      (click)="cerrarSesion()"
+    >
+      Cerrar sesión
+    </button>
+
+  </aside>
+
+  <main class="contenido">
+
+    <header class="encabezado">
+      <h1>Bienvenido al panel de Enfermería</h1>
+      <p>
+        Desde aquí puedes consultar tus turnos,
+        revisar tus actividades y registrar
+        las atenciones realizadas.
+      </p>
+    </header>
+
+    <section class="tarjetas">
+
+      <a
+        routerLink="/enfermero/mis-turnos"
+        class="tarjeta"
+      >
+        <div class="icono">📅</div>
+
+        <h2>Mis turnos</h2>
+
+        <p>
+          Consulta los horarios y turnos
+          que te ha asignado el administrador.
+        </p>
+
+        <span>Ver turnos →</span>
+      </a>
+
+      <a
+        routerLink="/enfermero/mis-actividades"
+        class="tarjeta"
+      >
+        <div class="icono">📋</div>
+
+        <h2>Mis actividades</h2>
+
+        <p>
+          Revisa las actividades de enfermería
+          que tienes pendientes o completadas.
+        </p>
+
+        <span>Ver actividades →</span>
+      </a>
+
+      <a
+        routerLink="/enfermero/mis-actividades"
+        fragment="registrar"
+        class="tarjeta"
+      >
+        <div class="icono">📝</div>
+
+        <h2>Registrar atención</h2>
+
+        <p>
+          Registra los resultados y observaciones
+          de las actividades realizadas.
+        </p>
+
+        <span>Registrar atención →</span>
+      </a>
+
+    </section>
+
+    <section class="informacion">
+      <h2>Información del sistema</h2>
+
+      <p>
+        Las actividades y los turnos son asignados
+        por el administrador. Como enfermero,
+        puedes consultar tus asignaciones y registrar
+        la atención que realizaste.
+      </p>
+    </section>
+
+  </main>
+
+</div>
