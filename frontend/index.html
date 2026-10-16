@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Principal - Laboratorio Clínico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden; /* Evita barras de desplazamiento dobles en el body */
+        }
+        .sidebar {
+            width: 250px;
+            min-width: 250px; /* Asegura que la barra no se comprima */
+            background-color: #343a40;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .sidebar h2 {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            border-bottom: 1px solid #4f5962;
+            margin: 0;
+        }
+        .sidebar a {
+            color: #cfd8dc;
+            padding: 15px 20px;
+            text-decoration: none;
+            display: block;
+            transition: 0.2s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        header {
+            background-color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info {
+            font-size: 14px;
+            color: #333;
+        }
+        .btn-logout {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-logout:hover {
+            background-color: #c82333;
+        }
+        .content-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Menú Lateral -->
+    <div class="sidebar">
+        <h2>Lab Clínico</h2>
+        <a href="index.html" class="active">🏠 Dashboard</a>
+        <a href="pacientes.html">👤 Pacientes</a>
+        <a href="examenes.html">🧪 Exámenes</a>
+        <a href="ordenes.html">📋 Órdenes</a>
+    </div> <!-- <-- AQUÍ ESTABA FALTANDO CERRAR EL DIV CORRECTAMENTE -->
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <header>
+            <h3>Panel de Control</h3>
+            <div class="user-info">
+                <span id="nombreUsuario">Usuario</span> | 
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <div class="card">
+                <h2>¡Bienvenido al Sistema de Gestión de Laboratorio Clínico!</h2>
+                <p>Has iniciado sesión correctamente. Desde este panel podrás administrar los registros del laboratorio.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Verificar si el usuario está autenticado al cargar la página
+        const token = localStorage.getItem('token');
+        const usuarioData = JSON.parse(localStorage.getItem('usuario'));
+
+        if (!token) {
+            // Si no hay token, redirigir al login
+            alert('Acceso no autorizado. Inicie sesión.');
+            window.location.href = 'login.html';
+        } else {
+            // Mostrar el nombre del usuario logueado
+            if (usuarioData) {
+                document.getElementById('nombreUsuario').textContent = `${usuarioData.nombre} (${usuarioData.rol})`;
+            }
+        }
+
+        // Función para cerrar sesión
+        function cerrarSesion() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

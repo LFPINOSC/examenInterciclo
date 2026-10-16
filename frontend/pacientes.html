@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pacientes - Laboratorio Clínico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #343a40;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar h2 {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            border-bottom: 1px solid #4f5962;
+            margin: 0;
+        }
+        .sidebar a {
+            color: #cfd8dc;
+            padding: 15px 20px;
+            text-decoration: none;
+            display: block;
+            transition: 0.2s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        header {
+            background-color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info {
+            font-size: 14px;
+            color: #333;
+        }
+        .btn-logout {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-logout:hover {
+            background-color: #c82333;
+        }
+        .content-body {
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .form-container {
+            flex: 1;
+        }
+        .table-container {
+            flex: 2;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .msg {
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+    </style>
+</head>
+<body>
+
+    <!-- Menú Lateral -->
+    <div class="sidebar">
+        <h2>Lab Clínico</h2>
+        <a href="index.html">🏠 Dashboard</a>
+        <a href="pacientes.html" class="active">👤 Pacientes</a>
+        <a href="examenes.html">🧪 Exámenes</a>
+        <a href="ordenes.html">📋 Órdenes</a>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <header>
+            <h3>Gestión de Pacientes</h3>
+            <div class="user-info">
+                <span id="nombreUsuario">Usuario</span> | 
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <!-- Formulario de Registro -->
+            <div class="card form-container">
+                <h3>Registrar Paciente</h3>
+                <form id="pacienteForm">
+                    <div class="form-group">
+                        <label for="cedula">Cédula:</label>
+                        <input type="text" id="cedula" required maxlength="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="nombres">Nombres:</label>
+                        <input type="text" id="nombres" required maxlength="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="apellidos">Apellidos:</label>
+                        <input type="text" id="apellidos" required maxlength="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="text" id="telefono" maxlength="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="direccion">Dirección:</label>
+                        <input type="text" id="direccion" maxlength="200">
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
+                        <input type="date" id="fecha_nacimiento">
+                    </div>
+                    <button type="submit">Guardar Paciente</button>
+                </form>
+                <div id="formMsg" class="msg"></div>
+            </div>
+
+            <!-- Tabla de Listado -->
+            <div class="card table-container">
+                <h3>Pacientes Registrados</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombres y Apellidos</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPacientes">
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Validación de sesión
+        const token = localStorage.getItem('token');
+        const usuarioData = JSON.parse(localStorage.getItem('usuario'));
+
+        if (!token) {
+            alert('Acceso no autorizado. Inicie sesión.');
+            window.location.href = 'login.html';
+        } else if (usuarioData) {
+            document.getElementById('nombreUsuario').textContent = `${usuarioData.nombre} (${usuarioData.rol})`;
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            window.location.href = 'login.html';
+        }
+
+        // Cargar pacientes al iniciar la página
+        async function cargarPacientes() {
+            try {
+                const response = await fetch('http://localhost:3000/api/pacientes', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const pacientes = await response.json();
+                    const tbody = document.getElementById('tablaPacientes');
+                    tbody.innerHTML = '';
+
+                    if (pacientes.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #777;">No hay pacientes registrados.</td></tr>';
+                        return;
+                    }
+
+                    pacientes.forEach(p => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${p.cedula}</td>
+                            <td>${p.nombres} ${p.apellidos}</td>
+                            <td>${p.telefono || 'N/D'}</td>
+                            <td>${p.direccion || 'N/D'}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar pacientes:', error);
+            }
+        }
+
+        // Registrar nuevo paciente
+        const pacienteForm = document.getElementById('pacienteForm');
+        const formMsg = document.getElementById('formMsg');
+
+        pacienteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nuevoPaciente = {
+                cedula: document.getElementById('cedula').value,
+                nombres: document.getElementById('nombres').value,
+                apellidos: document.getElementById('apellidos').value,
+                telefono: document.getElementById('telefono').value,
+                direccion: document.getElementById('direccion').value,
+                fecha_nacimiento: document.getElementById('fecha_nacimiento').value
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/pacientes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(nuevoPaciente)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    formMsg.className = 'msg success';
+                    formMsg.textContent = '¡Paciente registrado con éxito!';
+                    pacienteForm.reset();
+                    cargarPacientes(); // Recargar la tabla
+                } else {
+                    formMsg.className = 'msg error';
+                    formMsg.textContent = data.error || 'No se pudo registrar el paciente.';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                formMsg.className = 'msg error';
+                formMsg.textContent = 'Error de conexión con el servidor.';
+            }
+        });
+
+        // Ejecutar carga inicial
+        cargarPacientes();
+    </script>
+</body>
+</html>

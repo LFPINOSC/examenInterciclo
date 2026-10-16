@@ -1,0 +1,26 @@
+<!-- Menú Lateral -->
+<div class="sidebar">
+    <h2>Lab Clínico</h2>
+    <a routerLink="/dashboard" class="active">🏠 Dashboard</a>
+    <a routerLink="/pacientes">👤 Pacientes</a>
+    <a routerLink="/examenes">🧪 Exámenes</a>
+    <a routerLink="/ordenes">📋 Órdenes</a>
+</div>
+
+<!-- Contenido Principal -->
+<div class="main-content">
+    <header>
+        <h3>Panel de Control</h3>
+        <div class="user-info">
+            <span id="nombreUsuario">{{ nombreUsuario }} ({{ rolUsuario }})</span> | 
+            <button class="btn-logout" (click)="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <div class="content-body">
+        <div class="card">
+            <h2>¡Bienvenido al Sistema de Gestión de Laboratorio Clínico!</h2>
+            <p>Has iniciado sesión correctamente con Angular. Desde este panel podrás administrar los registros del laboratorio.</p>
+        </div>
+    </div>
+</div>

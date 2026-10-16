@@ -1,0 +1,82 @@
+<!-- Menú Lateral -->
+<div class="sidebar">
+    <h2>Lab Clínico</h2>
+    <a routerLink="/dashboard">🏠 Dashboard</a>
+    <a routerLink="/pacientes" class="active">👤 Pacientes</a>
+    <a routerLink="/examenes">🧪 Exámenes</a>
+    <a routerLink="/ordenes">📋 Órdenes</a>
+</div>
+
+<!-- Contenido Principal -->
+<div class="main-content">
+    <header>
+        <h3>Gestión de Pacientes</h3>
+        <div class="user-info">
+            <span>{{ nombreUsuario }} ({{ rolUsuario }})</span> | 
+            <button class="btn-logout" (click)="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <div class="content-body">
+        <!-- Formulario de Registro -->
+        <div class="card form-container">
+            <h3>Nuevo Paciente</h3>
+            <form (ngSubmit)="registrarPaciente()">
+                <div class="form-group">
+                    <label>Cédula:</label>
+                    <input type="text" [(ngModel)]="cedula" name="cedula" required placeholder="Número de cédula">
+                </div>
+                <div class="form-group">
+                    <label>Nombres:</label>
+                    <input type="text" [(ngModel)]="nombres" name="nombres" required placeholder="Nombres">
+                </div>
+                <div class="form-group">
+                    <label>Apellidos:</label>
+                    <input type="text" [(ngModel)]="apellidos" name="apellidos" required placeholder="Apellidos">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono:</label>
+                    <input type="text" [(ngModel)]="telefono" name="telefono" placeholder="Teléfono">
+                </div>
+                <div class="form-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" [(ngModel)]="email" name="email" placeholder="correo@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label>Dirección:</label>
+                    <input type="text" [(ngModel)]="direccion" name="direccion" placeholder="Dirección domiciliaria">
+                </div>
+                <button type="submit" class="btn-submit">Guardar Paciente</button>
+            </form>
+            <div *ngIf="mensaje" [ngStyle]="{'color': esError ? '#dc3545' : '#28a745'}" style="margin-top: 10px; text-align: center; font-size: 14px;">
+                {{ mensaje }}
+            </div>
+        </div>
+
+        <!-- Tabla de Listado -->
+        <div class="card table-container">
+            <h3>Pacientes Registrados</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cédula</th>
+                        <th>Nombres y Apellidos</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let p of pacientes">
+                        <td>{{ p.cedula }}</td>
+                        <td><strong>{{ p.nombres }} {{ p.apellidos }}</strong></td>
+                        <td>{{ p.telefono || 'N/A' }}</td>
+                        <td>{{ p.email || 'N/A' }}</td>
+                    </tr>
+                    <tr *ngIf="pacientes.length === 0">
+                        <td colspan="4" style="text-align: center; color: #777;">No hay pacientes registrados.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

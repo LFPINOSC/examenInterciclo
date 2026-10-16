@@ -1,0 +1,38 @@
+<div class="portal-container">
+    <header class="portal-header">
+        <h2>Mi Portal de Resultados - Laboratorio Clínico</h2>
+        <div class="user-info">
+            <span>Bienvenido(a), <strong>{{ nombreUsuario }}</strong></span>
+            <button class="btn-logout" (click)="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <div class="portal-body">
+        <div class="card">
+            <h3>Mis Órdenes y Exámenes Médicos</h3>
+            <p>Aquí puedes consultar el estado y detalle de tus solicitudes de laboratorio registradas en el sistema.</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>N° Orden</th>
+                        <th>Médico Tratante</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let o of misOrdenes">
+                        <td>{{ o.id_orden || o.id }}</td>
+                        <td>Dr(a). {{ o.medico_nombres || o.nombres_medico || 'N/A' }}</td>
+                        <td>{{ (o.fecha_orden || o.fecha) | date:'mediumDate' }}</td>
+                        <td><span class="badge">{{ o.estado || 'Procesada' }}</span></td>
+                    </tr>
+                    <tr *ngIf="misOrdenes.length === 0">
+                        <td colspan="4" style="text-align: center; color: #777;">No tienes órdenes registradas actualmente.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

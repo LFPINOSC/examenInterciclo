@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Exámenes - Laboratorio Clínico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 250px;
+            min-width: 250px;
+            background-color: #343a40;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .sidebar h2 {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            border-bottom: 1px solid #4f5962;
+            margin: 0;
+        }
+        .sidebar a {
+            color: #cfd8dc;
+            padding: 15px 20px;
+            text-decoration: none;
+            display: block;
+            transition: 0.2s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        header {
+            background-color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info {
+            font-size: 14px;
+            color: #333;
+        }
+        .btn-logout {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-logout:hover {
+            background-color: #c82333;
+        }
+        .content-body {
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            gap: 20px;
+            flex: 1;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            height: fit-content;
+        }
+        .form-container {
+            flex: 1;
+        }
+        .table-container {
+            flex: 2;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .msg {
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+    </style>
+</head>
+<body>
+
+    <!-- Menú Lateral -->
+    <div class="sidebar">
+        <h2>Lab Clínico</h2>
+        <a href="index.html">🏠 Dashboard</a>
+        <a href="pacientes.html">👤 Pacientes</a>
+        <a href="examenes.html" class="active">🧪 Exámenes</a>
+        <a href="ordenes.html">📋 Órdenes</a>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <header>
+            <h3>Catálogo de Exámenes</h3>
+            <div class="user-info">
+                <span id="nombreUsuario">Usuario</span> | 
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <!-- Formulario de Registro de Examen -->
+            <div class="card form-container">
+                <h3>Nuevo Examen</h3>
+                <form id="examenForm">
+                    <div class="form-group">
+                        <label for="nombre_examen">Nombre del Examen:</label>
+                        <input type="text" id="nombre_examen" required placeholder="Ej: Biometría Hemática">
+                    </div>
+                    <div class="form-group">
+                        <label for="descripcion">Descripción:</label>
+                        <textarea id="descripcion" placeholder="Breve detalle del análisis..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="precio">Precio ($):</label>
+                        <input type="number" id="precio" step="0.01" min="0" required placeholder="0.00">
+                    </div>
+                    <button type="submit">Guardar Examen</button>
+                </form>
+                <div id="formMsg" class="msg"></div>
+            </div>
+
+            <!-- Tabla de Listado de Exámenes -->
+            <div class="card table-container">
+                <h3>Exámenes Disponibles</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Examen</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaExamanes">
+                        <!-- Los datos se llenarán dinámicamente mediante JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Validación de sesión
+        const token = localStorage.getItem('token');
+        const usuarioData = JSON.parse(localStorage.getItem('usuario'));
+
+        if (!token) {
+            alert('Acceso no autorizado. Inicie sesión.');
+            window.location.href = 'login.html';
+        } else if (usuarioData) {
+            document.getElementById('nombreUsuario').textContent = `${usuarioData.nombre} (${usuarioData.rol})`;
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            window.location.href = 'login.html';
+        }
+
+        // Cargar exámenes al iniciar la página
+        async function cargarExamanes() {
+            try {
+                const response = await fetch('http://localhost:3000/api/examenes', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const examenes = await response.json();
+                    const tbody = document.getElementById('tablaExamanes');
+                    tbody.innerHTML = '';
+
+                    if (examenes.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #777;">No hay exámenes registrados.</td></tr>';
+                        return;
+                    }
+
+                    examenes.forEach(ex => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${ex.id_examen || ex.id}</td>
+                            <td><strong>${ex.nombre_examen}</strong></td>
+                            <td>${ex.descripcion || 'Sin descripción'}</td>
+                            <td>$${Number(ex.precio).toFixed(2)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar exámenes:', error);
+            }
+        }
+
+        // Registrar nuevo examen
+        const examenForm = document.getElementById('examenForm');
+        const formMsg = document.getElementById('formMsg');
+
+        examenForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nuevoExamen = {
+                nombre_examen: document.getElementById('nombre_examen').value,
+                descripcion: document.getElementById('descripcion').value,
+                precio: parseFloat(document.getElementById('precio').value)
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/examenes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(nuevoExamen)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    formMsg.className = 'msg success';
+                    formMsg.textContent = '¡Examen registrado con éxito!';
+                    examenForm.reset();
+                    cargarExamanes(); // Recargar la tabla
+                } else {
+                    formMsg.className = 'msg error';
+                    formMsg.textContent = data.error || 'No se pudo registrar el examen.';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                formMsg.className = 'msg error';
+                formMsg.textContent = 'Error de conexión con el servidor.';
+            }
+        });
+
+        // Ejecutar carga inicial
+        cargarExamanes();
+    </script>
+</body>
+</html>

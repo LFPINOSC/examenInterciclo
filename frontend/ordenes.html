@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Órdenes de Laboratorio - Sistema Clínico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #343a40;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar h2 {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            border-bottom: 1px solid #4f5962;
+            margin: 0;
+        }
+        .sidebar a {
+            color: #cfd8dc;
+            padding: 15px 20px;
+            text-decoration: none;
+            display: block;
+            transition: 0.2s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        header {
+            background-color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info {
+            font-size: 14px;
+            color: #333;
+        }
+        .btn-logout {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-logout:hover {
+            background-color: #c82333;
+        }
+        .content-body {
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .form-container {
+            flex: 1;
+        }
+        .table-container {
+            flex: 2;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        select, button[type="submit"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .examenes-checkboxes {
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+        .examenes-checkboxes label {
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 13px;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .msg {
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+    </style>
+</head>
+<body>
+
+    <!-- Menú Lateral -->
+    <div class="sidebar">
+        <h2>Lab Clínico</h2>
+        <a href="index.html">🏠 Dashboard</a>
+        <a href="pacientes.html">👤 Pacientes</a>
+        <a href="examenes.html">🧪 Exámenes</a>
+        <a href="ordenes.html" class="active">📋 Órdenes</a>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <header>
+            <h3>Gestión de Órdenes de Laboratorio</h3>
+            <div class="user-info">
+                <span id="nombreUsuario">Usuario</span> | 
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <!-- Formulario para Crear Orden -->
+            <div class="card form-container">
+                <h3>Nueva Orden</h3>
+                <form id="ordenForm">
+                    <div class="form-group">
+                        <label for="selectPaciente">Paciente:</label>
+                        <select id="selectPaciente" required>
+                            <option value="">Seleccione un paciente...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="selectMedico">Médico Tratante:</label>
+                        <select id="selectMedico" required>
+                            <option value="">Seleccione un médico...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Exámenes a Solicitar:</label>
+                        <div class="examenes-checkboxes" id="listaExamanesCheck">
+                            <!-- Se llenará dinámicamente -->
+                        </div>
+                    </div>
+
+                    <button type="submit">Generar Orden</button>
+                </form>
+                <div id="formMsg" class="msg"></div>
+            </div>
+
+            <!-- Tabla de Listado de Órdenes -->
+            <div class="card table-container">
+                <h3>Órdenes Registradas</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Paciente</th>
+                            <th>Estado</th>
+                            <th>Exámenes Solicitados</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaOrdenes">
+                        <!-- Se llenará dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const usuarioData = JSON.parse(localStorage.getItem('usuario'));
+
+        if (!token) {
+            alert('Acceso no autorizado. Inicie sesión.');
+            window.location.href = 'login.html';
+        } else if (usuarioData) {
+            document.getElementById('nombreUsuario').textContent = `${usuarioData.nombre} (${usuarioData.rol})`;
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            window.location.href = 'login.html';
+        }
+
+        // Cargar datos iniciales para los selects y la tabla
+        async function inicializarDatos() {
+            try {
+                // 1. Cargar Pacientes
+                const resPac = await fetch('http://localhost:3000/api/pacientes', { headers: { 'Authorization': `Bearer ${token}` } });
+                const pacientes = await resPac.json();
+                const selPac = document.getElementById('selectPaciente');
+                pacientes.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id_paciente || p.id;
+                    opt.textContent = `${p.cedula} - ${p.nombres} ${p.apellidos}`;
+                    selPac.appendChild(opt);
+                });
+
+                // 2. Cargar Médicos
+                const resMed = await fetch('http://localhost:3000/api/medicos', { headers: { 'Authorization': `Bearer ${token}` } });
+                const medicos = await resMed.json();
+                const selMed = document.getElementById('selectMedico');
+                medicos.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id_medico || m.id;
+                    opt.textContent = `Dr(a). ${m.nombres} ${m.apellidos} (${m.especialidad || 'General'})`;
+                    selMed.appendChild(opt);
+                });
+
+                // 3. Cargar Exámenes (en casillas de verificación)
+                const resEx = await fetch('http://localhost:3000/api/examenes', { headers: { 'Authorization': `Bearer ${token}` } });
+                const examenes = await resEx.json();
+                const divEx = document.getElementById('listaExamanesCheck');
+                divEx.innerHTML = '';
+                examenes.forEach(ex => {
+                    const idEx = ex.id_examen || ex.id;
+                    const lbl = document.createElement('label');
+                    lbl.innerHTML = `<input type="checkbox" value="${idEx}"> ${ex.nombre_examen} ($${ex.precio})`;
+                    divEx.appendChild(lbl);
+                });
+
+                // 4. Cargar Tabla de Órdenes
+                cargarOrdenes();
+
+            } catch (error) {
+                console.error('Error cargando catálogos:', error);
+            }
+        }
+
+        async function cargarOrdenes() {
+            try {
+                const response = await fetch('http://localhost:3000/api/ordenes', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (response.ok) {
+                    const ordenes = await response.json();
+                    const tbody = document.getElementById('tablaOrdenes');
+                    tbody.innerHTML = '';
+
+                    if (ordenes.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #777;">No hay órdenes registradas.</td></tr>';
+                        return;
+                    }
+
+                    ordenes.forEach(o => {
+                        const tr = document.createElement('tr');
+                        const pacienteNombre = o.paciente ? `${o.paciente.nombres} ${o.paciente.apellidos}` : 'Desconocido';
+                        
+                        // Extraer nombres de exámenes asociados en los detalles
+                        let listaExs = 'Sin exámenes';
+                        if (o.detalles && o.detalles.length > 0) {
+                            listaExs = o.detalles.map(d => d.examen ? d.examen.nombre_examen : 'Examen').join(', ');
+                        }
+
+                        tr.innerHTML = `
+                            <td>#${o.id_orden}</td>
+                            <td>${pacienteNombre}</td>
+                            <td><span style="color: #007bff; font-weight: bold;">${o.estado}</span></td>
+                            <td>${listaExs}</td>
+                            <td>${new Date(o.fecha_creacion).toLocaleDateString()}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar órdenes:', error);
+            }
+        }
+
+        // Enviar nueva orden
+        const ordenForm = document.getElementById('ordenForm');
+        const formMsg = document.getElementById('formMsg');
+
+        ordenForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id_paciente = document.getElementById('selectPaciente').value;
+            const id_medico = document.getElementById('selectMedico').value;
+
+            // Obtener los IDs de los exámenes seleccionados mediante checkboxes
+            const checkboxes = document.querySelectorAll('#listaExamanesCheck input[type="checkbox"]:checked');
+            const examenes = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+            if (examenes.length === 0) {
+                formMsg.className = 'msg error';
+                formMsg.textContent = 'Debe seleccionar al menos un examen.';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/ordenes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ id_paciente: parseInt(id_paciente), id_medico: parseInt(id_medico), examenes })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    formMsg.className = 'msg success';
+                    formMsg.textContent = '¡Orden de laboratorio creada con éxito!';
+                    ordenForm.reset();
+                    // Volver a marcar los checkboxes como desmarcados y recargar tabla
+                    document.querySelectorAll('#listaExamanesCheck input[type="checkbox"]').forEach(cb => cb.checked = false);
+                    cargarOrdenes();
+                } else {
+                    formMsg.className = 'msg error';
+                    formMsg.textContent = data.error || 'No se pudo crear la orden.';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                formMsg.className = 'msg error';
+                formMsg.textContent = 'Error de conexión con el servidor.';
+            }
+        });
+
+        // Inicializar datos al cargar la vista
+        inicializarDatos();
+    </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!-- Menú Lateral -->
+<div class="sidebar">
+    <h2>Lab Clínico</h2>
+    <a routerLink="/dashboard">🏠 Dashboard</a>
+    <a routerLink="/pacientes">👤 Pacientes</a>
+    <a routerLink="/examenes">🧪 Exámenes</a>
+    <a routerLink="/ordenes" class="active">📋 Órdenes</a>
+</div>
+
+<!-- Contenido Principal -->
+<div class="main-content">
+    <header>
+        <h3>Gestión de Órdenes Médicas</h3>
+        <div class="user-info">
+            <span>{{ nombreUsuario }} ({{ rolUsuario }})</span> | 
+            <button class="btn-logout" (click)="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <div class="content-body">
+        <!-- Formulario de Registro -->
+        <div class="card form-container">
+            <h3>Nueva Orden Médica</h3>
+            <form (ngSubmit)="registrarOrden()">
+                <div class="form-group">
+                    <label>Seleccionar Paciente:</label>
+                    <select [(ngModel)]="id_paciente" name="id_paciente" required>
+                        <option value="">-- Seleccione Paciente --</option>
+                        <option *ngFor="let p of pacientes" [value]="p.id_paciente || p.id">
+                            {{ p.cedula }} - {{ p.nombres }} {{ p.apellidos }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Seleccionar Médico:</label>
+                    <select [(ngModel)]="id_medico" name="id_medico" required>
+                        <option value="">-- Seleccione Médico --</option>
+                        <option *ngFor="let m of medicos" [value]="m.id_medico || m.id">
+                            Dr(a). {{ m.nombres }} {{ m.apellidos }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Exámenes a Realizar:</label>
+                    <div style="max-height: 120px; overflow-y: auto; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
+                        <div *ngFor="let ex of examenes">
+                            <label style="font-weight: normal; font-size: 14px;">
+                                <input type="checkbox" (change)="onCheckboxChange($event, ex.id_examen || ex.id)">
+                                {{ ex.nombre_examen }} - ${{ ex.precio }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Generar Orden</button>
+            </form>
+            <div *ngIf="mensaje" [ngStyle]="{'color': esError ? '#dc3545' : '#28a745'}" style="margin-top: 10px; text-align: center; font-size: 14px;">
+                {{ mensaje }}
+            </div>
+        </div>
+
+        <!-- Tabla de Listado -->
+        <div class="card table-container">
+            <h3>Órdenes Registradas</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Paciente</th>
+                        <th>Médico</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let o of ordenes">
+                        <td>{{ o.id_orden || o.id }}</td>
+                        
+                        <!-- Paciente -->
+                        <td>
+                            {{ o.paciente?.nombres || o.paciente_nombres || o.nombres_paciente || o.nombre_paciente || o.paciente || 'N/A' }}
+                            {{ o.paciente?.apellidos || '' }}
+                        </td>
+                        
+                        <!-- Médico -->
+                        <td>
+                            {{ o.medico?.nombres || o.medico?.nombre || o.medico_nombres || o.nombres_medico || o.nombre_medico || o.medico || 'N/A' }}
+                            {{ o.medico?.apellidos || '' }}
+                        </td>
+                        
+                        <!-- Fecha -->
+                        <td>{{ (o.fecha_orden || o.fecha || o.fecha_creacion || o.createdAt || o.created_at) | date:'short' }}</td>
+                        
+                        <td><span style="background: #e2f0d9; color: #385723; padding: 3px 8px; border-radius: 4px; font-size: 12px;">{{ o.estado || 'Pendiente' }}</span></td>
+                    </tr>
+                    <tr *ngIf="ordenes.length === 0">
+                        <td colspan="5" style="text-align: center; color: #777;">No hay órdenes registradas.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
