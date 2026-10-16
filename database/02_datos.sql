@@ -2,6 +2,9 @@
 --  DATOS DE PRUEBA - Control de Vacunación
 --  Ejecutar DESPUÉS de 01_schema.sql
 -- =====================================================================
+
+-- Asegura que los acentos y la ñ se lean correctamente desde cualquier consola
+SET NAMES utf8mb4;
 USE control_vacunacion;
 
 -- Usuarios de prueba (hash bcrypt, costo 10)

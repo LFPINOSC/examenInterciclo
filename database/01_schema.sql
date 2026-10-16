@@ -5,6 +5,9 @@
 --  Script: creación de la base de datos y sus tablas
 -- =====================================================================
 
+-- Asegura que los acentos y la ñ se lean correctamente desde cualquier consola
+SET NAMES utf8mb4;
+
 DROP DATABASE IF EXISTS control_vacunacion;
 CREATE DATABASE control_vacunacion
   CHARACTER SET utf8mb4
