@@ -1,0 +1,60 @@
+<a routerLink="/habitaciones">← Volver a habitaciones</a>
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">ORGANIZA TU VIAJE</p>
+    <h1>{{ id ? "Modificar reserva" : "Confirma tu estancia" }}</h1>
+  </div>
+</div>
+@if (error) {
+  <p class="error" role="alert">{{ error }}</p>
+}
+@if (room) {
+  <div class="split">
+    <section class="panel">
+      <h2>{{ room.hotel }}</h2>
+      <p>{{ room.ciudad }} · Habitación {{ room.numero }} · {{ room.tipo }}</p>
+      <p>Capacidad: {{ room.capacidad }} personas</p>
+      <form #f="ngForm" (ngSubmit)="save()">
+        <label
+          >Entrada<input
+            type="date"
+            name="entrada"
+            [(ngModel)]="model.entrada"
+            required /></label
+        ><label
+          >Salida<input
+            type="date"
+            name="salida"
+            [(ngModel)]="model.salida"
+            required /></label
+        ><label
+          >Huéspedes<input
+            type="number"
+            name="huespedes"
+            [(ngModel)]="model.huespedes"
+            min="1"
+            [max]="room.capacidad"
+            required /></label
+        ><button [disabled]="f.invalid || busy">
+          {{
+            busy ? "Guardando…" : id ? "Guardar cambios" : "Confirmar reserva"
+          }}
+        </button>
+      </form>
+    </section>
+    <aside class="panel summary">
+      <p class="eyebrow">RESUMEN</p>
+      <h2>{{ noches }} noche(s)</h2>
+      <p>Tarifa vigente: {{ room.precioNoche | currency: "USD" }} / noche</p>
+      <hr />
+      <p>Total estimado</p>
+      <strong class="total">{{
+        noches * room.precioNoche | currency: "USD"
+      }}</strong>
+      <p class="muted">
+        El servidor calcula el total definitivo y verifica disponibilidad. Al
+        modificar se aplica la tarifa vigente. No se realizan cobros en línea.
+      </p>
+    </aside>
+  </div>
+}

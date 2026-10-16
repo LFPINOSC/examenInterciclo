@@ -1,66 +1,51 @@
--- Control de órdenes de trabajo - Esquema de base de datos (SQLite)
-PRAGMA foreign_keys = ON;
-
--- Usuarios del sistema: admin o técnico (control de acceso por rol)
+-- MariaDB. No elimina tablas existentes. Ejecutado por Spring al iniciar.
 CREATE TABLE IF NOT EXISTS usuarios (
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  nombre        TEXT NOT NULL,
-  email         TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL,
-  rol           TEXT NOT NULL CHECK (rol IN ('admin','tecnico')),
-  activo        INTEGER NOT NULL DEFAULT 1 CHECK (activo IN (0,1)),
-  creado_en     TEXT NOT NULL DEFAULT (datetime('now'))
+ id BIGINT AUTO_INCREMENT PRIMARY KEY,
+ nombre VARCHAR(100) NOT NULL,
+ email VARCHAR(160) NOT NULL UNIQUE,
+ password_hash VARCHAR(100) NOT NULL,
+ rol VARCHAR(10) NOT NULL CHECK (rol IN ('ADMIN','USUARIO')),
+ activo BOOLEAN NOT NULL DEFAULT TRUE,
+ token_version INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS hoteles (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY,
+ nombre VARCHAR(100) NOT NULL,
+ ciudad VARCHAR(80) NOT NULL,
+ direccion VARCHAR(200) NOT NULL,
+ descripcion VARCHAR(500) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS tipos_habitacion (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY,
+ nombre VARCHAR(60) NOT NULL UNIQUE,
+ descripcion VARCHAR(300) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS habitaciones (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY,
+ hotel_id BIGINT NOT NULL,
+ tipo_id BIGINT NOT NULL,
+ numero VARCHAR(15) NOT NULL,
+ precio_noche DECIMAL(10,2) NOT NULL CHECK (precio_noche > 0),
+ capacidad INTEGER NOT NULL CHECK (capacidad BETWEEN 1 AND 20),
+ activa BOOLEAN NOT NULL DEFAULT TRUE,
+ CONSTRAINT uk_habitacion UNIQUE (hotel_id, numero),
+ CONSTRAINT fk_habitacion_hotel FOREIGN KEY (hotel_id) REFERENCES hoteles(id),
+ CONSTRAINT fk_habitacion_tipo FOREIGN KEY (tipo_id) REFERENCES tipos_habitacion(id)
+);
+CREATE TABLE IF NOT EXISTS reservas (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY,
+ usuario_id BIGINT NOT NULL,
+ habitacion_id BIGINT NOT NULL,
+ entrada DATE NOT NULL,
+ salida DATE NOT NULL,
+ huespedes INTEGER NOT NULL CHECK (huespedes > 0),
+ precio_noche DECIMAL(10,2) NOT NULL,
+ total DECIMAL(12,2) NOT NULL,
+ estado VARCHAR(15) NOT NULL CHECK (estado IN ('CONFIRMADA','CANCELADA')),
+ CONSTRAINT ck_fechas CHECK (salida > entrada),
+ CONSTRAINT fk_reserva_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+ CONSTRAINT fk_reserva_habitacion FOREIGN KEY (habitacion_id) REFERENCES habitaciones(id)
 );
 
--- Clientes que solicitan trabajos
-CREATE TABLE IF NOT EXISTS clientes (
-  id        INTEGER PRIMARY KEY AUTOINCREMENT,
-  nombre    TEXT NOT NULL,
-  cedula    TEXT NOT NULL UNIQUE,
-  telefono  TEXT,
-  email     TEXT,
-  direccion TEXT,
-  creado_en TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
--- Equipos/bienes de un cliente sobre los que se trabaja (1 cliente : N equipos)
-CREATE TABLE IF NOT EXISTS equipos (
-  id         INTEGER PRIMARY KEY AUTOINCREMENT,
-  cliente_id INTEGER NOT NULL REFERENCES clientes(id) ON DELETE RESTRICT,
-  tipo       TEXT NOT NULL,
-  marca      TEXT,
-  modelo     TEXT,
-  serie      TEXT UNIQUE,
-  creado_en  TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
--- Orden de trabajo: cliente + equipo + técnico asignado
-CREATE TABLE IF NOT EXISTS ordenes_trabajo (
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  codigo        TEXT NOT NULL UNIQUE,
-  cliente_id    INTEGER NOT NULL REFERENCES clientes(id) ON DELETE RESTRICT,
-  equipo_id     INTEGER NOT NULL REFERENCES equipos(id)  ON DELETE RESTRICT,
-  tecnico_id    INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
-  descripcion   TEXT NOT NULL,
-  prioridad     TEXT NOT NULL DEFAULT 'media' CHECK (prioridad IN ('baja','media','alta')),
-  estado        TEXT NOT NULL DEFAULT 'pendiente'
-                CHECK (estado IN ('pendiente','en_proceso','completada','cancelada')),
-  fecha_ingreso TEXT NOT NULL DEFAULT (date('now')),
-  fecha_entrega TEXT,
-  creado_por    INTEGER NOT NULL REFERENCES usuarios(id)
-);
-
--- Tareas realizadas dentro de una orden (1 orden : N tareas)
-CREATE TABLE IF NOT EXISTS tareas (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  orden_id    INTEGER NOT NULL REFERENCES ordenes_trabajo(id) ON DELETE CASCADE,
-  descripcion TEXT NOT NULL,
-  horas       REAL NOT NULL DEFAULT 0 CHECK (horas >= 0),
-  costo       REAL NOT NULL DEFAULT 0 CHECK (costo >= 0),
-  completada  INTEGER NOT NULL DEFAULT 0 CHECK (completada IN (0,1))
-);
-
-CREATE INDEX IF NOT EXISTS idx_ordenes_estado  ON ordenes_trabajo(estado);
-CREATE INDEX IF NOT EXISTS idx_ordenes_tecnico ON ordenes_trabajo(tecnico_id);
-CREATE INDEX IF NOT EXISTS idx_equipos_cliente ON equipos(cliente_id);
-CREATE INDEX IF NOT EXISTS idx_tareas_orden    ON tareas(orden_id);
+-- Tabla técnica: evita recargar los datos de ejemplo tras borrarlos.
+CREATE TABLE IF NOT EXISTS inicializacion (clave VARCHAR(40) PRIMARY KEY);

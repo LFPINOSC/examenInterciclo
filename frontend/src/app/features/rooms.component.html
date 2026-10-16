@@ -1,0 +1,155 @@
+<section class="hero">
+  <div>
+    <p class="eyebrow">ENCUENTRA TU LUGAR</p>
+    <h1>Tu próxima estancia<br />empieza aquí.</h1>
+    <p>Consulta fechas disponibles y elige un espacio a tu medida.</p>
+  </div>
+  <div class="hero-number">
+    05<small>HABITACIONES INICIALES<br />EN CUENCA Y TENA</small>
+  </div>
+</section>
+<div class="page-heading">
+  <h2>Explora las habitaciones</h2>
+  @if (s.isAdmin()) {
+    <button (click)="fresh()">+ Nueva habitación</button>
+  }
+</div>
+@if (error) {
+  <p class="error" role="alert">{{ error }}</p>
+}
+@if (success) {
+  <p class="success" role="status">{{ success }}</p>
+}
+@if (show && s.isAdmin()) {
+  <section class="panel">
+    <h2>{{ id ? "Editar habitación" : "Nueva habitación" }}</h2>
+    <form #f="ngForm" (ngSubmit)="save()" class="form-grid">
+      <label
+        >Hotel<select name="hotel" [(ngModel)]="model.hotelId" required>
+          <option [ngValue]="0" disabled>Selecciona</option>
+          @for (h of hoteles; track h.id) {
+            <option [ngValue]="h.id">{{ h.nombre }}</option>
+          }
+        </select></label
+      ><label
+        >Tipo<select name="tipo" [(ngModel)]="model.tipoId" required>
+          <option [ngValue]="0" disabled>Selecciona</option>
+          @for (t of tipos; track t.id) {
+            <option [ngValue]="t.id">{{ t.nombre }}</option>
+          }
+        </select></label
+      ><label
+        >Número<input
+          name="numero"
+          [(ngModel)]="model.numero"
+          required
+          maxlength="15" /></label
+      ><label
+        >Precio por noche (USD)<input
+          type="number"
+          name="precio"
+          [(ngModel)]="model.precioNoche"
+          min="0.01"
+          max="99999999.99"
+          step="0.01"
+          required /></label
+      ><label
+        >Capacidad<input
+          type="number"
+          name="capacidad"
+          [(ngModel)]="model.capacidad"
+          min="1"
+          max="20"
+          required /></label
+      ><label class="check"
+        ><input type="checkbox" name="activa" [(ngModel)]="model.activa" />
+        Habilitada para nuevas reservas</label
+      >
+      <div class="actions">
+        <button
+          [disabled]="f.invalid || !model.hotelId || !model.tipoId || busy"
+        >
+          Guardar</button
+        ><button type="button" class="secondary" (click)="show = false">
+          Cerrar
+        </button>
+      </div>
+    </form>
+  </section>
+}
+<form class="filters panel" (ngSubmit)="load()">
+  <label
+    >Entrada<input
+      type="date"
+      name="entrada"
+      [(ngModel)]="entrada"
+      [min]="hoy" /></label
+  ><label
+    >Salida<input
+      type="date"
+      name="salida"
+      [(ngModel)]="salida"
+      [min]="entrada || hoy" /></label
+  ><label
+    >Huéspedes<input
+      type="number"
+      name="huespedes"
+      [(ngModel)]="huespedes"
+      min="1"
+      max="20" /></label
+  ><button>Buscar disponibilidad</button
+  ><button type="button" class="secondary" (click)="clearFilters()">
+    Ver todas
+  </button>
+</form>
+<p class="muted">
+  {{ rows.length }} resultados · La disponibilidad definitiva se comprueba al
+  guardar la reserva.
+</p>
+<div class="cards">
+  @for (r of rows; track r.id) {
+    <article class="room-card">
+      <div class="room-art" [class.amazon]="r.ciudad === 'Tena'">
+        <span>{{ r.ciudad }}</span>
+        <div class="bed" aria-hidden="true"></div>
+        <strong>{{ r.numero }}</strong>
+      </div>
+      <div class="card-body">
+        <small>{{ r.hotel }}</small>
+        <h2>{{ r.tipo }} · {{ r.numero }}</h2>
+        <p>
+          {{ r.capacidad }} huésped(es)
+          <span class="badge" [class.off]="!r.activa">{{
+            r.activa ? "Habilitada" : "Fuera de servicio"
+          }}</span>
+        </p>
+        <p class="price">
+          {{ r.precioNoche | currency: "USD" }} <small>/ noche</small>
+        </p>
+        <div class="actions">
+          @if (r.activa) {
+            <a
+              class="button"
+              routerLink="/reservas/nueva"
+              [queryParams]="{
+                habitacion: r.id,
+                entrada: entrada,
+                salida: salida,
+                huespedes: huespedes,
+              }"
+              >Reservar</a
+            >
+          }
+          @if (s.isAdmin()) {
+            <button class="secondary" (click)="edit(r)">Editar</button
+            ><button class="danger" (click)="remove(r)">Eliminar</button>
+          }
+        </div>
+      </div>
+    </article>
+  } @empty {
+    <div class="panel">
+      No hay habitaciones disponibles para esos criterios.
+    </div>
+  }
+</div>

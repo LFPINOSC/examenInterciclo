@@ -1,103 +1,121 @@
-# Control de Órdenes de Trabajo — Diseño
+# Diseño — Reservas hoteleras
+**Estudiante:** Danny Salazar · Rama: estudiante-danny-salazar
 
-**Estudiante:** Rafael Sebastián Rivas Carmona (17) · Rama `estudiante-17-rafael-rivas`
+## Problema y alcance
+Gestionar habitaciones de hoteles y sus reservas evitando fechas incompatibles, datos duplicados y acceso a reservas ajenas. Un huésped consulta disponibilidad, reserva y administra sus estancias desde Angular. El administrador mantiene los catálogos y supervisa todas las reservas.
 
-## Requerimientos funcionales
-- Autenticación con roles: **admin** (gestiona todo) y **técnico** (solo ve/actualiza sus órdenes).
-- CRUD de clientes, equipos, órdenes de trabajo, tareas de una orden y usuarios.
-- Asignar técnico a una orden, cambiar estado y prioridad, filtrar/buscar órdenes.
-- Costo total de una orden = suma del costo de sus tareas.
+## Requerimientos
+Registro y login, roles ADMIN/USUARIO, CRUD de hoteles/tipos/habitaciones/reservas, búsqueda de disponibilidad por entrada/salida/capacidad, cálculo del total, cancelación, control de propiedad y desactivación de usuarios. Los registros provienen de la API y MariaDB; no se utiliza una lista simulada en Angular.
+
+## Entidades y justificación
+|Entidad|Por qué existe|Relaciones|
+|---|---|---|
+|Hotel|Almacena ubicación y datos comunes una sola vez|Un hotel tiene muchas habitaciones|
+|TipoHabitacion|Reutiliza una clasificación como Individual, Doble o Familiar|Un tipo clasifica muchas habitaciones|
+|Habitacion|Unidad reservable: número, tarifa, capacidad y habilitación|Pertenece a un hotel y un tipo; recibe muchas reservas|
+|Reserva|Registra quién ocupa qué habitación, cuándo y por cuánto|Pertenece a un usuario y una habitación|
+|Usuario|Identidad, credenciales y rol|Puede efectuar muchas reservas|
+
+No se crea otra tabla Cliente: el usuario registrado es el titular de la reserva. No se crea una tabla Rol porque solo hay dos valores fijos sin atributos propios. Una reserva no contiene varias habitaciones: para ese caso se registran reservas separadas.
 
 ## Diagrama entidad-relación
 ```mermaid
 erDiagram
-  USUARIOS  ||--o{ ORDENES_TRABAJO : "atiende (tecnico_id)"
-  USUARIOS  ||--o{ ORDENES_TRABAJO : "crea (creado_por)"
-  CLIENTES  ||--o{ EQUIPOS : posee
-  CLIENTES  ||--o{ ORDENES_TRABAJO : solicita
-  EQUIPOS   ||--o{ ORDENES_TRABAJO : "se repara en"
-  ORDENES_TRABAJO ||--o{ TAREAS : contiene
+ HOTEL ||--o{ HABITACION : contiene
+ TIPO_HABITACION ||--o{ HABITACION : clasifica
+ HABITACION ||--o{ RESERVA : recibe
+ USUARIO ||--o{ RESERVA : realiza
 ```
+También disponible como `ER.svg`, que se puede abrir directamente en el navegador.
 
 ## Diagrama de tablas
 ```mermaid
 erDiagram
-  usuarios { int id PK
-    text nombre
-    text email UK
-    text password_hash
-    text rol "admin|tecnico"
-    int activo
-    text creado_en }
-  clientes { int id PK
-    text nombre
-    text cedula UK
-    text telefono
-    text email
-    text direccion }
-  equipos { int id PK
-    int cliente_id FK
-    text tipo
-    text marca
-    text modelo
-    text serie UK }
-  ordenes_trabajo { int id PK
-    text codigo UK
-    int cliente_id FK
-    int equipo_id FK
-    int tecnico_id FK
-    int creado_por FK
-    text descripcion
-    text prioridad "baja|media|alta"
-    text estado "pendiente|en_proceso|completada|cancelada"
-    text fecha_ingreso
-    text fecha_entrega }
-  tareas { int id PK
-    int orden_id FK
-    text descripcion
-    real horas
-    real costo
-    int completada }
-  clientes ||--o{ equipos : ""
-  clientes ||--o{ ordenes_trabajo : ""
-  equipos ||--o{ ordenes_trabajo : ""
-  usuarios ||--o{ ordenes_trabajo : ""
-  ordenes_trabajo ||--o{ tareas : ""
+ usuarios {
+ BIGINT id PK
+ VARCHAR_100 nombre
+ VARCHAR_160 email UK
+ VARCHAR_100 password_hash
+ VARCHAR_10 rol
+ BOOLEAN activo
+ INTEGER token_version
+ }
+ hoteles {
+ BIGINT id PK
+ VARCHAR_100 nombre
+ VARCHAR_80 ciudad
+ VARCHAR_200 direccion
+ VARCHAR_500 descripcion
+ }
+ tipos_habitacion {
+ BIGINT id PK
+ VARCHAR_60 nombre UK
+ VARCHAR_300 descripcion
+ }
+ habitaciones {
+ BIGINT id PK
+ BIGINT hotel_id FK
+ BIGINT tipo_id FK
+ VARCHAR_15 numero
+ DECIMAL_10_2 precio_noche
+ INTEGER capacidad
+ BOOLEAN activa
+ }
+ reservas {
+ BIGINT id PK
+ BIGINT usuario_id FK
+ BIGINT habitacion_id FK
+ DATE entrada
+ DATE salida
+ INTEGER huespedes
+ DECIMAL_10_2 precio_noche
+ DECIMAL_12_2 total
+ VARCHAR_15 estado
+ }
+ hoteles ||--o{ habitaciones : contiene
+ tipos_habitacion ||--o{ habitaciones : clasifica
+ usuarios ||--o{ reservas : realiza
+ habitaciones ||--o{ reservas : recibe
 ```
+También disponible como `TABLAS.svg`. El SQL completo, con restricciones y tipos exactos, está en `database/schema.sql` y su copia ejecutable en recursos del backend. La tabla técnica inicializacion marca la carga inicial y no forma parte de las cuatro entidades del negocio.
 
-## Justificación de entidades y relaciones
-- **usuarios**: quien opera el sistema; el campo `rol` separa permisos (admin/técnico). El técnico es un usuario, no otra tabla, para no duplicar credenciales.
-- **clientes**: quien solicita el trabajo; datos se guardan una sola vez aunque tenga muchas órdenes.
-- **equipos**: un cliente tiene varios equipos (1:N). Se separa para no repetir marca/modelo/serie en cada orden y conservar el historial por equipo.
-- **ordenes_trabajo**: entidad central; une cliente, equipo y técnico. Las FK a cliente/equipo son `RESTRICT` (no se borra un cliente con órdenes, se preserva el historial); el técnico es `SET NULL`.
-- **tareas**: detalle de lo realizado (1:N con la orden, `CASCADE`). Evita una columna de costo fija y permite calcular el total con `SUM`.
-- Normalización 3FN: cada dato depende solo de la clave de su tabla. Validación extra en la API: el equipo debe pertenecer al cliente de la orden.
+## Integridad y reglas
+- PK BIGINT autoincrementales. FK obligatorias y sin borrado en cascada: se rechaza borrar un catálogo utilizado.
+- Email y nombre de tipo únicos. Número de habitación único dentro de cada hotel (hotel_id,numero).
+- Precios DECIMAL, no float. Capacidad 1–20, tarifa positiva, salida posterior a entrada.
+- Registro público siempre USUARIO: un cliente HTTP no puede elegir ADMIN.
+- JWT firmado HS256, una hora; BCrypt costo 12 para contraseñas. No se retornan hashes al frontend.
+- Cada solicitud protegida comprueba token y usuario vigente. Guards y botones Angular ayudan a navegar; no sustituyen el backend.
+- Total y usuario_id se determinan en el servidor. El formulario no decide el precio ni a quién atribuir la reserva.
+- Reserva confirmada ocupa [entrada,salida). Conflicto si existente.entrada < nueva.salida y existente.salida > nueva.entrada.
+- Se bloquea la habitación con SELECT FOR UPDATE dentro de una transacción READ_COMMITTED para serializar reservas simultáneas. No basta comprobar disponibilidad en Angular.
+- Se rechazan fechas pasadas, estancias de más de 365 noches, exceso de capacidad y habitaciones fuera de servicio.
+- Modificar mantiene la habitación; para cambiarla se cancela y crea otra reserva. No se editan reservas canceladas ni iniciadas en días anteriores.
+- Cancelar libera fechas. Eliminar requiere cancelación previa y permiso de propietario o ADMIN. No se simulan pagos.
+- Desactivar un usuario impide login y revoca sus JWT, pero no cancela sus reservas automáticamente; ADMIN las gestiona.
 
-## Seguridad
-- Contraseñas con **bcrypt** (hash con sal), nunca en texto plano.
-- Sesión con **JWT** (8 h) en `Authorization: Bearer`.
-- Middleware `requiereAuth` (todas las rutas excepto login) y `requiereRol('admin')` para escritura de catálogos/usuarios.
-- El técnico solo accede a sus órdenes y solo puede cambiar el estado (comprobado en backend, no solo en la interfaz).
-- Consultas SQL parametrizadas (previene inyección SQL); el frontend escapa HTML (previene XSS).
+## Normalización
+Hotel, tipo y usuario se referencian por ID en lugar de repetir sus datos en cada reserva. La tarifa guardada en Reserva es histórica y distinta de la tarifa vigente de Habitacion. El total es un valor calculado almacenado deliberadamente y actualizado solo por el servicio de reservas, para conservar el importe acordado. No se afirma una ausencia absoluta de redundancia.
 
-## API REST (prefijo `/api`)
-| Recurso | Métodos | Rol |
+## Arquitectura
+Angular → HTTP/JSON → Controller → Service → Consultas/JdbcTemplate → MariaDB.
+El filtro JWT interviene antes de los controladores. La pantalla envía IDs de relaciones; la base impone FK. No se usan microservicios, JPA ni Gmail para este alcance.
+
+## Endpoints
+Todos tienen prefijo /api. Login, registro y health son públicos; el resto requiere Bearer token.
+|Recurso|Operaciones|Acceso|
 |---|---|---|
-| `/auth/login` | POST | público |
-| `/usuarios`, `/usuarios/:id` | GET, POST, PUT, DELETE | admin |
-| `/tecnicos` | GET | autenticado |
-| `/clientes`, `/clientes/:id` | GET (todos) · POST, PUT, DELETE (admin) | |
-| `/equipos`, `/equipos/:id` | GET (todos) · POST, PUT, DELETE (admin) | |
-| `/ordenes`, `/ordenes/:id` | GET (técnico: solo las suyas) · POST, DELETE (admin) · PUT (admin completo; técnico solo estado) | |
-| `/ordenes/:id/tareas`, `/tareas/:id` | POST, PUT, DELETE | admin o técnico asignado |
-| `/resumen` | GET | autenticado |
-
-Códigos: 200/201 éxito, 400 validación, 401 sin sesión, 403 sin permiso, 404 no existe, 409 duplicado o relación existente.
-
-## Ejecución
-```bash
-cd backend
-npm install
-npm start          # http://localhost:3000  (crea database/ordenes.db desde database/schema.sql)
-```
-Usuario inicial: `admin@ordenes.com` / `admin123`. El frontend (carpeta `frontend/`) lo sirve el mismo Express.
+|/auth/registro|POST|Público, crea USUARIO|
+|/auth/login|POST|Público, devuelve token y usuario|
+|/auth/me|GET|Autenticado|
+|/auth/logout|POST|Autenticado, revoca tokens|
+|/hoteles y /hoteles/{id}|GET, POST, PUT, DELETE|Lectura autenticada; escritura ADMIN|
+|/tipos y /tipos/{id}|GET, POST, PUT, DELETE|Lectura autenticada; escritura ADMIN|
+|/habitaciones y /habitaciones/{id}|GET, POST, PUT, DELETE|Lectura autenticada; escritura ADMIN|
+|/habitaciones?entrada=AAAA-MM-DD&salida=AAAA-MM-DD&huespedes=2|GET|Disponibilidad autenticada|
+|/reservas y /reservas/{id}|GET, POST, PUT, DELETE|USUARIO propias; ADMIN todas. POST atribuye al usuario actual|
+|/reservas/{id}/cancelar|PATCH|Propietario o ADMIN|
+|/usuarios|GET|ADMIN|
+|/usuarios/{id}/activo|PATCH|ADMIN, no desactiva al ADMIN inicial|
+|/health|GET|Público|
+POST CRUD:201; GET/PUT:200; DELETE/cancelar/logout/activo:204; datos inválidos:400; sin sesión:401; sin permiso:403; no existe:404; conflicto:409.

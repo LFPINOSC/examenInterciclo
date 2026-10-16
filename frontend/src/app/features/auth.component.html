@@ -1,0 +1,75 @@
+<section class="auth-layout">
+  <aside class="welcome">
+    <p class="eyebrow">TU PRÓXIMA ESTANCIA</p>
+    <h1>Un lugar para<br />descansar.<br />Todo listo<br />para llegar.</h1>
+    <p>
+      Encuentra tu habitación, elige las fechas y administra tus reservas en un
+      solo lugar.
+    </p>
+    <div class="window-art" aria-hidden="true"><i></i><b></b></div>
+    <small>CUENCA / TENA</small>
+  </aside>
+  <div class="auth-form">
+    <p class="eyebrow">BIENVENIDO A ESTANCIA</p>
+    <h2>{{ registro ? "Crea tu cuenta" : "Nos alegra verte" }}</h2>
+    <p class="muted">
+      {{
+        registro
+          ? "Regístrate para consultar habitaciones y reservar."
+          : "Ingresa para continuar con tus reservas."
+      }}
+    </p>
+    @if (error) {
+      <div class="error" role="alert">{{ error }}</div>
+    }
+    @if (success) {
+      <div class="success" role="status">{{ success }}</div>
+    }
+    <form #f="ngForm" (ngSubmit)="submit()">
+      @if (registro) {
+        <label
+          >Nombre completo<input
+            name="nombre"
+            [(ngModel)]="nombre"
+            required
+            maxlength="100"
+            autocomplete="name"
+        /></label>
+      }
+      <label
+        >Correo electrónico<input
+          name="email"
+          type="email"
+          [(ngModel)]="email"
+          required
+          email
+          maxlength="160"
+          autocomplete="email" /></label
+      ><label
+        >Contraseña<input
+          name="password"
+          type="password"
+          [(ngModel)]="password"
+          required
+          [minlength]="registro ? 10 : 1"
+          maxlength="72"
+          [attr.autocomplete]="registro ? 'new-password' : 'current-password'"
+      /></label>
+      @if (registro) {
+        <small
+          >Al menos 10 caracteres, con mayúscula, minúscula y número. No
+          requiere verificación por correo.</small
+        >
+      }
+      <button class="wide" [disabled]="f.invalid || busy">
+        {{ busy ? "Procesando…" : registro ? "Crear cuenta" : "Ingresar" }}
+      </button>
+    </form>
+    <p>
+      {{ registro ? "¿Ya tienes cuenta?" : "¿Primera vez aquí?" }}
+      <a [routerLink]="registro ? '/login' : '/registro'">{{
+        registro ? "Inicia sesión" : "Regístrate"
+      }}</a>
+    </p>
+  </div>
+</section>

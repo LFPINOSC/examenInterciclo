@@ -1,0 +1,86 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">ADMINISTRACIÓN / CATÁLOGOS</p>
+    <h1>{{ hotel ? "Hoteles" : "Tipos de habitación" }}</h1>
+    <p class="muted">
+      {{
+        hotel
+          ? "Organiza los establecimientos y su información."
+          : "Define las categorías que utilizarán las habitaciones."
+      }}
+    </p>
+  </div>
+  <span class="count">{{ rows.length }} registros</span>
+</div>
+@if (error) {
+  <p class="error" role="alert">{{ error }}</p>
+}
+@if (success) {
+  <p class="success" role="status">{{ success }}</p>
+}
+<div class="split">
+  <section class="panel">
+    <h2>{{ id ? "Editar registro" : "Nuevo registro" }}</h2>
+    <form #f="ngForm" (ngSubmit)="save()">
+      <label
+        >Nombre<input
+          name="nombre"
+          [(ngModel)]="model.nombre"
+          required
+          [maxlength]="hotel ? 100 : 60"
+      /></label>
+      @if (hotel) {
+        <label
+          >Ciudad<input
+            name="ciudad"
+            [(ngModel)]="model.ciudad"
+            required
+            maxlength="80" /></label
+        ><label
+          >Dirección<input
+            name="direccion"
+            [(ngModel)]="model.direccion"
+            required
+            maxlength="200"
+        /></label>
+      }
+      <label
+        >Descripción<textarea
+          name="descripcion"
+          [(ngModel)]="model.descripcion"
+          [maxlength]="hotel ? 500 : 300"
+          rows="3"
+        ></textarea>
+      </label>
+      <div class="actions">
+        <button [disabled]="f.invalid || busy">Guardar</button
+        ><button type="button" class="secondary" (click)="reset()">
+          Limpiar
+        </button>
+      </div>
+    </form>
+  </section>
+  <section class="panel">
+    <h2>Registros guardados</h2>
+    <p class="muted">
+      No se pueden eliminar registros que tengan habitaciones asociadas.
+    </p>
+    @for (r of rows; track r.id) {
+      <article class="list-row">
+        <div>
+          <strong>{{ r.nombre }}</strong>
+          @if (hotel) {
+            <small>{{ r.ciudad }} · {{ r.direccion }}</small>
+          }
+          <p>{{ r.descripcion }}</p>
+        </div>
+        <div class="actions">
+          <button class="secondary" (click)="edit(r)">Editar</button
+          ><button class="danger" (click)="remove(r)">Eliminar</button>
+        </div>
+      </article>
+    } @empty {
+      <p>No hay registros todavía.</p>
+    }
+  </section>
+</div>

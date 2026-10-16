@@ -1,0 +1,36 @@
+<header>
+  <a class="brand" routerLink="/"
+    >E<span>ESTANCIA<small>RESERVAS HOTELERAS</small></span></a
+  >
+  <nav aria-label="Navegación principal">
+    @if (s.logged()) {
+      <a routerLink="/habitaciones" routerLinkActive="selected">Habitaciones</a
+      ><a routerLink="/reservas" routerLinkActive="selected">{{
+        s.isAdmin() ? "Reservas" : "Mis reservas"
+      }}</a>
+      @if (s.isAdmin()) {
+        <a routerLink="/hoteles" routerLinkActive="selected">Hoteles</a
+        ><a routerLink="/tipos" routerLinkActive="selected">Tipos</a
+        ><a routerLink="/usuarios" routerLinkActive="selected">Usuarios</a>
+      }
+    } @else {
+      <a routerLink="/login">Ingresar</a
+      ><a routerLink="/registro">Crear cuenta</a>
+    }
+  </nav>
+  @if (s.logged()) {
+    <div class="account">
+      <span
+        >{{ s.usuario()?.nombre }}<small>{{ s.usuario()?.rol }}</small></span
+      ><button class="secondary" (click)="logout()">Salir</button>
+    </div>
+  }
+</header>
+@if (error) {
+  <p class="error" role="alert">{{ error }}</p>
+}
+<main><router-outlet /></main>
+<footer>
+  Estancia · Reservas hoteleras
+  <span>Proyecto de Danny Salazar · Angular + Spring Boot + MariaDB</span>
+</footer>

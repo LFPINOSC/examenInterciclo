@@ -1,0 +1,54 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">ADMINISTRACIÓN / ACCESO</p>
+    <h1>Usuarios</h1>
+    <p class="muted">
+      Las nuevas cuentas tienen rol USUARIO. No se requiere correo de
+      verificación.
+    </p>
+  </div>
+</div>
+@if (error) {
+  <p class="error" role="alert">{{ error }}</p>
+}
+@if (success) {
+  <p class="success" role="status">{{ success }}</p>
+}
+<section class="panel">
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (u of rows; track u.id) {
+          <tr>
+            <td>{{ u.nombre }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.rol }}</td>
+            <td>
+              <span class="badge" [class.off]="!u.activo">{{
+                u.activo ? "Activo" : "Inactivo"
+              }}</span>
+            </td>
+            <td>
+              @if (u.rol !== "ADMIN") {
+                <button class="secondary" (click)="change(u)">
+                  {{ u.activo ? "Desactivar" : "Activar" }}
+                </button>
+              } @else {
+                <small>Administrador inicial</small>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
