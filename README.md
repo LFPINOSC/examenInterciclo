@@ -4,22 +4,6 @@
 **Tema:** Gestión de biblioteca  
 **Stack:** Angular 22.2.3 + TypeScript 6.0.3 + Spring Boot 3.5 + PostgreSQL + JWT
 
-## Estado de esta versión
-
-Esta es la versión corregida del proyecto. Se corrigieron especialmente:
-
-- Refresco visual de Angular después de peticiones HTTP (`zone.js` habilitado explícitamente).
-- Las tablas se actualizan inmediatamente al crear, editar o eliminar.
-- TypeScript compatible con Angular 22 (`6.0.3`).
-- Se eliminaron `baseUrl` y `downlevelIteration` obsoletos.
-- Sesión JWT exclusiva para este examen, con detección de expiración.
-- Cierre automático de sesión cuando el backend devuelve `401`.
-- CORS compatible con `localhost`, `127.0.0.1` e IP LAN en puerto 4200.
-- Ya no se crean libros/autores/categorías de demostración al iniciar.
-- El préstamo y la devolución actualizan inmediatamente la disponibilidad.
-- Validaciones y mensajes de éxito/error más claros.
-- PostgreSQL local como servicio; no se usa Docker.
-
 ## Funcionalidades
 
 - Registro e inicio de sesión.
