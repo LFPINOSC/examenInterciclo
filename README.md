@@ -3,7 +3,7 @@
 Proyecto del examen: registrar pacientes, asignar habitación y llevar el ingreso hasta el alta.  
 Stack: Angular (frontend), Node con Express (API) y SQLite.
 
-**Estudiante:** Jean Pierre — código 08  
+**Estudiante:** Jean Pierre Chica Ordoñez 
 **Rama:** `estudiante-08-jean-pierre`
 
 ## Requisitos
